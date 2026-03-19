@@ -6,6 +6,7 @@
 <title>Emissor de Recibos</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inconsolata:wght@400;500;600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 :root {
   --bg: #f0ede8;
@@ -1089,201 +1090,41 @@ function trRow(cod, desc, ref, venc, descVal) {
 }
 
 // ── PDF ──
-function gerarPDF() {
-  const d = getData();
-  const doc = new jsPDF({ unit:'mm', format:'a4', orientation:'portrait' });
-  const W=210, M=12;
+async function gerarPDF() {
+  const el = document.getElementById('recibo-doc');
+  if (!el) { toast('Nada para gerar!', 'err'); return; }
+  toast('Gerando PDF...');
 
-  function drawVia(startY, viaLabel) {
-    let y = startY;
+  const canvas = await html2canvas(el, {
+    scale: 3,
+    useCORS: true,
+    backgroundColor: '#ffffff',
+    logging: false
+  });
 
-    // header — fundo branco, borda preta
-    doc.setFillColor(255,255,255);
-    doc.rect(M, y, W-M*2, 14, 'F');
-    doc.setDrawColor(0); doc.setLineWidth(0.5);
-    doc.line(M, y, W-M, y);        // topo
-    doc.line(M, y+14, W-M, y+14);  // base (linha grossa de separação)
+  const imgData = canvas.toDataURL('image/png');
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
 
-    // empresa
-    doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(0);
-    doc.text((d.emp||'Empresa').toUpperCase(), M+3, y+6);
-    doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(0);
-    if(d.cnpj) doc.text('CNPJ: '+d.cnpj, M+3, y+10.5);
+  const W = 210;
+  const H = 297;
+  const imgW = W;
+  const imgH = canvas.height * W / canvas.width;
 
-    // folha / competência — direita
-    doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(0);
-    doc.text((d.folha||'Folha Mensal').toUpperCase(), W-M-2, y+5.5, {align:'right'});
-    doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(0);
-    doc.text(d.comp||'', W-M-2, y+10.5, {align:'right'});
-    y+=14;
-
-    // func bar — fundo levemente cinza
-    doc.setFillColor(245,245,245); doc.rect(M, y, W-M*2, 8, 'F');
-    doc.setDrawColor(180); doc.setLineWidth(0.2);
-    doc.line(M, y+8, W-M, y+8);
-
-    const cells1 = [
-      {label:'Matrícula', val:d.mat||'—', w:20},
-      {label:'Nome do Funcionário', val:d.func||'—', w:62},
-      {label:'CBO', val:d.cbo||'—', w:22},
-      {label:'Departamento', val:d.depto||'—', w:40},
-      {label:'Filial', val:d.filial||'1', w:14},
-      {label:'Tipo', val:d.tipo||'—', w:28},
-    ];
-    let cx = M;
-    cells1.forEach(c => {
-      doc.setFont('helvetica','bold'); doc.setFontSize(5.5); doc.setTextColor(100);
-      doc.text(c.label, cx+1.5, y+3);
-      doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(0);
-      doc.text(String(c.val), cx+1.5, y+6.8);
-      doc.setDrawColor(180); doc.setLineWidth(0.2);
-      doc.line(cx+c.w, y, cx+c.w, y+8);
-      cx += c.w;
-    });
-    y+=8;
-
-    // func info bar — fundo branco, linha dupla embaixo
-    doc.setFillColor(255,255,255); doc.rect(M, y, W-M*2, 8, 'F');
-    doc.setDrawColor(0); doc.setLineWidth(0.6);
-    doc.line(M, y+8, W-M, y+8);
-    const cells2 = [
-      {label:'Cargo / Função', val:d.cargo||'—', w:65},
-      {label:'Admissão', val:d.admissao||'—', w:30},
-      {label:'Salário Base', val:fmtBRL(d.sal), w:35},
-      {label:'Salário/Hora', val:fmtBRL(d.salHora), w:56},
-    ];
-    cx = M;
-    cells2.forEach(c => {
-      doc.setFont('helvetica','bold'); doc.setFontSize(5.5); doc.setTextColor(100);
-      doc.text(c.label, cx+1.5, y+3);
-      doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(0);
-      doc.text(String(c.val), cx+1.5, y+6.8);
-      doc.setDrawColor(180); doc.setLineWidth(0.2);
-      doc.line(cx+c.w, y, cx+c.w, y+8);
-      cx += c.w;
-    });
-    y+=9;
-
-    // table header — fundo branco, bordas pretas
-    doc.setFillColor(255,255,255);
-    doc.rect(M, y, W-M*2, 6, 'F');
-    doc.setDrawColor(0); doc.setLineWidth(0.4);
-    doc.line(M, y, W-M, y);
-    doc.line(M, y+6, W-M, y+6);
-    doc.setFont('helvetica','bold'); doc.setFontSize(6.5); doc.setTextColor(0);
-    doc.text('Código', M+2, y+4.2);
-    doc.text('Descrição', M+20, y+4.2);
-    doc.text('Referência', W-M-62, y+4.2, {align:'right'});
-    doc.text('Vencimentos', W-M-30, y+4.2, {align:'right'});
-    doc.text('Descontos', W-M-2, y+4.2, {align:'right'});
-    y+=6;
-
-    // table rows
-    const allVerbas = [];
-    const dn = d.verbas.find(v=>v.autoType==='diasnormais');
-    if(dn) allVerbas.push({cod:'8781',desc:'DIAS NORMAIS',ref:d.dias+',00',venc:dn.venc,desc2:0});
-    d.verbas.filter(v=>v.autoType!=='diasnormais').forEach(v=>{
-      const refStr = (v.autoType==='he50'||v.autoType==='he100') ? (v.ref?v.ref+':00':'—') :
-                     (v.autoType==='adicfunc'||v.autoType==='premiotempo') ? (v.ref?v.ref+',00':'—') :
-                     v.ref||'—';
-      const descVal = v.desc2>0?v.desc2:(v.tipo==='desc'&&v.ref?parseFloat(v.ref)||0:0);
-      allVerbas.push({cod:v.cod||'—',desc:v.desc||'—',ref:refStr,venc:v.venc||0,desc2:descVal});
-    });
-    if(d.encs.inss&&d.inssVal>0) allVerbas.push({cod:'998',desc:'I.N.S.S.',ref:'—',venc:0,desc2:d.inssVal});
-    if(d.encs.irrf&&d.irrfVal>0) allVerbas.push({cod:'999',desc:'IMPOSTO DE RENDA',ref:'—',venc:0,desc2:d.irrfVal});
-
-    allVerbas.forEach((v,i) => {
-      if(i%2===0){doc.setFillColor(247,247,247);doc.rect(M,y,W-M*2,5.5,'F');}
-      doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(50);
-      doc.text(String(v.cod), M+2, y+3.8);
-      doc.setTextColor(0);
-      doc.text(String(v.desc), M+20, y+3.8);
-      doc.setFont('courier','normal'); doc.setFontSize(7); doc.setTextColor(0);
-      doc.text(String(v.ref), W-M-62, y+3.8, {align:'right'});
-      if(v.venc>0){doc.setFont('courier','bold');doc.setTextColor(0); doc.text(fmtBRL(v.venc), W-M-30, y+3.8, {align:'right'});}
-      if(v.desc2>0){doc.setFont('courier','bold');doc.setTextColor(0); doc.text(fmtBRL(v.desc2), W-M-2, y+3.8, {align:'right'});}
-      doc.setFont('courier','normal');
-      doc.setDrawColor(220); doc.setLineWidth(0.15);
-      doc.line(M, y+5.5, W-M, y+5.5);
-      y+=5.5;
-    });
-
-    // totals row 1
-    doc.setDrawColor(0); doc.setLineWidth(0.6);
-    doc.line(M, y, W-M, y); y+=0.5;
-    doc.setFillColor(255,255,255); doc.rect(M, y, W-M*2, 7, 'F');
-
-    const t1 = [
-      {l:'Salário Base', v:fmtBRL(d.sal)},
-      {l:'Sal. Contr. INSS', v:fmtBRL(d.totVenc)},
-      {l:'Total de Vencimentos', v:fmtBRL(d.totVenc)},
-      {l:'Valor Líquido', v:fmtBRL(d.liq)},
-    ];
-    cx=M;
-    t1.forEach((t,i) => {
-      doc.setFont('helvetica','bold'); doc.setFontSize(5.5); doc.setTextColor(90);
-      doc.text(t.l, cx+1.5, y+2.8);
-      doc.setFont('courier','bold'); doc.setFontSize(i===3?8.5:7.5); doc.setTextColor(0);
-      doc.text(t.v, cx+1.5, y+6.2);
-      doc.setDrawColor(180); doc.setLineWidth(0.15);
-      if(i<3) doc.line(cx+46.5, y, cx+46.5, y+7);
-      cx+=46.5;
-    });
-    y+=7;
-
-    // totals row 2 — fundo cinza claro
-    doc.setDrawColor(180); doc.setLineWidth(0.3);
-    doc.line(M, y, W-M, y);
-    doc.setFillColor(242,242,242); doc.rect(M, y, W-M*2, 7, 'F');
-    const t2 = [
-      {l:'Total de Descontos', v:fmtBRL(d.totDesc)},
-      {l:'Base Cálc. FGTS', v:fmtBRL(d.encs.fgts?d.fgtsBase:d.totVenc)},
-      {l:'FGTS do Mês', v:fmtBRL(d.fgtsVal)},
-      {l:'Base Cálc. IRRF', v:fmtBRL(d.irrfBase)},
-      {l:'Faixa IRRF', v:d.encs.irrf?d.irrfFaixa+'%':'—'},
-    ];
-    cx=M;
-    t2.forEach((t,i) => {
-      doc.setFont('helvetica','bold'); doc.setFontSize(5.5); doc.setTextColor(90);
-      doc.text(t.l, cx+1.5, y+2.8);
-      doc.setFont('courier','bold'); doc.setFontSize(7.5); doc.setTextColor(0);
-      doc.text(t.v, cx+1.5, y+6.2);
-      doc.setDrawColor(180); doc.setLineWidth(0.15);
-      if(i<4) doc.line(cx+37.2, y, cx+37.2, y+7);
-      cx+=37.2;
-    });
-    y+=8;
-
-    // footer
-    doc.setDrawColor(180); doc.setLineWidth(0.3);
-    doc.line(M, y, W-M, y); y+=1;
-    doc.setFont('helvetica','italic'); doc.setFontSize(6.5); doc.setTextColor(0);
-    doc.text('Declaro ter recebido a importância líquida discriminada neste recibo.', M+2, y+4);
-    // sig
-    doc.setDrawColor(0); doc.setLineWidth(0.3);
-    doc.line(W-M-52, y+8, W-M-2, y+8);
-    doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(0);
-    doc.text('Assinatura do Funcionário', W-M-27, y+11.5, {align:'center'});
-    doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor(80);
-    doc.text('____/____/_______', W-M-27, y+15, {align:'center'});
-    y+=17;
-
-    // via label
-    doc.setFont('helvetica','bold'); doc.setFontSize(6); doc.setTextColor(120);
-    doc.text('— VIA '+viaLabel+' —', W/2, y, {align:'center'});
-    y+=3;
-
-    return y;
+  // se cabe numa página
+  if (imgH <= H) {
+    doc.addImage(imgData, 'PNG', 0, 0, imgW, imgH);
+  } else {
+    // divide em páginas se necessário
+    let yPos = 0;
+    while (yPos < imgH) {
+      if (yPos > 0) doc.addPage();
+      doc.addImage(imgData, 'PNG', 0, -yPos, imgW, imgH);
+      yPos += H;
+    }
   }
 
-  let y = 10;
-  y = drawVia(y, 'EMPRESA');
-  // dashed separator
-  doc.setDrawColor(150); doc.setLineWidth(0.3);
-  for(let x=M; x<W-M; x+=4) { doc.line(x, y, x+2, y); }
-  y+=4;
-  drawVia(y, 'FUNCIONÁRIO');
-
+  const d = getData();
   const fname = `recibo-${(d.func||'funcionario').replace(/ /g,'-').toLowerCase()}-${(d.comp||'').replace(/ /g,'-')}.pdf`;
   doc.save(fname);
   toast('PDF gerado!');
