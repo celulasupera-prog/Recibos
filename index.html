@@ -25,11 +25,11 @@
   --shadow: 0 1px 3px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.06);
   --shadow-lg: 0 4px 24px rgba(0,0,0,.12);
 }
- 
+
 *{box-sizing:border-box;margin:0;padding:0;}
- 
+
 body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;}
- 
+
 /* HEADER */
 .app-header{
   background:var(--ink);
@@ -49,29 +49,29 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .hbtn.solid{background:var(--accent);color:#fff;}
 .hbtn.solid:hover{background:#1648c0;}
 .hbtns{display:flex;gap:.5rem;}
- 
+
 /* LAYOUT */
 .workspace{display:grid;grid-template-columns:480px 1fr;min-height:calc(100vh - 56px);}
- 
+
 /* FORM SIDE */
 .form-side{
   background:var(--panel);border-right:1px solid var(--border);
   overflow-y:auto;padding:1.5rem;display:flex;flex-direction:column;gap:1.25rem;
 }
- 
+
 .sec-title{
   font-family:'Syne',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.13em;
   text-transform:uppercase;color:var(--ink3);margin-bottom:.75rem;
   display:flex;align-items:center;gap:8px;
 }
 .sec-title::after{content:'';flex:1;height:1px;background:var(--border);}
- 
+
 .card{background:#fafaf9;border:1px solid var(--border);border-radius:8px;padding:1rem 1.1rem;}
- 
+
 .fg{display:grid;gap:.6rem;}
 .fg2{grid-template-columns:1fr 1fr;}
 .fg3{grid-template-columns:1fr 1fr 1fr;}
- 
+
 .field{display:flex;flex-direction:column;gap:.25rem;}
 .field label{font-size:.68rem;font-weight:700;color:var(--ink2);letter-spacing:.04em;text-transform:uppercase;}
 .field input,.field select{
@@ -82,9 +82,9 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .field input:focus,.field select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(26,86,219,.1);}
 .field input.calc{background:#f0f4ff;border-color:#c0d0f8;color:var(--accent);font-family:'Inconsolata',monospace;font-weight:600;}
 .field input[readonly]{background:#f5f5f5;color:var(--ink2);cursor:default;}
- 
+
 .field-hint{font-size:.68rem;color:var(--ink3);margin-top:.15rem;}
- 
+
 /* toggle */
 .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:.6rem .75rem;
   background:#f5f5f3;border:1px solid var(--border);border-radius:6px;cursor:pointer;}
@@ -95,15 +95,20 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .toggle-badge.on{background:var(--accent2);color:var(--accent);}
 .toggle-content{display:none;margin-top:.6rem;}
 .toggle-content.open{display:block;}
- 
+
 /* verbas table */
 .verbas-header{display:grid;grid-template-columns:60px 1fr 90px 90px 90px 30px;
   gap:4px;padding:.3rem .4rem;
   font-size:.62rem;font-weight:700;color:var(--ink3);letter-spacing:.06em;text-transform:uppercase;}
 .verbas-header span:nth-child(3),.verbas-header span:nth-child(4),.verbas-header span:nth-child(5){text-align:right;}
- 
+
+.verbas-header{display:grid;grid-template-columns:55px 1fr 80px 80px 80px 30px;
+  gap:4px;padding:.3rem .4rem;
+  font-size:.62rem;font-weight:700;color:var(--ink3);letter-spacing:.06em;text-transform:uppercase;}
+.verbas-header span:nth-child(3),.verbas-header span:nth-child(4),.verbas-header span:nth-child(5){text-align:right;}
+
 .verba-row{
-  display:grid;grid-template-columns:60px 1fr 90px 90px 90px 30px;
+  display:grid;grid-template-columns:55px 1fr 80px 80px 80px 30px;
   gap:4px;align-items:center;padding:.25rem .4rem;border-radius:4px;
   border-bottom:1px solid #f0ede8;
 }
@@ -112,6 +117,9 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   font-family:'Inconsolata',monospace;font-size:.82rem;padding:.28rem .4rem;
   border:1px solid var(--border);border-radius:4px;background:#fff;color:var(--ink);
   outline:none;text-align:right;width:100%;
+}
+.verba-row input.desc-input{
+  text-align:left;font-family:'Lato',sans-serif;font-size:.82rem;
 }
 .verba-row input:focus{border-color:var(--accent);}
 .verba-row input[readonly]{background:#f8f8f8;color:var(--ink2);border-color:transparent;}
@@ -122,14 +130,14 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .btn-rm{width:24px;height:24px;border:none;background:transparent;color:#ccc;
   cursor:pointer;border-radius:3px;font-size:.9rem;display:flex;align-items:center;justify-content:center;}
 .btn-rm:hover{background:var(--red-bg);color:var(--red);}
- 
+
 .btn-add-verba{
   font-family:'Syne',sans-serif;font-size:.72rem;font-weight:600;letter-spacing:.06em;
   color:var(--accent);background:transparent;border:1.5px dashed #b0c4f8;
   border-radius:5px;padding:.45rem;cursor:pointer;transition:all .15s;width:100%;margin-top:.5rem;
 }
 .btn-add-verba:hover{background:var(--accent2);}
- 
+
 /* totals */
 .totals-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;}
 .total-box{background:#f8f8f6;border:1px solid var(--border);border-radius:6px;padding:.6rem .75rem;}
@@ -143,7 +151,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .total-box.green .val{color:var(--green);}
 .total-box.red label{color:var(--red);}
 .total-box.red .val{color:var(--red);}
- 
+
 /* action btns */
 .action-bar{display:flex;gap:.6rem;margin-top:.5rem;}
 .abtn{flex:1;font-family:'Syne',sans-serif;font-size:.75rem;font-weight:700;
@@ -155,7 +163,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .abtn.secondary:hover{background:#333;}
 .abtn.outline{background:transparent;border:1.5px solid var(--border);color:var(--ink2);}
 .abtn.outline:hover{border-color:var(--ink);color:var(--ink);}
- 
+
 /* PREVIEW SIDE */
 .preview-side{
   background:#e5e1da;
@@ -172,113 +180,188 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   text-transform:uppercase;background:var(--ink);color:#fff;border:none;border-radius:5px;
   padding:.45rem 1.1rem;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .18s;}
 .btn-pdf:hover{background:var(--accent);}
- 
-/* ── RECIBO DOCUMENT — preto e branco fiel ao modelo ── */
+
+/* ══ RECIBO — fiel ao modelo PDF ══ */
 .recibo-doc{
-  width:100%;max-width:680px;
-  background:#fff;box-shadow:var(--shadow-lg);
-  font-family:Arial,Helvetica,sans-serif;font-size:8.5pt;color:#000;
-  border:1px solid #999;
-}
- 
-/* vias */
-.via{border-bottom:2px dashed #777;padding-bottom:0;margin-bottom:0;}
-.via:last-child{border-bottom:none;}
- 
-/* cabeçalho — borda simples, sem fundo colorido */
-.rec-header{
+  width:100%;max-width:700px;
   background:#fff;
-  border-bottom:2px solid #000;
-  padding:.55rem .7rem .4rem;
-  display:grid;grid-template-columns:1fr auto;gap:.5rem;align-items:start;
+  box-shadow:var(--shadow-lg);
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:7pt;color:#000;
+  border:1px solid #bbb;
 }
-.rec-empresa{font-family:Arial,Helvetica,sans-serif;font-weight:bold;font-size:11pt;color:#000;text-transform:uppercase;}
-.rec-cnpj{font-size:7.5pt;color:#000;margin-top:2px;}
-.rec-tipo{
-  text-align:right;font-family:Arial,Helvetica,sans-serif;
-  font-size:7pt;font-weight:bold;letter-spacing:.06em;
-  text-transform:uppercase;color:#000;
+
+/* cada via = exatamente metade do A4 (297mm / 2 ≈ 148mm → ~560px na tela) */
+.via{
+  border-bottom:1px dashed #888;
+  height:148mm;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
 }
-.rec-competencia{font-family:Arial,Helvetica,sans-serif;font-size:9pt;font-weight:bold;color:#000;text-align:right;margin-top:2px;}
- 
-/* barra do funcionário */
-.rec-func-bar{
-  display:grid;grid-template-columns:auto 1fr auto auto auto auto;
-  gap:0;border-bottom:1px solid #000;background:#fff;
+.via:last-child{ border-bottom:none; }
+
+/* layout interno: conteúdo + lateral */
+.via-inner{ display:flex; align-items:stretch; flex:1; min-height:0; }
+.via-main{ flex:1; min-width:0; overflow:hidden; display:flex; flex-direction:column; }
+
+/* ── LATERAL DIREITA ── */
+.via-lateral{
+  width:80px;
+  border-left:1px solid #000;
+  background:#fff;
+  flex-shrink:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  position:relative;
 }
-.rfb-cell{padding:.3rem .5rem;border-right:1px solid #aaa;}
-.rfb-cell:last-child{border-right:none;}
-.rfb-cell label{font-size:6pt;font-weight:bold;letter-spacing:.05em;text-transform:uppercase;color:#555;display:block;margin-bottom:1px;}
-.rfb-cell .v{font-size:8pt;color:#000;font-weight:bold;}
-.rfb-cell .v.mono{font-family:'Courier New',monospace;}
- 
-.rec-func-info{
-  display:grid;grid-template-columns:auto 1fr auto auto;
-  gap:0;border-bottom:2px solid #000;background:#fff;
+
+/* ── RODAPÉ ASSINATURA — rotacionado ── */
+.rec-rodape{
+  position:absolute;
+  transform: rotate(-90deg);
+  transform-origin: center center;
+  width: 148mm;
+  background:#fff;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
 }
-.rfi-cell{padding:.28rem .5rem;border-right:1px solid #aaa;}
-.rfi-cell:last-child{border-right:none;}
-.rfi-cell label{font-size:6pt;font-weight:bold;letter-spacing:.05em;text-transform:uppercase;color:#555;display:block;margin-bottom:1px;}
-.rfi-cell .v{font-size:8pt;color:#000;font-weight:bold;}
- 
-/* tabela de itens */
-.rec-table{width:100%;border-collapse:collapse;}
-.rec-table thead tr{background:#fff;border-bottom:1.5px solid #000;border-top:1px solid #000;}
+.rec-rodape-top{
+  text-align:center;
+  padding:3px 8px 2px;
+  font-size:6.5pt;
+  font-style:italic;
+  margin-bottom:28px;
+}
+.rec-rodape-bottom{
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  padding:4px 12px 4px;
+  gap:40px;
+}
+.rec-rodape-data{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:2px;
+  min-width:80px;
+}
+.rec-rodape-sig{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:2px;
+  max-width:270px;
+}
+.rec-rodape-linha{
+  width:100%;
+  border-top:1px solid #000;
+}
+.rec-rodape-data span,
+.rec-rodape-sig span{
+  font-size:6.5pt;
+  font-family:Arial,Helvetica,sans-serif;
+  color:#000;
+}
+
+/* ── CABEÇALHO ── */
+.rec-header{
+  display:grid;
+  grid-template-columns:1fr auto;
+  border-bottom:1px solid #000;
+  padding:3px 5px 2px;
+  background:#fff;
+}
+.rec-empresa{ font-size:8.5pt;font-weight:bold;color:#000; }
+.rec-cnpj{ font-size:6.5pt;color:#000;margin-top:1px; }
+.rec-header-right{ text-align:right; }
+.rec-folha{ font-size:6.5pt;font-weight:bold;color:#000; }
+.rec-comp{ font-size:7.5pt;font-weight:bold;color:#000;margin-top:1px; }
+
+/* ── LINHA DO FUNCIONÁRIO — linha 1 ── */
+.rec-row1{
+  display:flex;
+  border-bottom:1px solid #000;
+}
+.rec-row1 .rc{
+  padding:2px 4px;
+  border-right:1px solid #000;
+  white-space:nowrap;
+}
+.rec-row1 .rc:last-child{ border-right:none; flex:1; }
+.rc-lbl{ font-size:5.5pt;font-weight:bold;color:#000;display:block;margin-bottom:1px; }
+.rc-val{ font-size:7pt;font-weight:bold;color:#000; }
+
+/* ── LINHA DO FUNCIONÁRIO — linha 2 (cargo, admissão, tipo, salário base) ── */
+.rec-row2{
+  display:flex;
+  border-bottom:1px solid #000;
+}
+.rec-row2 .rc{
+  padding:2px 4px;
+  border-right:1px solid #000;
+  white-space:nowrap;
+}
+.rec-row2 .rc.grow{ flex:1; white-space:normal; }
+.rec-row2 .rc:last-child{ border-right:none; }
+
+/* ── TABELA DE VERBAS ── */
+.rec-table{
+  width:100%;border-collapse:collapse;
+  border-bottom:1px solid #000;
+  flex:1;
+}
+.rec-table thead tr{
+  border-top:1px solid #000;
+  border-bottom:1px solid #000;
+  background:#fff;
+}
 .rec-table thead th{
-  font-family:Arial,Helvetica,sans-serif;font-size:7pt;font-weight:bold;
-  letter-spacing:.04em;text-transform:uppercase;color:#000;
-  padding:.32rem .5rem;text-align:left;
-  border-right:1px solid #ccc;
+  font-size:6.5pt;font-weight:bold;
+  padding:2px 4px;text-align:left;
+  border-right:1px solid #000;color:#000;
 }
-.rec-table thead th:last-child{border-right:none;}
-.rec-table thead th.r{text-align:right;}
-.rec-table tbody tr{border-bottom:1px solid #e0e0e0;}
-.rec-table tbody tr:nth-child(even){background:#f7f7f7;}
-.rec-table tbody td{padding:.28rem .5rem;font-size:8pt;color:#000;vertical-align:middle;}
-.rec-table tbody td.mono{font-family:'Courier New',monospace;text-align:right;font-size:8pt;}
-.rec-table tbody td.cod{font-family:'Courier New',monospace;font-size:7.5pt;color:#333;}
-.rec-table tbody td.venc{font-family:'Courier New',monospace;text-align:right;color:#000;font-weight:bold;}
-.rec-table tbody td.desc-td{font-family:'Courier New',monospace;text-align:right;color:#000;font-weight:bold;}
-.rec-table tbody td.empty{font-family:'Courier New',monospace;text-align:right;color:#bbb;}
- 
-/* barra de totais */
-.rec-totals{
-  display:grid;grid-template-columns:repeat(4,1fr);
-  border-top:2px solid #000;background:#fff;
+.rec-table thead th:last-child{ border-right:none; }
+.rec-table thead th.r{ text-align:right; }
+.rec-table tbody td{
+  font-size:7pt;padding:1px 4px;
+  color:#000;vertical-align:middle;
+  border-right:1px solid #ddd;
 }
-.rt-cell{padding:.32rem .5rem;border-right:1px solid #aaa;border-bottom:1px solid #aaa;}
-.rt-cell:last-child{border-right:none;}
-.rt-cell label{font-size:6pt;font-weight:bold;letter-spacing:.05em;text-transform:uppercase;color:#555;display:block;margin-bottom:1px;}
-.rt-cell .v{font-family:'Courier New',monospace;font-size:8.5pt;font-weight:bold;color:#000;}
-.rt-cell.liq{background:#fff;border-top:1px solid #000;}
-.rt-cell.liq label{color:#555;}
-.rt-cell.liq .v{color:#000;font-size:9.5pt;}
- 
-.rec-totals2{
-  display:grid;grid-template-columns:repeat(5,1fr);
-  border-top:1px solid #aaa;background:#f5f5f5;
+.rec-table tbody td:last-child{ border-right:none; }
+.rec-table tbody td.r{ text-align:right; }
+.rec-table tbody td.cod{ font-size:6.5pt;color:#000; }
+.rec-table tbody tr:nth-child(even){ background:#f2f2f2; }
+
+/* ── TOTAIS — bloco inferior ── */
+.rec-totais-wrap{
+  border-top:1px solid #000;
 }
-.rec-totals2 .rt-cell{border-bottom:none;}
- 
-/* rodapé */
-.rec-footer{
-  display:flex;justify-content:space-between;align-items:flex-end;
-  padding:.55rem .7rem .45rem;border-top:1px solid #aaa;background:#fff;
+.rec-tot-row{
+  display:flex;
+  border-bottom:1px solid #000;
 }
-.rec-decl{font-size:7pt;color:#000;max-width:300px;line-height:1.5;font-style:italic;}
-.sig-area{text-align:center;}
-.sig-line{width:160px;border-top:1px solid #000;margin-bottom:3px;}
-.sig-name{font-size:7pt;color:#000;font-weight:bold;}
-.sig-date{font-size:7pt;color:#555;margin-top:3px;}
- 
-/* via label — tracejado de separação */
-.via-label{
-  text-align:center;padding:2px 0;
-  font-family:Arial,Helvetica,sans-serif;font-size:6pt;font-weight:bold;
-  letter-spacing:.12em;text-transform:uppercase;color:#555;
-  background:#f5f5f5;border-top:1px dashed #aaa;
+.rec-tot-row:last-child{ border-bottom:none; }
+.rec-tot-liq{ background:#f5f5f5; }
+.rtc{
+  flex:1;padding:2px 4px;
+  border-right:1px solid #000;
 }
- 
+.rtc:last-child{ border-right:none; }
+.rtc-lbl{ font-size:5.5pt;font-weight:bold;color:#000;display:block; }
+.rtc-val{ font-size:7pt;font-weight:bold;color:#000;display:block; }
+
+/* separador de via */
+.via-sep{
+  font-size:6pt;font-weight:bold;letter-spacing:.1em;text-transform:uppercase;
+  text-align:center;padding:1px 0;color:#555;border-top:1px dashed #aaa;background:#f8f8f8;
+}
+
 /* HISTORY */
 #pg-hist{display:none;padding:1.5rem;max-width:1000px;margin:0 auto;}
 .hist-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;margin-top:1.25rem;}
@@ -297,7 +380,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   background:transparent;color:var(--ink2);transition:all .15s;}
 .hcbtn:hover{border-color:var(--accent);color:var(--accent);}
 .hcbtn.d:hover{border-color:var(--red);color:var(--red);}
- 
+
 /* TOAST */
 .toast{position:fixed;bottom:1.5rem;right:1.5rem;
   background:#1a7a4a;color:#fff;padding:.65rem 1.1rem;
@@ -309,7 +392,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 </style>
 </head>
 <body>
- 
+
 <header class="app-header">
   <div class="app-logo">Recibos <span>BETA</span></div>
   <div class="hbtns">
@@ -317,14 +400,14 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
     <button class="hbtn solid" onclick="novoRecibo()">+ Novo</button>
   </div>
 </header>
- 
+
 <!-- MAIN -->
 <div id="pg-main">
 <div class="workspace">
- 
+
 <!-- ── FORM ── -->
 <div class="form-side" id="form-side">
- 
+
   <!-- EMPRESA -->
   <div>
     <div class="sec-title">Empresa Pagadora</div>
@@ -334,18 +417,14 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
           <label>Razão Social *</label>
           <input type="text" id="f-emp" placeholder="Ex: José Henrique Almeida da Silva" oninput="calc()">
         </div>
-        <div class="field">
+        <div class="field" style="grid-column:span 2">
           <label>CNPJ</label>
           <input type="text" id="f-cnpj" placeholder="00.000.000/0001-00" oninput="calc()">
-        </div>
-        <div class="field">
-          <label>Filial / Unidade</label>
-          <input type="text" id="f-filial" placeholder="1" oninput="calc()">
         </div>
       </div>
     </div>
   </div>
- 
+
   <!-- FUNCIONÁRIO -->
   <div>
     <div class="sec-title">Funcionário</div>
@@ -356,20 +435,8 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
           <input type="text" id="f-func" placeholder="Ex: Adilson Ramos Barbosa" oninput="calc()">
         </div>
         <div class="field">
-          <label>Matrícula / Código</label>
-          <input type="text" id="f-mat" placeholder="229" oninput="calc()">
-        </div>
-        <div class="field">
-          <label>CBO</label>
-          <input type="text" id="f-cbo" placeholder="782510" oninput="calc()">
-        </div>
-        <div class="field">
           <label>Cargo / Função</label>
           <input type="text" id="f-cargo" placeholder="Motorista Carreteiro" oninput="calc()">
-        </div>
-        <div class="field">
-          <label>Departamento</label>
-          <input type="text" id="f-depto" placeholder="SERVIÇOS/CUSTO" oninput="calc()">
         </div>
         <div class="field">
           <label>Data Admissão</label>
@@ -386,7 +453,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
       </div>
     </div>
   </div>
- 
+
   <!-- COMPETÊNCIA -->
   <div>
     <div class="sec-title">Competência</div>
@@ -407,7 +474,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
       </div>
     </div>
   </div>
- 
+
   <!-- BASE DE CÁLCULO -->
   <div>
     <div class="sec-title">Base de Cálculo</div>
@@ -443,7 +510,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
       </div>
     </div>
   </div>
- 
+
   <!-- VERBAS -->
   <div>
     <div class="sec-title">Verbas / Lançamentos</div>
@@ -453,12 +520,12 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
         <span>Vencimentos</span><span>Descontos</span><span></span>
       </div>
       <div id="verbas-list"></div>
- 
+
       <div style="display:flex;gap:.5rem;margin-top:.6rem;flex-wrap:wrap;">
         <button class="btn-add-verba" onclick="addVerba('venc')" style="flex:1">+ Vencimento</button>
         <button class="btn-add-verba" onclick="addVerba('desc')" style="flex:1;border-color:#ffb0a8;color:var(--red)">+ Desconto</button>
       </div>
- 
+
       <!-- Lançamentos rápidos -->
       <div style="margin-top:.75rem;padding-top:.75rem;border-top:1px dashed var(--border);">
         <div style="font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:.5rem;">Adicionar rapidamente:</div>
@@ -475,7 +542,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
       </div>
     </div>
   </div>
- 
+
   <!-- OPCIONAIS: INSS/FGTS/IRRF -->
   <div>
     <div class="sec-title">Encargos (Opcional)</div>
@@ -496,7 +563,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
           </div>
         </div>
       </div>
- 
+
       <div class="toggle-row" onclick="toggleEnc('fgts')" style="margin-top:.5rem">
         <span class="toggle-label">FGTS</span>
         <span class="toggle-badge off" id="badge-fgts">Desativado</span>
@@ -515,7 +582,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
           </div>
         </div>
       </div>
- 
+
       <div class="toggle-row" onclick="toggleEnc('irrf')" style="margin-top:.5rem">
         <span class="toggle-label">IRRF</span>
         <span class="toggle-badge off" id="badge-irrf">Desativado</span>
@@ -538,7 +605,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
       </div>
     </div>
   </div>
- 
+
   <!-- TOTAIS -->
   <div>
     <div class="sec-title">Totais</div>
@@ -583,15 +650,15 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
       </div>
     </div>
   </div>
- 
+
   <div class="action-bar">
     <button class="abtn outline" onclick="novoRecibo()">Limpar</button>
     <button class="abtn secondary" onclick="salvar()">💾 Salvar</button>
     <button class="abtn primary" onclick="gerarPDF()">⬇ PDF</button>
   </div>
- 
+
 </div><!-- /form-side -->
- 
+
 <!-- ── PREVIEW ── -->
 <div class="preview-side">
   <div class="preview-toolbar">
@@ -600,10 +667,10 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   </div>
   <div class="recibo-doc" id="recibo-doc"></div>
 </div>
- 
+
 </div><!-- /workspace -->
 </div><!-- /pg-main -->
- 
+
 <!-- HISTORY -->
 <div id="pg-hist">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
@@ -612,18 +679,18 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   </div>
   <div class="hist-grid" id="hist-grid"></div>
 </div>
- 
+
 <div class="toast" id="toast"></div>
- 
+
 <script>
 const { jsPDF } = window.jspdf;
- 
+
 // ── STATE ──
 let verbas = [];
 let encs = { inss: false, fgts: false, irrf: false };
 let hist = JSON.parse(localStorage.getItem('rec_hist_v2') || '[]');
 let editId = null;
- 
+
 // ── INIT ──
 window.onload = () => {
   const now = new Date();
@@ -636,7 +703,7 @@ window.onload = () => {
   addVerbaDiasNormais();
   calc();
 };
- 
+
 // ── TOGGLE ENCS ──
 function toggleEnc(key) {
   encs[key] = !encs[key];
@@ -646,12 +713,12 @@ function toggleEnc(key) {
   badge.className = 'toggle-badge ' + (encs[key] ? 'on' : 'off');
   calc();
 }
- 
+
 // ── CALC ──
 function calc() {
   const sal = parseFloat(document.getElementById('f-sal').value) || 0;
   const dias = parseFloat(document.getElementById('f-dias').value) || 0;
- 
+
   // auto diasmes from month
   const comp = document.getElementById('f-comp').value;
   if (comp) {
@@ -660,15 +727,15 @@ function calc() {
     document.getElementById('f-diasmes').value = diasMes;
   }
   const diasMes = parseFloat(document.getElementById('f-diasmes').value) || 30;
- 
+
   const salDia = diasMes > 0 ? sal / diasMes : 0;
   const salHora = sal / 220;
   const valDias = salDia * dias;
- 
+
   document.getElementById('f-saldia').value = fmtN(salDia);
   document.getElementById('f-salhora').value = fmtN(salHora);
   document.getElementById('f-valdias').value = fmtN(valDias);
- 
+
   // recalc auto verbas
   verbas.forEach(v => {
     if (v.auto) {
@@ -677,11 +744,11 @@ function calc() {
       v.desc = r.desc;
     }
   });
- 
+
   // totals
   let totVenc = verbas.reduce((s,v) => s + (v.venc||0), 0);
   let totDesc = verbas.reduce((s,v) => s + (v.desc||0), 0);
- 
+
   // INSS
   let inssVal = 0;
   if (encs.inss) {
@@ -690,7 +757,7 @@ function calc() {
     document.getElementById('f-inss-val').value = fmtN(inssVal);
     totDesc += inssVal;
   }
- 
+
   // FGTS
   let fgtsBase = totVenc;
   let fgtsVal = 0;
@@ -700,7 +767,7 @@ function calc() {
     fgtsVal = fgtsBase * 0.08;
     document.getElementById('f-fgts-val').value = fmtN(fgtsVal);
   }
- 
+
   // IRRF
   let irrfBase = totVenc - inssVal;
   let irrfVal = 0, irrfFaixa = 0;
@@ -713,9 +780,9 @@ function calc() {
     document.getElementById('f-irrf-val').value = fmtN(irrfVal);
     totDesc += irrfVal;
   }
- 
+
   const liq = totVenc - totDesc;
- 
+
   document.getElementById('t-venc').textContent = fmtBRL(totVenc);
   document.getElementById('t-desc').textContent = fmtBRL(totDesc);
   document.getElementById('t-liq').textContent = fmtBRL(liq);
@@ -725,11 +792,11 @@ function calc() {
   document.getElementById('t-fgts').textContent = fmtBRL(fgtsVal);
   document.getElementById('t-baseirrf').textContent = fmtBRL(irrfBase);
   document.getElementById('t-faixairrf').textContent = encs.irrf ? irrfFaixa + '%' : '—';
- 
+
   renderVerbasList();
   renderPreview();
 }
- 
+
 function calcVerba(v, sal, salDia, salHora, valDias) {
   let venc = 0, desc = 0;
   switch(v.autoType) {
@@ -754,7 +821,7 @@ function calcVerba(v, sal, salDia, salHora, valDias) {
   }
   return { venc, desc };
 }
- 
+
 function calcIRRF(base) {
   if (base <= 2259.20) return { aliq: 0, val: 0 };
   if (base <= 2826.65) return { aliq: 7.5, val: base*0.075 - 169.44 };
@@ -762,7 +829,7 @@ function calcIRRF(base) {
   if (base <= 4664.68) return { aliq: 22.5, val: base*0.225 - 662.77 };
   return { aliq: 27.5, val: base*0.275 - 896.00 };
 }
- 
+
 // ── VERBAS ──
 function addVerbaDiasNormais() {
   const dias = parseFloat(document.getElementById('f-dias').value) || 28;
@@ -771,7 +838,7 @@ function addVerbaDiasNormais() {
     venc: 0, desc2: 0, auto: true, autoType:'diasnormais', tipo:'venc'
   });
 }
- 
+
 function quickAdd(type) {
   const sal = parseFloat(document.getElementById('f-sal').value) || 0;
   const salHora = sal / 220;
@@ -805,17 +872,17 @@ function quickAdd(type) {
   verbas.push(v);
   calc();
 }
- 
+
 function addVerba(tipo) {
   verbas.push({ id: Date.now(), cod:'', desc:'', ref:'', venc:0, desc2:0, auto:false, tipo });
   renderVerbasList();
 }
- 
+
 function removeVerba(id) {
   verbas = verbas.filter(v => v.id !== id);
   calc();
 }
- 
+
 function updateVerba(id, field, val) {
   const v = verbas.find(v => v.id === id);
   if (!v) return;
@@ -829,7 +896,7 @@ function updateVerba(id, field, val) {
   else v[field] = val;
   calc();
 }
- 
+
 function renderVerbasList() {
   const list = document.getElementById('verbas-list');
   if (!verbas.length) { list.innerHTML = '<div style="text-align:center;padding:.75rem;color:var(--ink3);font-size:.8rem">Nenhuma verba adicionada</div>'; return; }
@@ -840,7 +907,7 @@ function renderVerbasList() {
                      v.autoType==='adicfunc'||v.autoType==='premiotempo' ? '%' : '';
     return `<div class="verba-row">
       <input value="${v.cod}" placeholder="Cód" style="text-align:left" oninput="updateVerba(${v.id},'cod',this.value)">
-      <input value="${v.desc}" placeholder="Descrição" style="text-align:left;font-size:.78rem" oninput="updateVerba(${v.id},'desc',this.value)">
+      <input value="${v.desc}" placeholder="Descrição do lançamento" class="desc-input" style="text-align:left;font-size:.82rem" oninput="updateVerba(${v.id},'desc',this.value)">
       <input value="${v.ref}" placeholder="${refLabel||'ref'}" oninput="updateVerba(${v.id},'ref',this.value)" title="${v.autoType==='he50'||v.autoType==='he100'?'Informe as horas':v.autoType==='adicfunc'?'Informe o percentual':''}">
       <input value="${v.venc > 0 ? fmtN(v.venc) : ''}" placeholder="0,00" class="${vencCls}" ${v.auto && v.autoType!=='adiant' ? 'readonly' : ''} oninput="updateVerba(${v.id},'venc',this.value)">
       <input value="${v.desc2 > 0 ? fmtN(v.desc2) : v.tipo==='desc'&&v.ref ? fmtN(parseFloat(v.ref)||0) : ''}" placeholder="0,00" class="${descCls}" ${v.auto && v.autoType==='adiant' ? 'readonly' : ''} oninput="updateVerba(${v.id},'desc2',this.value)">
@@ -848,37 +915,33 @@ function renderVerbasList() {
     </div>`;
   }).join('');
 }
- 
+
 // ── DATA ──
 function getData() {
   const sal = parseFloat(document.getElementById('f-sal').value)||0;
   const diasMes = parseFloat(document.getElementById('f-diasmes').value)||30;
   const dias = parseFloat(document.getElementById('f-dias').value)||0;
   const salDia = sal/diasMes, salHora = sal/220, valDias = salDia*dias;
- 
+
   let totVenc = verbas.reduce((s,v)=>s+(v.venc||0),0);
   let totDesc = verbas.reduce((s,v)=>s+(v.desc2||0)+(v.tipo==='desc'&&v.auto?parseFloat(v.ref)||0:0),0);
- 
+
   let inssVal=0, fgtsBase=totVenc, fgtsVal=0, irrfBase=totVenc, irrfVal=0, irrfFaixa=0;
   if(encs.inss){const a=parseFloat(document.getElementById('f-inss-aliq').value)||0;inssVal=totVenc*a/100;totDesc+=inssVal;}
   if(encs.fgts){const fb=parseFloat(document.getElementById('f-fgts-base').value);fgtsBase=isNaN(fb)?totVenc:fb;fgtsVal=fgtsBase*0.08;}
   if(encs.irrf){const ib=parseFloat(document.getElementById('f-irrf-base').value);irrfBase=isNaN(ib)?totVenc-inssVal:ib;const r=calcIRRF(irrfBase);irrfVal=r.val;irrfFaixa=r.aliq;totDesc+=irrfVal;}
- 
+
   const comp = document.getElementById('f-comp').value;
   const compFmt = comp ? (() => { const [y,m]=comp.split('-'); const meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro']; return meses[parseInt(m)-1]+' de '+y; })() : '';
- 
+
   const admissao = document.getElementById('f-admissao').value;
   const admFmt = admissao ? (() => { const [y,m,d]=admissao.split('-'); return `${d}/${m}/${y}`; })() : '';
- 
+
   return {
     emp: document.getElementById('f-emp').value,
     cnpj: document.getElementById('f-cnpj').value,
-    filial: document.getElementById('f-filial').value||'1',
     func: document.getElementById('f-func').value,
-    mat: document.getElementById('f-mat').value,
-    cbo: document.getElementById('f-cbo').value,
     cargo: document.getElementById('f-cargo').value,
-    depto: document.getElementById('f-depto').value,
     tipo: document.getElementById('f-tipo').value,
     folha: document.getElementById('f-folha').value,
     comp: compFmt,
@@ -891,145 +954,174 @@ function getData() {
     savedAt: new Date().toISOString()
   };
 }
- 
+
 // ── PREVIEW ──
 function renderPreview() {
   const d = getData();
   document.getElementById('recibo-doc').innerHTML = buildViaHTML(d, 'EMPRESA') + buildViaHTML(d, 'FUNCIONÁRIO');
 }
- 
+
 function buildViaHTML(d, viaLabel) {
-  const verbas = d.verbas;
-  // build rows
+  // montar linhas de verbas
   let rows = '';
-  // dias normais
-  const dn = verbas.find(v=>v.autoType==='diasnormais');
-  if(dn) rows += trRow('8781','DIAS NORMAIS',String(d.dias)+',00', fmtBRL(dn.venc),'');
- 
-  verbas.filter(v=>v.autoType!=='diasnormais').forEach(v=>{
-    const vencVal = v.venc > 0 ? fmtBRL(v.venc) : '';
-    const descVal = v.desc2 > 0 ? fmtBRL(v.desc2) : (v.tipo==='desc'&&v.ref?fmtBRL(parseFloat(v.ref)||0):'');
-    const refStr = v.autoType==='he50'||v.autoType==='he100' ? (v.ref?v.ref+':00':'—') :
-                   v.autoType==='adicfunc'||v.autoType==='premiotempo' ? (v.ref?v.ref+',00':'—') :
-                   v.ref||'—';
-    rows += trRow(v.cod||'—', v.desc||'—', refStr, vencVal, descVal);
+  const dn = d.verbas.find(v=>v.autoType==='diasnormais');
+  if(dn) rows += trRow('8781','DIAS NORMAIS', fmtRef(dn,'d',d.dias), fmtN2(dn.venc), '');
+  d.verbas.filter(v=>v.autoType!=='diasnormais').forEach(v=>{
+    const vencVal = v.venc > 0 ? fmtN2(v.venc) : '';
+    const dv = v.desc2 > 0 ? v.desc2 : (v.tipo==='desc'&&v.ref ? parseFloat(v.ref)||0 : 0);
+    const descVal = dv > 0 ? fmtN2(dv) : '';
+    rows += trRow(v.cod||'', v.desc||'', fmtRef(v,'',null), vencVal, descVal);
   });
- 
-  // inss
-  if(d.encs.inss && d.inssVal>0) rows += trRow('998','I.N.S.S.','—','',fmtBRL(d.inssVal));
-  if(d.encs.irrf && d.irrfVal>0) rows += trRow('999','IMPOSTO DE RENDA','—','',fmtBRL(d.irrfVal));
- 
-  return `
-  <div class="via">
-    <div class="rec-header">
-      <div>
-        <div class="rec-empresa">${d.emp||'Nome da Empresa'}</div>
-        <div class="rec-cnpj">${d.cnpj?'CNPJ: '+d.cnpj:''}</div>
+  if(d.encs.inss && d.inssVal>0) rows += trRow('998','I.N.S.S.', fmtN2(d.inssVal/d.totVenc*100), '', fmtN2(d.inssVal));
+  if(d.encs.irrf && d.irrfVal>0) rows += trRow('999','IMPOSTO DE RENDA', String(d.irrfFaixa), '', fmtN2(d.irrfVal));
+
+  return `<div class="via">
+  <div class="via-inner">
+    <!-- CONTEÚDO PRINCIPAL -->
+    <div class="via-main">
+
+      <!-- CABEÇALHO -->
+      <div class="rec-header">
+        <div>
+          <div class="rec-empresa">${d.emp||'Nome da Empresa'}</div>
+          <div class="rec-cnpj">${d.cnpj?'CNPJ: '+d.cnpj:''}</div>
+        </div>
+        <div class="rec-header-right">
+          <div class="rec-folha">${d.folha||'Folha Mensal'}</div>
+          <div class="rec-comp">${d.comp||'—'}</div>
+        </div>
       </div>
-      <div>
-        <div class="rec-tipo">${d.folha||'Folha Mensal'}</div>
-        <div class="rec-competencia">${d.comp||'—'}</div>
+
+      <!-- LINHA 1: Nome do Funcionário | Tipo -->
+      <div class="rec-row1">
+        <div class="rc" style="flex:1;white-space:normal"><span class="rc-lbl">Nome do Funcionário</span><span class="rc-val">${d.func||'—'}</span></div>
+        <div class="rc" style="border-right:none"><span class="rc-lbl">Tipo</span><span class="rc-val">${d.tipo||'Mensalista'}</span></div>
+      </div>
+
+      <!-- LINHA 2: Cargo | Admissão | Sal Base -->
+      <div class="rec-row2">
+        <div class="rc grow"><span class="rc-lbl">Cargo / Função</span><span class="rc-val">${d.cargo||'—'}</span></div>
+        <div class="rc"><span class="rc-lbl">Admissão</span><span class="rc-val">${d.admissao||'—'}</span></div>
+        <div class="rc" style="border-right:none"><span class="rc-lbl">Salário Base</span><span class="rc-val">${fmtN2(d.sal)}</span></div>
+      </div>
+
+      <!-- TABELA DE VERBAS -->
+      <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;border-bottom:1px solid #000;">
+      <table class="rec-table" style="border-bottom:none;">
+        <thead><tr>
+          <th style="width:46px">Código</th>
+          <th>Descrição</th>
+          <th class="r" style="width:68px">Referência</th>
+          <th class="r" style="width:80px">Vencimentos</th>
+          <th class="r" style="width:80px">Descontos</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      </div>
+
+      <!-- TOTAIS -->
+      <div class="rec-totais-wrap">
+        <div class="rec-tot-row">
+          <div class="rtc"><span class="rtc-lbl">Total de Vencimentos</span><span class="rtc-val">${fmtN2(d.totVenc)}</span></div>
+          <div class="rtc"><span class="rtc-lbl">Total de Descontos</span><span class="rtc-val">${fmtN2(d.totDesc)}</span></div>
+        </div>
+        <div class="rec-tot-row rec-tot-liq">
+          <div class="rtc" style="border-right:none">
+            <span class="rtc-lbl">Valor Líquido ⇒</span>
+            <span class="rtc-val" style="font-size:9pt">${fmtN2(d.liq)}</span>
+          </div>
+        </div>
+        <div class="rec-tot-row">
+          <div class="rtc"><span class="rtc-lbl">Salário Base</span><span class="rtc-val">${fmtN2(d.sal)}</span></div>
+          <div class="rtc"><span class="rtc-lbl">Sal. Contr. INSS</span><span class="rtc-val">${fmtN2(d.totVenc)}</span></div>
+          <div class="rtc"><span class="rtc-lbl">Base Cálc. FGTS</span><span class="rtc-val">${fmtN2(d.encs.fgts?d.fgtsBase:d.totVenc)}</span></div>
+          <div class="rtc"><span class="rtc-lbl">F.G.T.S do Mês</span><span class="rtc-val">${fmtN2(d.fgtsVal)}</span></div>
+          <div class="rtc"><span class="rtc-lbl">Base Cálc. IRRF</span><span class="rtc-val">${fmtN2(d.irrfBase)}</span></div>
+          <div class="rtc" style="border-right:none"><span class="rtc-lbl">Faixa IRRF</span><span class="rtc-val">${d.encs.irrf?d.irrfFaixa+'%':'—'}</span></div>
+        </div>
+      </div>
+
+    </div><!-- /via-main -->
+
+    <!-- LATERAL DIREITA — rodapé rotacionado 90° -->
+    <div class="via-lateral">
+      <div class="rec-rodape">
+        <div class="rec-rodape-top">
+          <span>Declaro ter recebido a importância líquida discriminada neste recibo.</span>
+        </div>
+        <div class="rec-rodape-bottom">
+          <div class="rec-rodape-data">
+            <div class="rec-rodape-linha"></div>
+            <span>Data</span>
+          </div>
+          <div class="rec-rodape-sig">
+            <div class="rec-rodape-linha"></div>
+            <span>Assinatura do Funcionário</span>
+          </div>
+        </div>
       </div>
     </div>
- 
-    <div class="rec-func-bar">
-      <div class="rfb-cell"><label>Matrícula</label><div class="v mono">${d.mat||'—'}</div></div>
-      <div class="rfb-cell" style="flex:1"><label>Nome do Funcionário</label><div class="v">${d.func||'—'}</div></div>
-      <div class="rfb-cell"><label>CBO</label><div class="v mono">${d.cbo||'—'}</div></div>
-      <div class="rfb-cell"><label>Departamento</label><div class="v">${d.depto||'—'}</div></div>
-      <div class="rfb-cell"><label>Filial</label><div class="v mono">${d.filial}</div></div>
-      <div class="rfb-cell"><label>Tipo</label><div class="v">${d.tipo||'—'}</div></div>
-    </div>
-    <div class="rec-func-info">
-      <div class="rfi-cell"><label>Cargo / Função</label><div class="v">${d.cargo||'—'}</div></div>
-      <div class="rfi-cell"><label>Admissão</label><div class="v">${d.admissao||'—'}</div></div>
-      <div class="rfi-cell"><label>Salário Base</label><div class="v">${fmtBRL(d.sal)}</div></div>
-      <div class="rfi-cell"><label>Sal. Hora</label><div class="v">${fmtBRL(d.salHora)}</div></div>
-    </div>
- 
-    <table class="rec-table">
-      <thead><tr>
-        <th style="width:52px">Código</th>
-        <th>Descrição</th>
-        <th class="r" style="width:75px">Referência</th>
-        <th class="r" style="width:85px">Vencimentos</th>
-        <th class="r" style="width:85px">Descontos</th>
-      </tr></thead>
-      <tbody>${rows}</tbody>
-    </table>
- 
-    <div class="rec-totals">
-      <div class="rt-cell"><label>Salário Base</label><div class="v">${fmtBRL(d.sal)}</div></div>
-      <div class="rt-cell"><label>Sal. Contr. INSS</label><div class="v">${fmtBRL(d.totVenc)}</div></div>
-      <div class="rt-cell"><label>Total Vencimentos</label><div class="v">${fmtBRL(d.totVenc)}</div></div>
-      <div class="rt-cell liq"><label>Valor Líquido</label><div class="v">${fmtBRL(d.liq)}</div></div>
-    </div>
-    <div class="rec-totals2">
-      <div class="rt-cell"><label>Total Descontos</label><div class="v">${fmtBRL(d.totDesc)}</div></div>
-      <div class="rt-cell"><label>Base Cálc. FGTS</label><div class="v">${fmtBRL(d.encs.fgts?d.fgtsBase:d.totVenc)}</div></div>
-      <div class="rt-cell"><label>FGTS do Mês</label><div class="v">${fmtBRL(d.fgtsVal)}</div></div>
-      <div class="rt-cell"><label>Base Cálc. IRRF</label><div class="v">${fmtBRL(d.irrfBase)}</div></div>
-      <div class="rt-cell"><label>Faixa IRRF</label><div class="v">${d.encs.irrf?d.irrfFaixa+'%':'—'}</div></div>
-    </div>
- 
-    <div class="rec-footer">
-      <div>
-        <div class="rec-decl">Declaro ter recebido a importância líquida discriminada neste recibo.</div>
-      </div>
-      <div class="sig-area">
-        <div class="sig-line"></div>
-        <div class="sig-name">Assinatura do Funcionário</div>
-        <div class="sig-date">____/____/_______</div>
-      </div>
-    </div>
-    <div class="via-label">Via ${viaLabel}</div>
-  </div>`;
+
+  </div><!-- /via-inner -->
+  <div class="via-sep">— Via ${viaLabel} —</div>
+</div>`;
 }
- 
+
+function fmtRef(v, tipo, dias) {
+  if(tipo==='d') return String(dias)+',00';
+  if(v.autoType==='he50'||v.autoType==='he100') return v.ref ? v.ref+':00' : '';
+  if(v.autoType==='adicfunc'||v.autoType==='premiotempo') return v.ref ? v.ref+',00' : '';
+  return v.ref||'';
+}
+
+function fmtN2(v) {
+  return (v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
 function trRow(cod, desc, ref, venc, descVal) {
   return `<tr>
     <td class="cod">${cod}</td>
     <td>${desc}</td>
-    <td class="mono">${ref}</td>
-    <td class="${venc?'venc':'empty'}">${venc||''}</td>
-    <td class="${descVal?'desc-td':'empty'}">${descVal||''}</td>
+    <td class="r">${ref}</td>
+    <td class="r">${venc}</td>
+    <td class="r">${descVal}</td>
   </tr>`;
 }
- 
+
 // ── PDF ──
 function gerarPDF() {
   const d = getData();
   const doc = new jsPDF({ unit:'mm', format:'a4', orientation:'portrait' });
   const W=210, M=12;
- 
+
   function drawVia(startY, viaLabel) {
     let y = startY;
- 
+
     // header — fundo branco, borda preta
     doc.setFillColor(255,255,255);
     doc.rect(M, y, W-M*2, 14, 'F');
     doc.setDrawColor(0); doc.setLineWidth(0.5);
     doc.line(M, y, W-M, y);        // topo
     doc.line(M, y+14, W-M, y+14);  // base (linha grossa de separação)
- 
+
     // empresa
     doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(0);
     doc.text((d.emp||'Empresa').toUpperCase(), M+3, y+6);
     doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(0);
     if(d.cnpj) doc.text('CNPJ: '+d.cnpj, M+3, y+10.5);
- 
+
     // folha / competência — direita
     doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(0);
     doc.text((d.folha||'Folha Mensal').toUpperCase(), W-M-2, y+5.5, {align:'right'});
     doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(0);
     doc.text(d.comp||'', W-M-2, y+10.5, {align:'right'});
     y+=14;
- 
+
     // func bar — fundo levemente cinza
     doc.setFillColor(245,245,245); doc.rect(M, y, W-M*2, 8, 'F');
     doc.setDrawColor(180); doc.setLineWidth(0.2);
     doc.line(M, y+8, W-M, y+8);
- 
+
     const cells1 = [
       {label:'Matrícula', val:d.mat||'—', w:20},
       {label:'Nome do Funcionário', val:d.func||'—', w:62},
@@ -1049,7 +1141,7 @@ function gerarPDF() {
       cx += c.w;
     });
     y+=8;
- 
+
     // func info bar — fundo branco, linha dupla embaixo
     doc.setFillColor(255,255,255); doc.rect(M, y, W-M*2, 8, 'F');
     doc.setDrawColor(0); doc.setLineWidth(0.6);
@@ -1071,7 +1163,7 @@ function gerarPDF() {
       cx += c.w;
     });
     y+=9;
- 
+
     // table header — fundo branco, bordas pretas
     doc.setFillColor(255,255,255);
     doc.rect(M, y, W-M*2, 6, 'F');
@@ -1085,7 +1177,7 @@ function gerarPDF() {
     doc.text('Vencimentos', W-M-30, y+4.2, {align:'right'});
     doc.text('Descontos', W-M-2, y+4.2, {align:'right'});
     y+=6;
- 
+
     // table rows
     const allVerbas = [];
     const dn = d.verbas.find(v=>v.autoType==='diasnormais');
@@ -1099,7 +1191,7 @@ function gerarPDF() {
     });
     if(d.encs.inss&&d.inssVal>0) allVerbas.push({cod:'998',desc:'I.N.S.S.',ref:'—',venc:0,desc2:d.inssVal});
     if(d.encs.irrf&&d.irrfVal>0) allVerbas.push({cod:'999',desc:'IMPOSTO DE RENDA',ref:'—',venc:0,desc2:d.irrfVal});
- 
+
     allVerbas.forEach((v,i) => {
       if(i%2===0){doc.setFillColor(247,247,247);doc.rect(M,y,W-M*2,5.5,'F');}
       doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(50);
@@ -1115,12 +1207,12 @@ function gerarPDF() {
       doc.line(M, y+5.5, W-M, y+5.5);
       y+=5.5;
     });
- 
+
     // totals row 1
     doc.setDrawColor(0); doc.setLineWidth(0.6);
     doc.line(M, y, W-M, y); y+=0.5;
     doc.setFillColor(255,255,255); doc.rect(M, y, W-M*2, 7, 'F');
- 
+
     const t1 = [
       {l:'Salário Base', v:fmtBRL(d.sal)},
       {l:'Sal. Contr. INSS', v:fmtBRL(d.totVenc)},
@@ -1138,7 +1230,7 @@ function gerarPDF() {
       cx+=46.5;
     });
     y+=7;
- 
+
     // totals row 2 — fundo cinza claro
     doc.setDrawColor(180); doc.setLineWidth(0.3);
     doc.line(M, y, W-M, y);
@@ -1161,7 +1253,7 @@ function gerarPDF() {
       cx+=37.2;
     });
     y+=8;
- 
+
     // footer
     doc.setDrawColor(180); doc.setLineWidth(0.3);
     doc.line(M, y, W-M, y); y+=1;
@@ -1175,15 +1267,15 @@ function gerarPDF() {
     doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor(80);
     doc.text('____/____/_______', W-M-27, y+15, {align:'center'});
     y+=17;
- 
+
     // via label
     doc.setFont('helvetica','bold'); doc.setFontSize(6); doc.setTextColor(120);
     doc.text('— VIA '+viaLabel+' —', W/2, y, {align:'center'});
     y+=3;
- 
+
     return y;
   }
- 
+
   let y = 10;
   y = drawVia(y, 'EMPRESA');
   // dashed separator
@@ -1191,12 +1283,12 @@ function gerarPDF() {
   for(let x=M; x<W-M; x+=4) { doc.line(x, y, x+2, y); }
   y+=4;
   drawVia(y, 'FUNCIONÁRIO');
- 
+
   const fname = `recibo-${(d.func||'funcionario').replace(/ /g,'-').toLowerCase()}-${(d.comp||'').replace(/ /g,'-')}.pdf`;
   doc.save(fname);
   toast('PDF gerado!');
 }
- 
+
 // ── SAVE / HIST ──
 function salvar() {
   const d = getData();
@@ -1211,7 +1303,7 @@ function salvar() {
   editId = null;
   toast('Recibo salvo!');
 }
- 
+
 function showHist() {
   document.getElementById('pg-main').style.display='none';
   document.getElementById('pg-hist').style.display='block';
@@ -1221,7 +1313,7 @@ function showMain() {
   document.getElementById('pg-main').style.display='block';
   document.getElementById('pg-hist').style.display='none';
 }
- 
+
 function renderHist() {
   const g = document.getElementById('hist-grid');
   if(!hist.length){ g.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--ink3)"><b>Nenhum recibo salvo ainda.</b></div>'; return; }
@@ -1241,16 +1333,15 @@ function renderHist() {
       </div>
     </div>`).join('');
 }
- 
+
 function loadRec(id) {
   const h = hist.find(x=>x.id==id); if(!h) return;
   editId = h.id;
   const setV = (el,v) => { const e=document.getElementById(el); if(e) e.value=v||''; };
-  setV('f-emp',h.emp); setV('f-cnpj',h.cnpj); setV('f-filial',h.filial);
-  setV('f-func',h.func); setV('f-mat',h.mat); setV('f-cbo',h.cbo);
-  setV('f-cargo',h.cargo); setV('f-depto',h.depto);
+  setV('f-emp',h.emp); setV('f-cnpj',h.cnpj);
+  setV('f-func',h.func); setV('f-cargo',h.cargo);
   setV('f-sal',h.sal); setV('f-dias',h.dias); setV('f-diasmes',h.diasMes);
- 
+
   // comp
   if(h.comp) {
     const meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -1264,10 +1355,10 @@ function loadRec(id) {
     const [d2,m2,y2]=h.admissao.split('/');
     if(d2&&m2&&y2) document.getElementById('f-admissao').value=`${y2}-${m2}-${d2}`;
   }
- 
+
   document.getElementById('f-tipo').value = h.tipo||'Mensalista';
   document.getElementById('f-folha').value = h.folha||'Folha Mensal';
- 
+
   verbas = (h.verbas||[]).map(v=>({...v, id:Date.now()+Math.random()}));
   encs = {...(h.encs||{inss:false,fgts:false,irrf:false})};
   ['inss','fgts','irrf'].forEach(k=>{
@@ -1276,11 +1367,11 @@ function loadRec(id) {
     badge.textContent=encs[k]?'Ativado':'Desativado';
     badge.className='toggle-badge '+(encs[k]?'on':'off');
   });
- 
+
   showMain();
   calc();
 }
- 
+
 function pdfRec(id){ loadRec(id); setTimeout(gerarPDF,200); }
 function delRec(id){
   if(!confirm('Excluir este recibo?')) return;
@@ -1288,10 +1379,10 @@ function delRec(id){
   localStorage.setItem('rec_hist_v2',JSON.stringify(hist));
   renderHist();
 }
- 
+
 function novoRecibo() {
   editId=null;
-  ['f-emp','f-cnpj','f-filial','f-func','f-mat','f-cbo','f-cargo','f-depto','f-sal','f-dias','f-admissao'].forEach(id=>{
+  ['f-emp','f-cnpj','f-func','f-cargo','f-sal','f-dias','f-admissao'].forEach(id=>{
     const e=document.getElementById(id); if(e) e.value='';
   });
   const now=new Date();
@@ -1311,11 +1402,11 @@ function novoRecibo() {
   calc();
   showMain();
 }
- 
+
 // ── HELPERS ──
 function fmtBRL(v){ return (v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
 function fmtN(v){ return (v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
- 
+
 function toast(msg, type='') {
   const t=document.getElementById('toast');
   t.textContent=msg; t.className='toast '+(type==='err'?'err':'')+' show';
