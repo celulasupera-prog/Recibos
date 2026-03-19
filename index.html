@@ -52,7 +52,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .hbtns{display:flex;gap:.5rem;}
 
 /* LAYOUT */
-.workspace{display:grid;grid-template-columns:480px 1fr;min-height:calc(100vh - 56px);}
+.workspace{display:grid;grid-template-columns:600px 1fr;min-height:calc(100vh - 56px);}
 
 /* FORM SIDE */
 .form-side{
@@ -117,10 +117,11 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .verba-row input{
   font-family:'Inconsolata',monospace;font-size:.82rem;padding:.28rem .4rem;
   border:1px solid var(--border);border-radius:4px;background:#fff;color:var(--ink);
-  outline:none;text-align:right;width:100%;
+  outline:none;text-align:right;width:100%;min-width:0;
 }
 .verba-row input.desc-input{
   text-align:left;font-family:'Lato',sans-serif;font-size:.82rem;
+  min-width:0;width:100%;overflow:hidden;text-overflow:ellipsis;
 }
 .verba-row input:focus{border-color:var(--accent);}
 .verba-row input[readonly]{background:#f8f8f8;color:var(--ink2);border-color:transparent;}
@@ -188,27 +189,41 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   background:#fff;
   box-shadow:var(--shadow-lg);
   font-family:Arial,Helvetica,sans-serif;
-  font-size:7pt;color:#000;
+  font-size:8pt;color:#000;
   border:1px solid #bbb;
+  padding:6px;
 }
 
-/* cada via = exatamente metade do A4 (297mm / 2 ≈ 148mm → ~560px na tela) */
+/* cada via = exatamente metade do A4 com margem de impressão */
 .via{
-  border-bottom:1px dashed #888;
-  height:148mm;
+  border:1px solid #000;
+  height:auto;
   display:flex;
-  flex-direction:column;
+  flex-direction:row;
   overflow:hidden;
+  margin-bottom:6px;
 }
-.via:last-child{ border-bottom:none; }
+.via:last-child{ margin-bottom:0; }
 
 /* layout interno: conteúdo + lateral */
-.via-inner{ display:flex; align-items:stretch; flex:1; min-height:0; }
-.via-main{ flex:1; min-width:0; overflow:hidden; display:flex; flex-direction:column; }
+.via-inner{
+  display:flex;
+  flex-direction:row;
+  flex:1;
+  overflow:hidden;
+  min-width:0;
+}
+.via-main{
+  flex:1;
+  min-width:0;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
 
 /* ── LATERAL DIREITA ── */
 .via-lateral{
-  width:80px;
+  width:60px;
   border-left:1px solid #000;
   background:#fff;
   flex-shrink:0;
@@ -217,6 +232,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   justify-content:center;
   overflow:hidden;
   position:relative;
+  align-self:stretch;
 }
 
 /* ── RODAPÉ ASSINATURA — rotacionado ── */
@@ -224,7 +240,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   position:absolute;
   transform: rotate(-90deg);
   transform-origin: center center;
-  width: 148mm;
+  width: 75mm;
   background:#fff;
   display:flex;
   flex-direction:column;
@@ -275,14 +291,14 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   display:grid;
   grid-template-columns:1fr auto;
   border-bottom:1px solid #000;
-  padding:3px 5px 2px;
+  padding:2px 5px 2px;
   background:#fff;
 }
-.rec-empresa{ font-size:8.5pt;font-weight:bold;color:#000; }
-.rec-cnpj{ font-size:6.5pt;color:#000;margin-top:1px; }
+.rec-empresa{ font-size:9pt;font-weight:bold;color:#000; }
+.rec-cnpj{ font-size:7pt;color:#000;margin-top:1px; }
 .rec-header-right{ text-align:right; }
-.rec-folha{ font-size:6.5pt;font-weight:bold;color:#000; }
-.rec-comp{ font-size:7.5pt;font-weight:bold;color:#000;margin-top:1px; }
+.rec-folha{ font-size:7pt;font-weight:bold;color:#000; }
+.rec-comp{ font-size:8pt;font-weight:bold;color:#000;margin-top:1px; }
 
 /* ── LINHA DO FUNCIONÁRIO — linha 1 ── */
 .rec-row1{
@@ -290,13 +306,13 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   border-bottom:1px solid #000;
 }
 .rec-row1 .rc{
-  padding:2px 4px;
+  padding:1px 4px;
   border-right:1px solid #000;
   white-space:nowrap;
 }
 .rec-row1 .rc:last-child{ border-right:none; flex:1; }
-.rc-lbl{ font-size:5.5pt;font-weight:bold;color:#000;display:block;margin-bottom:1px; }
-.rc-val{ font-size:7pt;font-weight:bold;color:#000; }
+.rc-lbl{ font-size:6.5pt;font-weight:bold;color:#000;display:block;margin-bottom:1px; }
+.rc-val{ font-size:8pt;font-weight:bold;color:#000; }
 
 /* ── LINHA DO FUNCIONÁRIO — linha 2 (cargo, admissão, tipo, salário base) ── */
 .rec-row2{
@@ -304,7 +320,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   border-bottom:1px solid #000;
 }
 .rec-row2 .rc{
-  padding:2px 4px;
+  padding:1px 4px;
   border-right:1px solid #000;
   white-space:nowrap;
 }
@@ -315,7 +331,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .rec-table{
   width:100%;border-collapse:collapse;
   border-bottom:1px solid #000;
-  flex:1;
+  table-layout:fixed;
 }
 .rec-table thead tr{
   border-top:1px solid #000;
@@ -323,16 +339,19 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   background:#fff;
 }
 .rec-table thead th{
-  font-size:6.5pt;font-weight:bold;
+  font-size:7.5pt;font-weight:bold;
   padding:2px 4px;text-align:left;
   border-right:1px solid #000;color:#000;
 }
 .rec-table thead th:last-child{ border-right:none; }
 .rec-table thead th.r{ text-align:right; }
+.rec-table tbody tr{ height:15px; }
 .rec-table tbody td{
-  font-size:7pt;padding:1px 4px;
+  font-size:7.5pt;padding:0px 4px;
   color:#000;vertical-align:middle;
   border-right:1px solid #ddd;
+  overflow:hidden;
+  white-space:nowrap;
 }
 .rec-table tbody td:last-child{ border-right:none; }
 .rec-table tbody td.r{ text-align:right; }
@@ -344,18 +363,22 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   border-top:1px solid #000;
 }
 .rec-tot-row{
-  display:flex;
+  display:grid;
+  grid-template-columns:46px 1fr 68px 80px 80px;
   border-bottom:1px solid #000;
 }
 .rec-tot-row:last-child{ border-bottom:none; }
 .rec-tot-liq{ background:#f5f5f5; }
 .rtc{
-  flex:1;padding:2px 4px;
-  border-right:1px solid #000;
+  padding:1px 4px;
+  border-right:1px solid #aaa;
 }
 .rtc:last-child{ border-right:none; }
-.rtc-lbl{ font-size:5.5pt;font-weight:bold;color:#000;display:block; }
-.rtc-val{ font-size:7pt;font-weight:bold;color:#000;display:block; }
+.rtc-lbl{ font-size:6pt;font-weight:bold;color:#000;display:block; }
+.rtc-val{ font-size:7.5pt;font-weight:bold;color:#000;display:block; text-align:right; }
+.rtc.span-all{ grid-column: 1 / 4; }
+.rtc.venc{ text-align:right; }
+.rtc.desc{ text-align:right; }
 
 /* separador de via */
 .via-sep{
@@ -887,15 +910,17 @@ function removeVerba(id) {
 function updateVerba(id, field, val) {
   const v = verbas.find(v => v.id === id);
   if (!v) return;
-  if (field === 'venc') { v.venc = parseFloat(val)||0; v.auto = false; }
-  else if (field === 'desc2') { v.desc2 = parseFloat(val)||0; v.auto = false; }
+  if (field === 'venc') { v.venc = parseFloat(val)||0; v.auto = false; calc(); }
+  else if (field === 'desc2') { v.desc2 = parseFloat(val)||0; v.auto = false; calc(); }
   else if (field === 'ref') {
     v.ref = val;
     if (v.auto) calc(); else renderPreview();
-    return;
   }
-  else v[field] = val;
-  calc();
+  else {
+    // campos de texto (cod, desc) — só atualiza o dado e o preview, sem re-renderizar a lista
+    v[field] = val;
+    renderPreview();
+  }
 }
 
 function renderVerbasList() {
@@ -963,108 +988,118 @@ function renderPreview() {
 }
 
 function buildViaHTML(d, viaLabel) {
+  const TOTAL_ROWS = 17; // linhas fixas para caber em meia A4
+
   // montar linhas de verbas
-  let rows = '';
+  let rowsData = [];
   const dn = d.verbas.find(v=>v.autoType==='diasnormais');
-  if(dn) rows += trRow('8781','DIAS NORMAIS', fmtRef(dn,'d',d.dias), fmtN2(dn.venc), '');
+  if(dn) rowsData.push({cod:'8781', desc:'DIAS NORMAIS', ref:fmtRef(dn,'d',d.dias), venc:fmtN2(dn.venc), desc:''});
   d.verbas.filter(v=>v.autoType!=='diasnormais').forEach(v=>{
     const vencVal = v.venc > 0 ? fmtN2(v.venc) : '';
     const dv = v.desc2 > 0 ? v.desc2 : (v.tipo==='desc'&&v.ref ? parseFloat(v.ref)||0 : 0);
     const descVal = dv > 0 ? fmtN2(dv) : '';
-    rows += trRow(v.cod||'', v.desc||'', fmtRef(v,'',null), vencVal, descVal);
+    rowsData.push({cod:v.cod||'', desc:v.desc||'', ref:fmtRef(v,'',null), venc:vencVal, descv:descVal});
   });
-  if(d.encs.inss && d.inssVal>0) rows += trRow('998','I.N.S.S.', fmtN2(d.inssVal/d.totVenc*100), '', fmtN2(d.inssVal));
-  if(d.encs.irrf && d.irrfVal>0) rows += trRow('999','IMPOSTO DE RENDA', String(d.irrfFaixa), '', fmtN2(d.irrfVal));
+  if(d.encs.inss && d.inssVal>0) rowsData.push({cod:'998', desc:'I.N.S.S.', ref:fmtN2(d.inssVal/d.totVenc*100), venc:'', descv:fmtN2(d.inssVal)});
+  if(d.encs.irrf && d.irrfVal>0) rowsData.push({cod:'999', desc:'IMPOSTO DE RENDA', ref:String(d.irrfFaixa), venc:'', descv:fmtN2(d.irrfVal)});
+
+  // preencher com linhas vazias até TOTAL_ROWS
+  let rows = '';
+  rowsData.forEach((r,i) => {
+    rows += `<tr><td class="cod">${r.cod}</td><td>${r.desc}</td><td class="r">${r.ref}</td><td class="r">${r.venc}</td><td class="r">${r.descv||''}</td></tr>`;
+  });
+  const empty = TOTAL_ROWS - rowsData.length;
+  for(let i=0; i<empty; i++){
+    rows += `<tr><td class="cod">&nbsp;</td><td></td><td class="r"></td><td class="r"></td><td class="r"></td></tr>`;
+  }
 
   return `<div class="via">
-  <div class="via-inner">
-    <!-- CONTEÚDO PRINCIPAL -->
-    <div class="via-main">
+    <!-- CONTEÚDO PRINCIPAL + LATERAL numa linha -->
+    <div class="via-inner">
+      <div class="via-main">
 
-      <!-- CABEÇALHO -->
-      <div class="rec-header">
-        <div>
-          <div class="rec-empresa">${d.emp||'Nome da Empresa'}</div>
-          <div class="rec-cnpj">${d.cnpj?'CNPJ: '+d.cnpj:''}</div>
-        </div>
-        <div class="rec-header-right">
-          <div class="rec-folha">${d.folha||'Folha Mensal'}</div>
-          <div class="rec-comp">${d.comp||'—'}</div>
-        </div>
-      </div>
-
-      <!-- LINHA 1: Nome do Funcionário | Tipo -->
-      <div class="rec-row1">
-        <div class="rc" style="flex:1;white-space:normal"><span class="rc-lbl">Nome do Funcionário</span><span class="rc-val">${d.func||'—'}</span></div>
-        <div class="rc" style="border-right:none"><span class="rc-lbl">Tipo</span><span class="rc-val">${d.tipo||'Mensalista'}</span></div>
-      </div>
-
-      <!-- LINHA 2: Cargo | Admissão | Sal Base -->
-      <div class="rec-row2">
-        <div class="rc grow"><span class="rc-lbl">Cargo / Função</span><span class="rc-val">${d.cargo||'—'}</span></div>
-        <div class="rc"><span class="rc-lbl">Admissão</span><span class="rc-val">${d.admissao||'—'}</span></div>
-        <div class="rc" style="border-right:none"><span class="rc-lbl">Salário Base</span><span class="rc-val">${fmtN2(d.sal)}</span></div>
-      </div>
-
-      <!-- TABELA DE VERBAS -->
-      <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;border-bottom:1px solid #000;">
-      <table class="rec-table" style="border-bottom:none;">
-        <thead><tr>
-          <th style="width:46px">Código</th>
-          <th>Descrição</th>
-          <th class="r" style="width:68px">Referência</th>
-          <th class="r" style="width:80px">Vencimentos</th>
-          <th class="r" style="width:80px">Descontos</th>
-        </tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-      </div>
-
-      <!-- TOTAIS -->
-      <div class="rec-totais-wrap">
-        <div class="rec-tot-row">
-          <div class="rtc"><span class="rtc-lbl">Total de Vencimentos</span><span class="rtc-val">${fmtN2(d.totVenc)}</span></div>
-          <div class="rtc"><span class="rtc-lbl">Total de Descontos</span><span class="rtc-val">${fmtN2(d.totDesc)}</span></div>
-        </div>
-        <div class="rec-tot-row rec-tot-liq">
-          <div class="rtc" style="border-right:none">
-            <span class="rtc-lbl">Valor Líquido ⇒</span>
-            <span class="rtc-val" style="font-size:9pt">${fmtN2(d.liq)}</span>
+        <!-- CABEÇALHO -->
+        <div class="rec-header">
+          <div>
+            <div class="rec-empresa">${d.emp||'Nome da Empresa'}</div>
+            <div class="rec-cnpj">${d.cnpj?'CNPJ: '+d.cnpj:''}</div>
+          </div>
+          <div class="rec-header-right">
+            <div class="rec-folha">${d.folha||'Folha Mensal'}</div>
+            <div class="rec-comp">${d.comp||'—'}</div>
           </div>
         </div>
-        <div class="rec-tot-row">
-          <div class="rtc"><span class="rtc-lbl">Salário Base</span><span class="rtc-val">${fmtN2(d.sal)}</span></div>
-          <div class="rtc"><span class="rtc-lbl">Sal. Contr. INSS</span><span class="rtc-val">${fmtN2(d.totVenc)}</span></div>
-          <div class="rtc"><span class="rtc-lbl">Base Cálc. FGTS</span><span class="rtc-val">${fmtN2(d.encs.fgts?d.fgtsBase:d.totVenc)}</span></div>
-          <div class="rtc"><span class="rtc-lbl">F.G.T.S do Mês</span><span class="rtc-val">${fmtN2(d.fgtsVal)}</span></div>
-          <div class="rtc"><span class="rtc-lbl">Base Cálc. IRRF</span><span class="rtc-val">${fmtN2(d.irrfBase)}</span></div>
-          <div class="rtc" style="border-right:none"><span class="rtc-lbl">Faixa IRRF</span><span class="rtc-val">${d.encs.irrf?d.irrfFaixa+'%':'—'}</span></div>
+
+        <!-- LINHA 1: Nome do Funcionário | Tipo -->
+        <div class="rec-row1">
+          <div class="rc" style="flex:1;white-space:normal"><span class="rc-lbl">Nome do Funcionário</span><span class="rc-val">${d.func||'—'}</span></div>
+          <div class="rc" style="border-right:none"><span class="rc-lbl">Tipo</span><span class="rc-val">${d.tipo||'Mensalista'}</span></div>
+        </div>
+
+        <!-- LINHA 2: Cargo | Admissão | Sal Base -->
+        <div class="rec-row2">
+          <div class="rc grow"><span class="rc-lbl">Cargo / Função</span><span class="rc-val">${d.cargo||'—'}</span></div>
+          <div class="rc"><span class="rc-lbl">Admissão</span><span class="rc-val">${d.admissao||'—'}</span></div>
+          <div class="rc" style="border-right:none"><span class="rc-lbl">Salário Base</span><span class="rc-val">${fmtN2(d.sal)}</span></div>
+        </div>
+
+        <!-- TABELA DE VERBAS -->
+        <table class="rec-table">
+          <thead><tr>
+            <th style="width:46px">Código</th>
+            <th>Descrição</th>
+            <th class="r" style="width:68px">Referência</th>
+            <th class="r" style="width:80px">Vencimentos</th>
+            <th class="r" style="width:80px">Descontos</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+
+        <!-- TOTAIS -->
+        <div class="rec-totais-wrap">
+          <div class="rec-tot-row">
+            <div class="rtc span-all"></div>
+            <div class="rtc"><span class="rtc-lbl">Total de Vencimentos</span><span class="rtc-val">${fmtN2(d.totVenc)}</span></div>
+            <div class="rtc"><span class="rtc-lbl">Total de Descontos</span><span class="rtc-val">${fmtN2(d.totDesc)}</span></div>
+          </div>
+          <div class="rec-tot-row rec-tot-liq">
+            <div class="rtc" style="grid-column:1/3"><span class="rtc-lbl">&nbsp;</span></div>
+            <div class="rtc" style="text-align:right"><span class="rtc-lbl" style="font-size:7pt;">Valor Líquido ⇒</span></div>
+            <div class="rtc" style="grid-column:4/6;border-right:none;text-align:right"><span class="rtc-val" style="font-size:8pt;">${fmtN2(d.liq)}</span></div>
+          </div>
+          ${(d.encs.inss || d.encs.fgts || d.encs.irrf) ? `
+          <div class="rec-tot-row">
+            <div class="rtc"><span class="rtc-lbl">Salário Base</span><span class="rtc-val" style="text-align:left">${fmtN2(d.sal)}</span></div>
+            ${d.encs.inss ? `<div class="rtc"><span class="rtc-lbl">Sal. Contr. INSS</span><span class="rtc-val" style="text-align:left">${fmtN2(d.totVenc)}</span></div>` : '<div class="rtc"></div>'}
+            ${d.encs.fgts ? `<div class="rtc"><span class="rtc-lbl">Base Cálc. FGTS</span><span class="rtc-val" style="text-align:left">${fmtN2(d.fgtsBase)}</span></div>` : '<div class="rtc"></div>'}
+            ${d.encs.fgts ? `<div class="rtc"><span class="rtc-lbl">F.G.T.S do Mês</span><span class="rtc-val">${fmtN2(d.fgtsVal)}</span></div>` : '<div class="rtc"></div>'}
+            ${d.encs.irrf ? `<div class="rtc"><span class="rtc-lbl">Base Cálc. IRRF</span><span class="rtc-val">${fmtN2(d.irrfBase)}</span></div>` : '<div class="rtc"></div>'}
+          </div>` : ''}
+        </div>
+
+      </div><!-- /via-main -->
+
+      <!-- LATERAL DIREITA -->
+      <div class="via-lateral">
+        <div class="rec-rodape">
+          <div class="rec-rodape-top">
+            <span>Declaro ter recebido a importância líquida discriminada neste recibo.</span>
+          </div>
+          <div class="rec-rodape-bottom">
+            <div class="rec-rodape-data">
+              <div class="rec-rodape-linha"></div>
+              <span>Data</span>
+            </div>
+            <div class="rec-rodape-sig">
+              <div class="rec-rodape-linha"></div>
+              <span>Assinatura do Funcionário</span>
+            </div>
+          </div>
         </div>
       </div>
 
-    </div><!-- /via-main -->
-
-    <!-- LATERAL DIREITA — rodapé rotacionado 90° -->
-    <div class="via-lateral">
-      <div class="rec-rodape">
-        <div class="rec-rodape-top">
-          <span>Declaro ter recebido a importância líquida discriminada neste recibo.</span>
-        </div>
-        <div class="rec-rodape-bottom">
-          <div class="rec-rodape-data">
-            <div class="rec-rodape-linha"></div>
-            <span>Data</span>
-          </div>
-          <div class="rec-rodape-sig">
-            <div class="rec-rodape-linha"></div>
-            <span>Assinatura do Funcionário</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div><!-- /via-inner -->
-  <div class="via-sep">— Via ${viaLabel} —</div>
+    </div><!-- /via-inner -->
+  <div class="via-sep"></div>
 </div>`;
 }
 
