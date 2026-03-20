@@ -726,7 +726,10 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 <div id="pg-config">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
     <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800">⚙ Configuração de Fórmulas</div>
-    <button class="hbtn solid" onclick="showMain()">← Voltar</button>
+    <div style="display:flex;gap:.5rem">
+      <button class="hbtn ghost" style="background:var(--ink);color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.2)" onclick="alterarSenha()">🔒 Alterar Senha</button>
+      <button class="hbtn solid" onclick="showMain()">← Voltar</button>
+    </div>
   </div>
 
   <div class="config-grid">
@@ -770,6 +773,45 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
       <div class="config-card-title">Botões Rápidos</div>
       <div class="formula-hint" style="margin-bottom:.5rem">Verbas que aparecem como atalho no formulário</div>
       <div id="config-quick-list" style="display:flex;flex-direction:column;gap:.4rem;"></div>
+    </div>
+
+    <!-- TABELA INSS 2026 -->
+    <div class="config-card">
+      <div class="config-card-title">Tabela INSS 2026 <span class="config-formula">progressiva</span></div>
+      <table class="config-table">
+        <thead><tr>
+          <th>Faixa Salarial</th>
+          <th style="width:80px;text-align:right">Alíquota</th>
+          <th style="width:110px;text-align:right">Parcela a Deduzir</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>Até R$ 1.621,00</td><td style="text-align:right"><span class="config-badge venc">7,5%</span></td><td style="text-align:right;font-family:'Inconsolata',monospace">—</td></tr>
+          <tr><td>De R$ 1.621,01 até R$ 2.902,84</td><td style="text-align:right"><span class="config-badge venc">9%</span></td><td style="text-align:right;font-family:'Inconsolata',monospace">R$ 24,32</td></tr>
+          <tr><td>De R$ 2.902,85 até R$ 4.354,27</td><td style="text-align:right"><span class="config-badge venc">12%</span></td><td style="text-align:right;font-family:'Inconsolata',monospace">R$ 111,48</td></tr>
+          <tr><td>De R$ 4.354,28 até R$ 8.475,55</td><td style="text-align:right"><span class="config-badge venc">14%</span></td><td style="text-align:right;font-family:'Inconsolata',monospace">R$ 198,59</td></tr>
+        </tbody>
+      </table>
+      <div class="formula-hint" style="margin-top:.5rem">Teto do INSS 2026: R$ 8.475,55 · Máximo: R$ 988,09 · Mínimo: R$ 121,58</div>
+    </div>
+
+    <!-- TABELA IRRF 2025 -->
+    <div class="config-card">
+      <div class="config-card-title">Tabela IRRF 2025 <span class="config-formula">progressiva</span></div>
+      <table class="config-table">
+        <thead><tr>
+          <th>Base de Cálculo</th>
+          <th style="width:70px;text-align:right">Alíquota</th>
+          <th style="width:100px;text-align:right">Dedução</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>Até R$ 2.259,20</td><td style="text-align:right"><span class="config-badge venc">Isento</span></td><td style="text-align:right;font-family:'Inconsolata',monospace">—</td></tr>
+          <tr><td>De R$ 2.259,21 até R$ 2.826,65</td><td style="text-align:right"><span class="config-badge venc">7,5%</span></td><td style="text-align:right;font-family:'Inconsolata',monospace">R$ 169,44</td></tr>
+          <tr><td>De R$ 2.826,66 até R$ 3.751,05</td><td style="text-align:right"><span class="config-badge venc">15%</span></td><td style="text-align:right;font-family:'Inconsolata',monospace">R$ 381,44</td></tr>
+          <tr><td>De R$ 3.751,06 até R$ 4.664,68</td><td style="text-align:right"><span class="config-badge venc">22,5%</span></td><td style="text-align:right;font-family:'Inconsolata',monospace">R$ 662,77</td></tr>
+          <tr><td>Acima de R$ 4.664,68</td><td style="text-align:right"><span class="config-badge desc">27,5%</span></td><td style="text-align:right;font-family:'Inconsolata',monospace">R$ 896,00</td></tr>
+        </tbody>
+      </table>
+      <div class="formula-hint" style="margin-top:.5rem">Dedução por dependente: R$ 189,59 · Dedução INSS integral</div>
     </div>
 
   </div>
@@ -849,13 +891,13 @@ function calc() {
     if (v.auto) {
       const r = calcVerba(v, sal, salDia, salHora, valDias);
       v.venc = r.venc;
-      v.desc = r.desc;
+      v.desc2 = r.desc || 0; // desc2 = valor desconto, desc = descrição textual
     }
   });
 
   // totals
   let totVenc = verbas.reduce((s,v) => s + (v.venc||0), 0);
-  let totDesc = verbas.reduce((s,v) => s + (v.desc||0), 0);
+  let totDesc = verbas.reduce((s,v) => s + (v.desc2||0), 0);
 
   // INSS
   let inssVal = 0;
@@ -901,6 +943,8 @@ function calc() {
   document.getElementById('t-baseirrf').textContent = fmtBRL(irrfBase);
   document.getElementById('t-faixairrf').textContent = encs.irrf ? irrfFaixa + '%' : '—';
 
+  // renderVerbasList primeiro para salvar valores do DOM no array
+  // depois renderPreview que lê do array já atualizado
   renderVerbasList();
   renderPreview();
 }
@@ -945,6 +989,7 @@ function addVerbaDiasNormais() {
     id: Date.now(), cod:'8781', desc:'DIAS NORMAIS', ref: String(dias),
     venc: 0, desc2: 0, auto: true, autoType:'diasnormais', tipo:'venc'
   });
+  renderVerbasList();
 }
 
 function quickAdd(type) {
@@ -999,9 +1044,7 @@ function updateVerba(id, field, val) {
   else if (field === 'ref') {
     v.ref = val;
     if (v.auto) calc(); else renderPreview();
-  }
-  else {
-    // campos de texto (cod, desc) — só atualiza o dado e o preview, sem re-renderizar a lista
+  } else {
     v[field] = val;
     renderPreview();
   }
@@ -1009,22 +1052,29 @@ function updateVerba(id, field, val) {
 
 function renderVerbasList() {
   const list = document.getElementById('verbas-list');
-  if (!verbas.length) { list.innerHTML = '<div style="text-align:center;padding:.75rem;color:var(--ink3);font-size:.8rem">Nenhuma verba adicionada</div>'; return; }
+  if (!verbas.length) {
+    list.innerHTML = '<div style="text-align:center;padding:.75rem;color:var(--ink3);font-size:.8rem">Nenhuma verba adicionada</div>';
+    return;
+  }
   list.innerHTML = verbas.map(v => {
     const vencCls = v.auto && v.autoType !== 'adiant' ? 'auto' : '';
     const descCls = v.auto && v.autoType === 'adiant' ? 'desc-auto' : '';
+    const cfgV = configVerbas.find(c=>c.id===v.autoType);
     const refLabel = v.autoType==='he50'||v.autoType==='he100' ? 'horas' :
-                     v.autoType==='adicfunc'||v.autoType==='premiotempo' ? '%' : '';
-    return `<div class="verba-row">
-      <input value="${v.cod}" placeholder="Cód" style="text-align:left" oninput="updateVerba(${v.id},'cod',this.value)">
-      <input value="${v.desc}" placeholder="Descrição do lançamento" class="desc-input" style="text-align:left;font-size:.82rem" oninput="updateVerba(${v.id},'desc',this.value)">
-      <input value="${v.ref}" placeholder="${refLabel||'ref'}" oninput="updateVerba(${v.id},'ref',this.value)" title="${v.autoType==='he50'||v.autoType==='he100'?'Informe as horas':v.autoType==='adicfunc'?'Informe o percentual':''}">
-      <input value="${v.venc > 0 ? fmtN(v.venc) : ''}" placeholder="0,00" class="${vencCls}" ${v.auto && v.autoType!=='adiant' ? 'readonly' : ''} oninput="updateVerba(${v.id},'venc',this.value)">
-      <input value="${v.desc2 > 0 ? fmtN(v.desc2) : v.tipo==='desc'&&v.ref ? fmtN(parseFloat(v.ref)||0) : ''}" placeholder="0,00" class="${descCls}" ${v.auto && v.autoType==='adiant' ? 'readonly' : ''} oninput="updateVerba(${v.id},'desc2',this.value)">
+                     v.autoType==='adicfunc'||v.autoType==='premiotempo' ? '%' :
+                     cfgV ? cfgV.refLabel : '';
+    return `<div class="verba-row" data-id="${v.id}">
+      <input value="${escHtml(v.cod||'')}" placeholder="Cód" style="text-align:left" oninput="updateVerba(${v.id},'cod',this.value)">
+      <input value="${escHtml(v.desc||'')}" placeholder="Descrição do lançamento" class="desc-input" style="text-align:left;font-size:.82rem" oninput="updateVerba(${v.id},'desc',this.value)">
+      <input value="${escHtml(v.ref||'')}" placeholder="${refLabel||'ref'}" oninput="updateVerba(${v.id},'ref',this.value)">
+      <input value="${v.venc > 0 ? fmtN(v.venc) : ''}" placeholder="0,00" class="${vencCls}" ${v.auto && v.autoType!=='adiant' ? 'readonly' : ''} oninput="updateVerba(${v.id},'venc',this.value)" data-field="venc">
+      <input value="${v.desc2 > 0 ? fmtN(v.desc2) : v.tipo==='desc'&&v.ref ? fmtN(parseFloat(v.ref)||0) : ''}" placeholder="0,00" class="${descCls}" ${v.auto && v.autoType==='adiant' ? 'readonly' : ''} oninput="updateVerba(${v.id},'desc2',this.value)" data-field="desc2">
       <button class="btn-rm" onclick="removeVerba(${v.id})">×</button>
     </div>`;
   }).join('');
 }
+
+function escHtml(s){ return (s||'').replace(/"/g,'&quot;'); }
 
 // ── DATA ──
 function getData() {
@@ -1067,8 +1117,24 @@ function getData() {
 
 // ── PREVIEW ──
 function renderPreview() {
+  // sincroniza DOM -> array antes de ler
+  syncDOMtoVerbas();
   const d = getData();
   document.getElementById('recibo-doc').innerHTML = buildViaHTML(d, 'EMPRESA') + buildViaHTML(d, 'FUNCIONÁRIO');
+}
+
+function syncDOMtoVerbas() {
+  const list = document.getElementById('verbas-list');
+  if (!list) return;
+  list.querySelectorAll('.verba-row').forEach(row => {
+    const id = Number(row.dataset.id);
+    const v = verbas.find(x => x.id === id);
+    if (!v) return;
+    const inputs = row.querySelectorAll('input');
+    if (inputs[0]) v.cod  = inputs[0].value;
+    if (inputs[1]) v.desc = inputs[1].value;
+    if (inputs[2] && !v.auto) v.ref = inputs[2].value;
+  });
 }
 
 function buildViaHTML(d, viaLabel) {
@@ -1077,7 +1143,7 @@ function buildViaHTML(d, viaLabel) {
   // montar linhas de verbas
   let rowsData = [];
   const dn = d.verbas.find(v=>v.autoType==='diasnormais');
-  if(dn) rowsData.push({cod:'8781', desc:'DIAS NORMAIS', ref:fmtRef(dn,'d',d.dias), venc:fmtN2(dn.venc), desc:''});
+  if(dn) rowsData.push({cod:'8781', desc:'DIAS NORMAIS', ref:fmtRef(dn,'d',d.dias), venc:fmtN2(dn.venc), descv:''});
   d.verbas.filter(v=>v.autoType!=='diasnormais').forEach(v=>{
     const vencVal = v.venc > 0 ? fmtN2(v.venc) : '';
     const dv = v.desc2 > 0 ? v.desc2 : (v.tipo==='desc'&&v.ref ? parseFloat(v.ref)||0 : 0);
@@ -1090,7 +1156,7 @@ function buildViaHTML(d, viaLabel) {
   // preencher com linhas vazias até TOTAL_ROWS
   let rows = '';
   rowsData.forEach((r,i) => {
-    rows += `<tr><td class="cod">${r.cod}</td><td>${r.desc}</td><td class="r">${r.ref}</td><td class="r">${r.venc}</td><td class="r">${r.descv||''}</td></tr>`;
+    rows += `<tr><td class="cod">${r.cod}</td><td>${r.desc}</td><td class="r">${r.ref}</td><td class="r">${r.venc ? 'R$ '+r.venc : ''}</td><td class="r">${r.descv ? 'R$ '+r.descv : ''}</td></tr>`;
   });
   const empty = TOTAL_ROWS - rowsData.length;
   for(let i=0; i<empty; i++){
@@ -1124,7 +1190,7 @@ function buildViaHTML(d, viaLabel) {
         <div class="rec-row2">
           <div class="rc grow"><span class="rc-lbl">Cargo / Função</span><span class="rc-val">${d.cargo||'—'}</span></div>
           <div class="rc"><span class="rc-lbl">Admissão</span><span class="rc-val">${d.admissao||'—'}</span></div>
-          <div class="rc" style="border-right:none"><span class="rc-lbl">Salário Base</span><span class="rc-val">${fmtN2(d.sal)}</span></div>
+          <div class="rc" style="border-right:none;min-width:90px"><span class="rc-lbl">Salário Base</span><span class="rc-val">R$ ${fmtN2(d.sal)}</span></div>
         </div>
 
         <!-- TABELA DE VERBAS -->
@@ -1132,9 +1198,9 @@ function buildViaHTML(d, viaLabel) {
           <thead><tr>
             <th style="width:46px">Código</th>
             <th>Descrição</th>
-            <th class="r" style="width:68px">Referência</th>
-            <th class="r" style="width:80px">Vencimentos</th>
-            <th class="r" style="width:80px">Descontos</th>
+            <th class="r" style="width:60px">Referência</th>
+            <th class="r" style="width:88px">Vencimentos</th>
+            <th class="r" style="width:88px">Descontos</th>
           </tr></thead>
           <tbody>${rows}</tbody>
         </table>
@@ -1143,21 +1209,21 @@ function buildViaHTML(d, viaLabel) {
         <div class="rec-totais-wrap">
           <div class="rec-tot-row">
             <div class="rtc span-all"></div>
-            <div class="rtc"><span class="rtc-lbl">Total de Vencimentos</span><span class="rtc-val">${fmtN2(d.totVenc)}</span></div>
-            <div class="rtc"><span class="rtc-lbl">Total de Descontos</span><span class="rtc-val">${fmtN2(d.totDesc)}</span></div>
+            <div class="rtc"><span class="rtc-lbl">Total de Vencimentos</span><span class="rtc-val">R$ ${fmtN2(d.totVenc)}</span></div>
+            <div class="rtc"><span class="rtc-lbl">Total de Descontos</span><span class="rtc-val">R$ ${fmtN2(d.totDesc)}</span></div>
           </div>
           <div class="rec-tot-row rec-tot-liq">
             <div class="rtc" style="grid-column:1/3"><span class="rtc-lbl">&nbsp;</span></div>
             <div class="rtc" style="text-align:right"><span class="rtc-lbl" style="font-size:7pt;">Valor Líquido ⇒</span></div>
-            <div class="rtc" style="grid-column:4/6;border-right:none;text-align:right"><span class="rtc-val" style="font-size:8pt;">${fmtN2(d.liq)}</span></div>
+            <div class="rtc" style="grid-column:4/6;border-right:none;text-align:right"><span class="rtc-val" style="font-size:8pt;">R$ ${fmtN2(d.liq)}</span></div>
           </div>
           ${(d.encs.inss || d.encs.fgts || d.encs.irrf) ? `
           <div class="rec-tot-row">
-            <div class="rtc"><span class="rtc-lbl">Salário Base</span><span class="rtc-val" style="text-align:left">${fmtN2(d.sal)}</span></div>
-            ${d.encs.inss ? `<div class="rtc"><span class="rtc-lbl">Sal. Contr. INSS</span><span class="rtc-val" style="text-align:left">${fmtN2(d.totVenc)}</span></div>` : '<div class="rtc"></div>'}
-            ${d.encs.fgts ? `<div class="rtc"><span class="rtc-lbl">Base Cálc. FGTS</span><span class="rtc-val" style="text-align:left">${fmtN2(d.fgtsBase)}</span></div>` : '<div class="rtc"></div>'}
-            ${d.encs.fgts ? `<div class="rtc"><span class="rtc-lbl">F.G.T.S do Mês</span><span class="rtc-val">${fmtN2(d.fgtsVal)}</span></div>` : '<div class="rtc"></div>'}
-            ${d.encs.irrf ? `<div class="rtc"><span class="rtc-lbl">Base Cálc. IRRF</span><span class="rtc-val">${fmtN2(d.irrfBase)}</span></div>` : '<div class="rtc"></div>'}
+            <div class="rtc"><span class="rtc-lbl">Salário Base</span><span class="rtc-val" style="text-align:left">R$ ${fmtN2(d.sal)}</span></div>
+            ${d.encs.inss ? `<div class="rtc"><span class="rtc-lbl">Sal. Contr. INSS</span><span class="rtc-val" style="text-align:left">R$ ${fmtN2(d.totVenc)}</span></div>` : '<div class="rtc"></div>'}
+            ${d.encs.fgts ? `<div class="rtc"><span class="rtc-lbl">Base Cálc. FGTS</span><span class="rtc-val" style="text-align:left">R$ ${fmtN2(d.fgtsBase)}</span></div>` : '<div class="rtc"></div>'}
+            ${d.encs.fgts ? `<div class="rtc"><span class="rtc-lbl">F.G.T.S do Mês</span><span class="rtc-val">R$ ${fmtN2(d.fgtsVal)}</span></div>` : '<div class="rtc"></div>'}
+            ${d.encs.irrf ? `<div class="rtc"><span class="rtc-lbl">Base Cálc. IRRF</span><span class="rtc-val">R$ ${fmtN2(d.irrfBase)}</span></div>` : '<div class="rtc"></div>'}
           </div>` : ''}
         </div>
 
@@ -1399,6 +1465,13 @@ function saveConfig() {
 }
 
 function showConfig() {
+  const CONFIG_PASS = localStorage.getItem('cfg_senha') || '1234';
+  const input = prompt('Digite a senha para acessar as Fórmulas:');
+  if (input === null) return; // cancelou
+  if (input !== CONFIG_PASS) {
+    toast('Senha incorreta!', 'err');
+    return;
+  }
   document.getElementById('pg-main').style.display='none';
   document.getElementById('pg-hist').style.display='none';
   document.getElementById('pg-config').style.display='block';
@@ -1528,6 +1601,19 @@ function calcVerba(v, sal, salDia, salHora, valDias) {
     case 'adiant':     desc = parseFloat(v.ref)||0; break;
   }
   return { venc, desc };
+}
+
+function alterarSenha() {
+  const atual = localStorage.getItem('cfg_senha') || '1234';
+  const confirmAtual = prompt('Digite a senha atual:');
+  if (confirmAtual === null) return;
+  if (confirmAtual !== atual) { toast('Senha atual incorreta!', 'err'); return; }
+  const nova = prompt('Digite a nova senha:');
+  if (!nova || nova.trim() === '') { toast('Senha não pode ser vazia!', 'err'); return; }
+  const confirma = prompt('Confirme a nova senha:');
+  if (nova !== confirma) { toast('Senhas não conferem!', 'err'); return; }
+  localStorage.setItem('cfg_senha', nova);
+  toast('Senha alterada com sucesso!');
 }
 </script>
 </body>
