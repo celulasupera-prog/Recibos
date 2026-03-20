@@ -191,7 +191,8 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   font-family:Arial,Helvetica,sans-serif;
   font-size:8pt;color:#000;
   border:1px solid #bbb;
-  padding:18px;
+  border-bottom:none;
+  padding:28px 18px 0px 18px;
 }
 
 /* cada via = exatamente metade do A4 com margem de impressão */
@@ -413,6 +414,29 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   transform:translateY(80px);opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);z-index:999;}
 .toast.show{transform:translateY(0);opacity:1;}
 .toast.err{background:var(--red);}
+
+/* CONFIG PAGE */
+#pg-config{display:none;padding:1.5rem;max-width:1000px;margin:0 auto;}
+.config-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem;}
+.config-card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:1.1rem;box-shadow:var(--shadow);}
+.config-card-title{font-family:'Syne',sans-serif;font-size:.8rem;font-weight:700;color:var(--ink);margin-bottom:.75rem;display:flex;align-items:center;justify-content:space-between;}
+.config-formula{font-size:.7rem;color:var(--ink3);background:#f5f5f3;border-radius:4px;padding:3px 7px;font-family:'Inconsolata',monospace;}
+.config-table{width:100%;border-collapse:collapse;margin-top:.5rem;}
+.config-table th{font-size:.65rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);padding:.3rem .5rem;border-bottom:1px solid var(--border);text-align:left;}
+.config-table td{padding:.35rem .5rem;border-bottom:1px solid #f0ede8;font-size:.82rem;vertical-align:middle;}
+.config-table tr:last-child td{border-bottom:none;}
+.config-table input{font-family:'Lato',sans-serif;font-size:.82rem;padding:.28rem .5rem;border:1.5px solid var(--border);border-radius:4px;background:#fff;color:var(--ink);outline:none;width:100%;}
+.config-table input:focus{border-color:var(--accent);}
+.config-table select{font-family:'Lato',sans-serif;font-size:.82rem;padding:.28rem .5rem;border:1.5px solid var(--border);border-radius:4px;background:#fff;color:var(--ink);outline:none;}
+.config-badge{font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:3px;text-transform:uppercase;letter-spacing:.05em;}
+.config-badge.venc{background:#eaf5ee;color:#1a7a4a;}
+.config-badge.desc{background:#fdecea;color:#c0392b;}
+.btn-del-config{width:26px;height:26px;border:none;background:transparent;color:#ccc;cursor:pointer;border-radius:4px;font-size:.9rem;}
+.btn-del-config:hover{background:#fdecea;color:#c0392b;}
+.btn-add-config{font-family:'Syne',sans-serif;font-size:.72rem;font-weight:600;letter-spacing:.06em;color:var(--accent);background:transparent;border:1.5px dashed #b0c4f8;border-radius:5px;padding:.45rem;cursor:pointer;width:100%;margin-top:.5rem;}
+.btn-add-config:hover{background:var(--accent2);}
+.formula-hint{font-size:.68rem;color:var(--ink3);margin-top:.25rem;font-style:italic;}
+.config-full{grid-column:span 2;}
 </style>
 </head>
 <body>
@@ -420,6 +444,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 <header class="app-header">
   <div class="app-logo">Recibos <span>BETA</span></div>
   <div class="hbtns">
+    <button class="hbtn ghost" onclick="showConfig()">⚙ Fórmulas</button>
     <button class="hbtn ghost" onclick="showHist()">Histórico</button>
     <button class="hbtn solid" onclick="novoRecibo()">+ Novo</button>
   </div>
@@ -553,15 +578,8 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
       <!-- Lançamentos rápidos -->
       <div style="margin-top:.75rem;padding-top:.75rem;border-top:1px dashed var(--border);">
         <div style="font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:.5rem;">Adicionar rapidamente:</div>
-        <div style="display:flex;gap:.4rem;flex-wrap:wrap;">
-          <button class="hcbtn" onclick="quickAdd('he50')">HE 50%</button>
-          <button class="hcbtn" onclick="quickAdd('he100')">HE 100%</button>
-          <button class="hcbtn" onclick="quickAdd('adicfunc')">Adicional Função</button>
-          <button class="hcbtn" onclick="quickAdd('ajudacusto')">Ajuda de Custo</button>
-          <button class="hcbtn" onclick="quickAdd('adiant')">Adiantamento</button>
-          <button class="hcbtn" onclick="quickAdd('pernoite')">Pernoite</button>
-          <button class="hcbtn" onclick="quickAdd('gratviagem')">Grat. Viagem</button>
-          <button class="hcbtn" onclick="quickAdd('almoco')">Almoço/Jantar</button>
+        <div class="hcbtns-quick" style="display:flex;gap:.4rem;flex-wrap:wrap;">
+          <!-- preenchido dinamicamente por renderQuickAddButtons() -->
         </div>
       </div>
     </div>
@@ -704,6 +722,59 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   <div class="hist-grid" id="hist-grid"></div>
 </div>
 
+<!-- CONFIG PAGE -->
+<div id="pg-config">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+    <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800">⚙ Configuração de Fórmulas</div>
+    <button class="hbtn solid" onclick="showMain()">← Voltar</button>
+  </div>
+
+  <div class="config-grid">
+
+    <!-- VERBAS PADRÃO -->
+    <div class="config-card config-full">
+      <div class="config-card-title">
+        Verbas Cadastradas
+        <button class="btn-add-config" style="width:auto;padding:.35rem 1rem" onclick="addConfigVerba()">+ Nova Verba</button>
+      </div>
+      <div class="formula-hint">Fórmulas disponíveis: <code>sal</code> = salário base, <code>salHora</code> = salário/hora, <code>salDia</code> = salário/dia, <code>ref</code> = referência digitada no recibo</div>
+      <table class="config-table" style="margin-top:.75rem">
+        <thead><tr>
+          <th style="width:60px">Código</th>
+          <th>Descrição</th>
+          <th style="width:80px">Tipo</th>
+          <th style="width:80px">Ref.</th>
+          <th>Fórmula (Vencimento)</th>
+          <th>Fórmula (Desconto)</th>
+          <th style="width:30px"></th>
+        </tr></thead>
+        <tbody id="config-verbas-body"></tbody>
+      </table>
+    </div>
+
+    <!-- PARÂMETROS GERAIS -->
+    <div class="config-card">
+      <div class="config-card-title">Parâmetros Gerais</div>
+      <table class="config-table">
+        <tbody>
+          <tr><td style="color:var(--ink2);font-size:.78rem">Horas mensais (divisor hora)</td><td><input type="number" id="cfg-horas-mes" value="220" oninput="saveConfig()"></td></tr>
+          <tr><td style="color:var(--ink2);font-size:.78rem">Multiplicador HE 50%</td><td><input type="number" id="cfg-he50-mult" value="1.5" step="0.01" oninput="saveConfig()"></td></tr>
+          <tr><td style="color:var(--ink2);font-size:.78rem">Multiplicador HE 100%</td><td><input type="number" id="cfg-he100-mult" value="2.0" step="0.01" oninput="saveConfig()"></td></tr>
+          <tr><td style="color:var(--ink2);font-size:.78rem">Alíquota FGTS (%)</td><td><input type="number" id="cfg-fgts-aliq" value="8" step="0.01" oninput="saveConfig()"></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- BOTÕES RÁPIDOS -->
+    <div class="config-card">
+      <div class="config-card-title">Botões Rápidos</div>
+      <div class="formula-hint" style="margin-bottom:.5rem">Verbas que aparecem como atalho no formulário</div>
+      <div id="config-quick-list" style="display:flex;flex-direction:column;gap:.4rem;"></div>
+    </div>
+
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -723,10 +794,23 @@ window.onload = () => {
   const dias = new Date(y, now.getMonth()+1, 0).getDate();
   document.getElementById('f-diasmes').value = dias;
   document.getElementById('f-dias').value = dias;
-  // add dias normais by default
+  renderQuickAddButtons();
   addVerbaDiasNormais();
   calc();
 };
+
+function renderQuickAddButtons() {
+  const container = document.querySelector('.hcbtns-quick');
+  if(!container) return;
+  // botões fixos sempre presentes
+  let html = `<button class="hcbtn" onclick="quickAdd('he50')">HE 50%</button>
+    <button class="hcbtn" onclick="quickAdd('he100')">HE 100%</button>`;
+  // verbas configuradas
+  configVerbas.forEach(v => {
+    html += `<button class="hcbtn" onclick="quickAddConfig('${v.id}')">${v.desc.length>15?v.cod+' '+v.desc.slice(0,12)+'…':v.desc}</button>`;
+  });
+  container.innerHTML = html;
+}
 
 // ── TOGGLE ENCS ──
 function toggleEnc(key) {
@@ -1287,6 +1371,163 @@ function toast(msg, type='') {
   const t=document.getElementById('toast');
   t.textContent=msg; t.className='toast '+(type==='err'?'err':'')+' show';
   setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ── CONFIG ──
+const DEFAULT_CONFIG_VERBAS = [
+  { id:'he50',   cod:'150', desc:'HORAS EXTRAS - 50%',      tipo:'venc', refLabel:'horas', formulaVenc:'ref * salHora * 1.5', formulaDesc:'' },
+  { id:'he100',  cod:'200', desc:'HORAS EXTRAS 100%',       tipo:'venc', refLabel:'horas', formulaVenc:'ref * salHora * 2',   formulaDesc:'' },
+  { id:'adicfunc',cod:'348',desc:'ADICIONAL DE FUNÇÃO',     tipo:'venc', refLabel:'%',     formulaVenc:'sal * ref / 100',     formulaDesc:'' },
+  { id:'premiotempo',cod:'576',desc:'PRÊMIO TEMPO SERVIÇO', tipo:'venc', refLabel:'%',     formulaVenc:'sal * ref / 100',     formulaDesc:'' },
+  { id:'ajudacusto',cod:'583',desc:'AJUDA DE CUSTO',        tipo:'venc', refLabel:'valor', formulaVenc:'ref',                 formulaDesc:'' },
+  { id:'adiant',  cod:'231', desc:'DESC. ADIANT. SALARIAL', tipo:'desc', refLabel:'valor', formulaVenc:'',                   formulaDesc:'ref' },
+  { id:'pernoite',cod:'256', desc:'PERNOITE',               tipo:'venc', refLabel:'qtd',   formulaVenc:'ref',                 formulaDesc:'' },
+  { id:'gratviagem',cod:'588',desc:'GRATIFICAÇÃO VIAGEM',   tipo:'venc', refLabel:'valor', formulaVenc:'ref',                 formulaDesc:'' },
+  { id:'almoco',  cod:'448', desc:'ALMOÇO MOTORISTA',       tipo:'venc', refLabel:'valor', formulaVenc:'ref',                 formulaDesc:'' },
+];
+
+let configVerbas = JSON.parse(localStorage.getItem('cfg_verbas') || 'null') || DEFAULT_CONFIG_VERBAS.map(v=>({...v}));
+let configParams = JSON.parse(localStorage.getItem('cfg_params') || 'null') || { horasMes:220, he50Mult:1.5, he100Mult:2.0, fgtsAliq:8 };
+
+function saveConfig() {
+  configParams.horasMes  = parseFloat(document.getElementById('cfg-horas-mes').value)||220;
+  configParams.he50Mult  = parseFloat(document.getElementById('cfg-he50-mult').value)||1.5;
+  configParams.he100Mult = parseFloat(document.getElementById('cfg-he100-mult').value)||2.0;
+  configParams.fgtsAliq  = parseFloat(document.getElementById('cfg-fgts-aliq').value)||8;
+  localStorage.setItem('cfg_params', JSON.stringify(configParams));
+  toast('Configurações salvas!');
+}
+
+function showConfig() {
+  document.getElementById('pg-main').style.display='none';
+  document.getElementById('pg-hist').style.display='none';
+  document.getElementById('pg-config').style.display='block';
+  renderConfigVerbas();
+  renderQuickList();
+  // load params
+  document.getElementById('cfg-horas-mes').value = configParams.horasMes;
+  document.getElementById('cfg-he50-mult').value = configParams.he50Mult;
+  document.getElementById('cfg-he100-mult').value = configParams.he100Mult;
+  document.getElementById('cfg-fgts-aliq').value = configParams.fgtsAliq;
+}
+
+function showMain() {
+  document.getElementById('pg-main').style.display='block';
+  document.getElementById('pg-hist').style.display='none';
+  document.getElementById('pg-config').style.display='none';
+  // sync quickAdd buttons com configVerbas
+  syncQuickAddButtons();
+}
+
+function renderConfigVerbas() {
+  const tbody = document.getElementById('config-verbas-body');
+  tbody.innerHTML = configVerbas.map((v,i) => `
+    <tr>
+      <td><input value="${v.cod}" oninput="updateConfigVerba(${i},'cod',this.value)" placeholder="Cód"></td>
+      <td><input value="${v.desc}" oninput="updateConfigVerba(${i},'desc',this.value)" placeholder="Descrição"></td>
+      <td>
+        <select onchange="updateConfigVerba(${i},'tipo',this.value)">
+          <option value="venc" ${v.tipo==='venc'?'selected':''}>Vencimento</option>
+          <option value="desc" ${v.tipo==='desc'?'selected':''}>Desconto</option>
+        </select>
+      </td>
+      <td><input value="${v.refLabel}" oninput="updateConfigVerba(${i},'refLabel',this.value)" placeholder="ex: horas"></td>
+      <td><input value="${v.formulaVenc}" oninput="updateConfigVerba(${i},'formulaVenc',this.value)" placeholder="ex: ref * salHora * 1.5" style="font-family:'Inconsolata',monospace;font-size:.78rem"></td>
+      <td><input value="${v.formulaDesc}" oninput="updateConfigVerba(${i},'formulaDesc',this.value)" placeholder="ex: ref" style="font-family:'Inconsolata',monospace;font-size:.78rem"></td>
+      <td><button class="btn-del-config" onclick="delConfigVerba(${i})">×</button></td>
+    </tr>
+  `).join('');
+}
+
+function renderQuickList() {
+  const el = document.getElementById('config-quick-list');
+  el.innerHTML = configVerbas.map((v,i) => `
+    <div style="display:flex;align-items:center;gap:.5rem;padding:.3rem .5rem;background:#fafaf9;border:1px solid var(--border);border-radius:5px;">
+      <span style="font-family:'Inconsolata',monospace;font-size:.72rem;color:var(--ink3);width:40px">${v.cod}</span>
+      <span style="flex:1;font-size:.8rem">${v.desc}</span>
+      <span class="config-badge ${v.tipo}">${v.tipo==='venc'?'Venc.':'Desc.'}</span>
+    </div>
+  `).join('');
+}
+
+function updateConfigVerba(i, field, val) {
+  configVerbas[i][field] = val;
+  localStorage.setItem('cfg_verbas', JSON.stringify(configVerbas));
+}
+
+function addConfigVerba() {
+  configVerbas.push({
+    id: 'custom_'+Date.now(), cod:'', desc:'Nova Verba',
+    tipo:'venc', refLabel:'valor', formulaVenc:'ref', formulaDesc:''
+  });
+  localStorage.setItem('cfg_verbas', JSON.stringify(configVerbas));
+  renderConfigVerbas();
+  renderQuickList();
+}
+
+function delConfigVerba(i) {
+  if(!confirm('Remover esta verba?')) return;
+  configVerbas.splice(i,1);
+  localStorage.setItem('cfg_verbas', JSON.stringify(configVerbas));
+  renderConfigVerbas();
+  renderQuickList();
+  syncQuickAddButtons();
+}
+
+function syncQuickAddButtons() {
+  // atualiza os botões rápidos no formulário
+  const container = document.querySelector('.hcbtns-quick');
+  if(!container) return;
+  container.innerHTML = configVerbas.map(v =>
+    `<button class="hcbtn" onclick="quickAddConfig('${v.id}')">${v.desc}</button>`
+  ).join('');
+}
+
+function quickAddConfig(id) {
+  const cfg = configVerbas.find(v=>v.id===id);
+  if(!cfg) return;
+  verbas.push({
+    id: Date.now(), cod:cfg.cod, desc:cfg.desc,
+    ref:'', venc:0, desc2:0,
+    auto: !!(cfg.formulaVenc||cfg.formulaDesc),
+    autoType: cfg.id, tipo: cfg.tipo,
+    formulaVenc: cfg.formulaVenc, formulaDesc: cfg.formulaDesc,
+    refLabel: cfg.refLabel
+  });
+  calc();
+}
+
+// sobrescreve calcVerba para usar fórmulas configuráveis
+function calcVerba(v, sal, salDia, salHora, valDias) {
+  let venc = 0, desc = 0;
+  const ref = parseFloat(v.ref)||0;
+  const horasMes = configParams.horasMes||220;
+  const salHoraCalc = sal / horasMes;
+
+  // verbas fixas
+  switch(v.autoType) {
+    case 'diasnormais': return { venc: valDias, desc: 0 };
+    case 'he50':  return { venc: ref * salHoraCalc * (configParams.he50Mult||1.5), desc: 0 };
+    case 'he100': return { venc: ref * salHoraCalc * (configParams.he100Mult||2.0), desc: 0 };
+  }
+
+  // verbas configuráveis com fórmula
+  const cfg = configVerbas.find(c=>c.id===v.autoType);
+  if(cfg) {
+    try {
+      if(cfg.formulaVenc) venc = Function('sal','salHora','salDia','ref','valDias',`return ${cfg.formulaVenc}`)(sal, salHoraCalc, salDia, ref, valDias)||0;
+      if(cfg.formulaDesc) desc = Function('sal','salHora','salDia','ref','valDias',`return ${cfg.formulaDesc}`)(sal, salHoraCalc, salDia, ref, valDias)||0;
+    } catch(e) { venc = 0; desc = 0; }
+    return { venc, desc };
+  }
+
+  // legado
+  switch(v.autoType) {
+    case 'adicfunc':   venc = sal*(parseFloat(v.ref)||0)/100; break;
+    case 'premiotempo':venc = sal*(parseFloat(v.ref)||0)/100; break;
+    case 'adiant':     desc = parseFloat(v.ref)||0; break;
+  }
+  return { venc, desc };
 }
 </script>
 </body>
