@@ -1315,29 +1315,78 @@ async function gerarPDF() {
   toast('PDF gerado!');
 }
 
-// ── SAVE / HIST ──
-function salvar() {
-  const d = getData();
-  if(!d.emp||!d.func){ toast('Preencha empresa e funcionário!','err'); return; }
-  if(editId) {
-    const i = hist.findIndex(h=>h.id===editId);
-    if(i>=0) hist[i] = {...d, id:editId};
-  } else {
-    hist.unshift({...d, id:Date.now()});
+// ── SUPABASE ──
+const SB_URL = 'https://vexaeculstthppbqmxqj.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZleGFlY3Vsc3R0aHBwYnFteHFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwMzM0NzIsImV4cCI6MjA4OTYwOTQ3Mn0.u-FLKKFarm_oqQeLhdOxx_zVDvDey2cQT209jdU1oQs';
+
+async function sbFetch(path, options={}) {
+  const headers = {
+    'apikey': SB_KEY,
+    'Authorization': 'Bearer ' + SB_KEY,
+    'Content-Type': 'application/json',
+  };
+  if (options.prefer) headers['Prefer'] = options.prefer;
+  const { prefer, ...rest } = options;
+  const res = await fetch(SB_URL + '/rest/v1/' + path, {
+    headers,
+    ...rest
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    console.error('Supabase error:', err);
+    throw new Error(err);
   }
-  localStorage.setItem('rec_hist_v2', JSON.stringify(hist));
-  editId = null;
-  toast('Recibo salvo!');
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
 }
 
-function showHist() {
+// ── SAVE / HIST ──
+async function salvar() {
+  const d = getData();
+  if(!d.emp||!d.func){ toast('Preencha empresa e funcionário!','err'); return; }
+  toast('Salvando...');
+  const row = {
+    id: editId || Date.now(),
+    emp: d.emp, func: d.func, cargo: d.cargo,
+    comp: d.comp, folha: d.folha,
+    liq: d.liq, tot_venc: d.totVenc, tot_desc: d.totDesc,
+    dados: d
+  };
+  try {
+    await sbFetch('recibos', {
+      method: 'POST',
+      prefer: 'resolution=merge-duplicates',
+      body: JSON.stringify(row)
+    });
+    editId = row.id;
+    toast('Recibo salvo! ✅');
+  } catch(e) {
+    console.error('Erro ao salvar:', e);
+    toast('Erro ao salvar: ' + e.message, 'err');
+  }
+}
+
+async function showHist() {
   document.getElementById('pg-main').style.display='none';
   document.getElementById('pg-hist').style.display='block';
-  renderHist();
+  document.getElementById('hist-grid').innerHTML='<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--ink3)">Carregando...</div>';
+  try {
+    const data = await sbFetch('recibos?select=*&order=saved_at.desc');
+    hist = data.map(r => ({...r.dados, id:r.id, liq:r.liq, totVenc:r.tot_venc, totDesc:r.tot_desc}));
+    renderHist();
+  } catch(e) {
+    // fallback localStorage
+    hist = JSON.parse(localStorage.getItem('rec_hist_v2')||'[]');
+    renderHist();
+    toast('Usando histórico local (sem conexão)', 'err');
+  }
 }
+
 function showMain() {
   document.getElementById('pg-main').style.display='block';
   document.getElementById('pg-hist').style.display='none';
+  document.getElementById('pg-config').style.display='none';
+  syncQuickAddButtons();
 }
 
 function renderHist() {
@@ -1368,7 +1417,6 @@ function loadRec(id) {
   setV('f-func',h.func); setV('f-cargo',h.cargo);
   setV('f-sal',h.sal); setV('f-dias',h.dias); setV('f-diasmes',h.diasMes);
 
-  // comp
   if(h.comp) {
     const meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
     const parts = h.comp.split(' de ');
@@ -1399,11 +1447,19 @@ function loadRec(id) {
 }
 
 function pdfRec(id){ loadRec(id); setTimeout(gerarPDF,200); }
-function delRec(id){
+
+async function delRec(id){
   if(!confirm('Excluir este recibo?')) return;
-  hist=hist.filter(x=>x.id!=id);
-  localStorage.setItem('rec_hist_v2',JSON.stringify(hist));
-  renderHist();
+  try {
+    await sbFetch(`recibos?id=eq.${id}`, { method:'DELETE' });
+    hist = hist.filter(x=>x.id!=id);
+    renderHist();
+    toast('Recibo excluído!');
+  } catch(e) {
+    hist = hist.filter(x=>x.id!=id);
+    localStorage.setItem('rec_hist_v2',JSON.stringify(hist));
+    renderHist();
+  }
 }
 
 function novoRecibo() {
