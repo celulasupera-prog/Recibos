@@ -415,6 +415,35 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .toast.show{transform:translateY(0);opacity:1;}
 .toast.err{background:var(--red);}
 
+/* LOGIN PAGE */
+#pg-login{
+  display:flex;align-items:center;justify-content:center;
+  min-height:100vh;background:var(--ink);position:fixed;
+  top:0;left:0;right:0;bottom:0;z-index:500;
+}
+.login-box{
+  background:#fff;border-radius:12px;padding:2.5rem;
+  width:100%;max-width:380px;box-shadow:0 8px 40px rgba(0,0,0,.3);
+}
+.login-logo{ font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:var(--ink);text-align:center;margin-bottom:.25rem; }
+.login-sub{ font-size:.82rem;color:var(--ink3);text-align:center;margin-bottom:2rem; }
+.login-field{ display:flex;flex-direction:column;gap:.3rem;margin-bottom:1rem; }
+.login-field label{ font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink2); }
+.login-field input{ font-family:'Lato',sans-serif;font-size:.95rem;padding:.65rem .85rem;border:1.5px solid var(--border);border-radius:6px;outline:none;transition:border-color .15s; }
+.login-field input:focus{ border-color:var(--accent); }
+.btn-login{ width:100%;font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:var(--accent);color:#fff;border:none;border-radius:6px;padding:.8rem;cursor:pointer;margin-top:.5rem;transition:background .18s; }
+.btn-login:hover{ background:#1648c0; }
+.login-err{ font-size:.78rem;color:var(--red);text-align:center;margin-top:.5rem; }
+
+/* EMPRESAS PAGE */
+#pg-empresas{display:none;padding:1.5rem;max-width:800px;margin:0 auto;}
+.emp-card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:.75rem;display:flex;align-items:center;gap:1rem;box-shadow:var(--shadow);}
+.emp-card-info{ flex:1; }
+.emp-card-nome{ font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;color:var(--ink); }
+.emp-card-cnpj{ font-size:.75rem;color:var(--ink3);margin-top:2px; }
+.user-badge{ font-size:.72rem;color:rgba(255,255,255,.6);display:flex;align-items:center;gap:6px; }
+.user-badge b{ color:#fff; }
+
 /* CONFIG PAGE */
 #pg-config{display:none;padding:1.5rem;max-width:1000px;margin:0 auto;}
 .config-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem;}
@@ -443,12 +472,70 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 
 <header class="app-header">
   <div class="app-logo">Recibos <span>BETA</span></div>
-  <div class="hbtns">
-    <button class="hbtn ghost" onclick="showConfig()">⚙ Fórmulas</button>
-    <button class="hbtn ghost" onclick="showHist()">Histórico</button>
-    <button class="hbtn solid" onclick="novoRecibo()">+ Novo</button>
+  <div style="display:flex;align-items:center;gap:1rem">
+    <div class="user-badge" id="user-badge" style="display:none">👤 <b id="user-email-badge"></b></div>
+    <div class="hbtns">
+      <button class="hbtn ghost" onclick="showEmpresas()" id="btn-empresas" style="display:none">🏢 Empresas</button>
+      <button class="hbtn ghost" onclick="showConfig()">⚙ Fórmulas</button>
+      <button class="hbtn ghost" onclick="showHist()">Histórico</button>
+      <button class="hbtn solid" onclick="novoRecibo()">+ Novo</button>
+      <button class="hbtn ghost" onclick="fazerLogout()" id="btn-logout" style="display:none">Sair</button>
+    </div>
   </div>
 </header>
+
+<!-- LOGIN -->
+<div id="pg-login">
+  <div class="login-box">
+    <div class="login-logo">Recibos</div>
+    <div class="login-sub">Sistema de emissão de recibos</div>
+    <div class="login-field">
+      <label>Email</label>
+      <input type="email" id="login-email" placeholder="seu@email.com" onkeydown="if(event.key==='Enter')fazerLogin()">
+    </div>
+    <div class="login-field">
+      <label>Senha</label>
+      <input type="password" id="login-senha" placeholder="••••••••" onkeydown="if(event.key==='Enter')fazerLogin()">
+    </div>
+    <div class="login-err" id="login-err"></div>
+    <button class="btn-login" onclick="fazerLogin()">Entrar</button>
+  </div>
+</div>
+
+<!-- EMPRESAS PAGE -->
+<div id="pg-empresas">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+    <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800">🏢 Minhas Empresas</div>
+    <div style="display:flex;gap:.5rem">
+      <button class="hbtn solid" onclick="showAddEmpresa()">+ Nova Empresa</button>
+      <button class="hbtn ghost" onclick="showMain()">← Voltar</button>
+    </div>
+  </div>
+  <div id="empresas-list"></div>
+
+  <!-- Form add empresa -->
+  <div id="add-empresa-form" style="display:none;background:#fff;border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin-top:1rem;">
+    <div style="font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;margin-bottom:.75rem">Nova Empresa</div>
+    <div class="fg fg2" style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+      <div class="field" style="grid-column:span 2">
+        <label>Razão Social *</label>
+        <input type="text" id="new-emp-nome" placeholder="Ex: Transportes ABC Ltda">
+      </div>
+      <div class="field">
+        <label>CNPJ</label>
+        <input type="text" id="new-emp-cnpj" placeholder="00.000.000/0001-00">
+      </div>
+      <div class="field">
+        <label>CC / Departamento</label>
+        <input type="text" id="new-emp-cc" placeholder="Ex: SERVIÇOS/CUSTO">
+      </div>
+    </div>
+    <div style="display:flex;gap:.5rem;margin-top:.75rem">
+      <button class="abtn primary" onclick="salvarEmpresa()">Salvar</button>
+      <button class="abtn outline" onclick="document.getElementById('add-empresa-form').style.display='none'">Cancelar</button>
+    </div>
+  </div>
+</div>
 
 <!-- MAIN -->
 <div id="pg-main">
@@ -462,6 +549,12 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
     <div class="sec-title">Empresa Pagadora</div>
     <div class="card fg">
       <div class="fg fg2">
+        <div class="field" style="grid-column:span 2">
+          <label>Selecionar Empresa</label>
+          <select id="f-emp-select" onchange="selecionarEmpresa(this.value)">
+            <option value="">— Selecione ou preencha abaixo —</option>
+          </select>
+        </div>
         <div class="field" style="grid-column:span 2">
           <label>Razão Social *</label>
           <input type="text" id="f-emp" placeholder="Ex: José Henrique Almeida da Silva" oninput="calc()">
@@ -827,18 +920,184 @@ let verbas = [];
 let encs = { inss: false, fgts: false, irrf: false };
 let hist = JSON.parse(localStorage.getItem('rec_hist_v2') || '[]');
 let editId = null;
+let currentUser = null;
+let empresasList = [];
+let grupoId = null;
+
+// ── AUTH ──
+async function fazerLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const senha = document.getElementById('login-senha').value;
+  const errEl = document.getElementById('login-err');
+  errEl.style.display = 'none';
+  if (!email || !senha) { errEl.textContent = 'Preencha email e senha.'; errEl.style.display = 'block'; return; }
+  try {
+    const res = await fetch(SB_URL + '/auth/v1/token?grant_type=password', {
+      method: 'POST',
+      headers: { 'apikey': SB_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password: senha })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error_description || data.msg || 'Erro ao entrar');
+    currentUser = data.user;
+    localStorage.setItem('sb_token', data.access_token);
+    localStorage.setItem('sb_user', JSON.stringify(data.user));
+    await initApp();
+  } catch(e) {
+    errEl.textContent = e.message;
+    errEl.style.display = 'block';
+  }
+}
+
+async function fazerLogout() {
+  localStorage.removeItem('sb_token');
+  localStorage.removeItem('sb_user');
+  currentUser = null;
+  document.getElementById('pg-login').style.display = 'flex';
+  document.getElementById('pg-main').style.display = 'none';
+  document.getElementById('user-badge').style.display = 'none';
+  document.getElementById('btn-logout').style.display = 'none';
+  document.getElementById('btn-empresas').style.display = 'none';
+}
+
+async function initApp() {
+  document.getElementById('pg-login').style.display = 'none';
+  document.getElementById('pg-main').style.display = 'block';
+  document.getElementById('user-badge').style.display = 'flex';
+  document.getElementById('user-email-badge').textContent = currentUser.email;
+  document.getElementById('btn-logout').style.display = 'block';
+  document.getElementById('btn-empresas').style.display = 'block';
+  await carregarEmpresas();
+  renderQuickAddButtons();
+  addVerbaDiasNormais();
+  calc();
+}
+
+// ── EMPRESAS ──
+async function carregarEmpresas() {
+  try {
+    // busca ou cria grupo do usuário
+    let grupos = await sbFetch('grupos?user_id=eq.' + currentUser.id);
+    if (!grupos || grupos.length === 0) {
+      const novoGrupo = await sbFetch('grupos', {
+        method: 'POST',
+        prefer: 'return=representation',
+        body: JSON.stringify({ nome: currentUser.email, user_id: currentUser.id })
+      });
+      grupoId = novoGrupo[0].id;
+    } else {
+      grupoId = grupos[0].id;
+    }
+    empresasList = await sbFetch('empresas?grupo_id=eq.' + grupoId + '&order=nome.asc') || [];
+    renderEmpresasSelect();
+  } catch(e) {
+    console.error('Erro ao carregar empresas:', e);
+    empresasList = [];
+  }
+}
+
+function renderEmpresasSelect() {
+  const sel = document.getElementById('f-emp-select');
+  sel.innerHTML = '<option value="">— Selecione ou preencha abaixo —</option>';
+  empresasList.forEach(e => {
+    sel.innerHTML += `<option value="${e.id}" data-nome="${e.nome}" data-cnpj="${e.cnpj||''}">${e.nome}${e.cnpj?' — '+e.cnpj:''}</option>`;
+  });
+}
+
+function selecionarEmpresa(id) {
+  if (!id) return;
+  const opt = document.querySelector(`#f-emp-select option[value="${id}"]`);
+  if (!opt) return;
+  document.getElementById('f-emp').value = opt.dataset.nome || '';
+  document.getElementById('f-cnpj').value = opt.dataset.cnpj || '';
+  calc();
+}
+
+async function showEmpresas() {
+  document.getElementById('pg-main').style.display = 'none';
+  document.getElementById('pg-hist').style.display = 'none';
+  document.getElementById('pg-config').style.display = 'none';
+  document.getElementById('pg-empresas').style.display = 'block';
+  renderEmpresasList();
+}
+
+function renderEmpresasList() {
+  const list = document.getElementById('empresas-list');
+  if (!empresasList.length) {
+    list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--ink3)">Nenhuma empresa cadastrada ainda. Clique em "+ Nova Empresa".</div>';
+    return;
+  }
+  list.innerHTML = empresasList.map(e => `
+    <div class="emp-card">
+      <div class="emp-card-info">
+        <div class="emp-card-nome">${e.nome}</div>
+        <div class="emp-card-cnpj">${e.cnpj ? 'CNPJ: '+e.cnpj : ''}${e.cc ? ' · '+e.cc : ''}</div>
+      </div>
+      <button class="hcbtn d" onclick="deletarEmpresa('${e.id}')">✕ Remover</button>
+    </div>
+  `).join('');
+}
+
+function showAddEmpresa() {
+  document.getElementById('add-empresa-form').style.display = 'block';
+  document.getElementById('new-emp-nome').focus();
+}
+
+async function salvarEmpresa() {
+  const nome = document.getElementById('new-emp-nome').value.trim();
+  const cnpj = document.getElementById('new-emp-cnpj').value.trim();
+  const cc   = document.getElementById('new-emp-cc').value.trim();
+  if (!nome) { toast('Informe o nome da empresa!', 'err'); return; }
+  try {
+    const nova = await sbFetch('empresas', {
+      method: 'POST',
+      prefer: 'return=representation',
+      body: JSON.stringify({ grupo_id: grupoId, nome, cnpj, cc })
+    });
+    empresasList.push(nova[0]);
+    empresasList.sort((a,b) => a.nome.localeCompare(b.nome));
+    renderEmpresasList();
+    renderEmpresasSelect();
+    document.getElementById('new-emp-nome').value = '';
+    document.getElementById('new-emp-cnpj').value = '';
+    document.getElementById('new-emp-cc').value = '';
+    document.getElementById('add-empresa-form').style.display = 'none';
+    toast('Empresa cadastrada!');
+  } catch(e) {
+    toast('Erro ao salvar: ' + e.message, 'err');
+  }
+}
+
+async function deletarEmpresa(id) {
+  if (!confirm('Remover esta empresa?')) return;
+  try {
+    await sbFetch('empresas?id=eq.' + id, { method: 'DELETE' });
+    empresasList = empresasList.filter(e => e.id !== id);
+    renderEmpresasList();
+    renderEmpresasSelect();
+    toast('Empresa removida!');
+  } catch(e) {
+    toast('Erro ao remover!', 'err');
+  }
+}
 
 // ── INIT ──
-window.onload = () => {
+window.onload = async () => {
   const now = new Date();
   const y = now.getFullYear(), m = String(now.getMonth()+1).padStart(2,'0');
   document.getElementById('f-comp').value = `${y}-${m}`;
   const dias = new Date(y, now.getMonth()+1, 0).getDate();
   document.getElementById('f-diasmes').value = dias;
   document.getElementById('f-dias').value = dias;
-  renderQuickAddButtons();
-  addVerbaDiasNormais();
-  calc();
+
+  // verifica se já tem sessão salva
+  const token = localStorage.getItem('sb_token');
+  const user  = localStorage.getItem('sb_user');
+  if (token && user) {
+    currentUser = JSON.parse(user);
+    await initApp();
+  }
+  // se não tem sessão, mostra login (já visível por padrão)
 };
 
 function renderQuickAddButtons() {
@@ -1043,11 +1302,60 @@ function updateVerba(id, field, val) {
   else if (field === 'desc2') { v.desc2 = parseFloat(val)||0; v.auto = false; calc(); }
   else if (field === 'ref') {
     v.ref = val;
-    if (v.auto) calc(); else renderPreview();
+    if (v.auto) {
+      // recalcula sem re-renderizar a lista — só atualiza o input de valor
+      const sal = parseFloat(document.getElementById('f-sal').value)||0;
+      const diasMes = parseFloat(document.getElementById('f-diasmes').value)||30;
+      const dias = parseFloat(document.getElementById('f-dias').value)||0;
+      const salDia = sal/diasMes, salHora = sal/220, valDias = salDia*dias;
+      const r = calcVerba(v, sal, salDia, salHora, valDias);
+      v.venc = r.venc; v.desc2 = r.desc || 0;
+      // atualiza só os inputs de valor sem re-renderizar
+      const row = document.querySelector(`.verba-row[data-id="${id}"]`);
+      if (row) {
+        const inpVenc = row.querySelector('[data-field="venc"]');
+        const inpDesc2 = row.querySelector('[data-field="desc2"]');
+        if (inpVenc) inpVenc.value = v.venc > 0 ? fmtN(v.venc) : '';
+        if (inpDesc2) inpDesc2.value = v.desc2 > 0 ? fmtN(v.desc2) : '';
+      }
+      // atualiza totais e preview sem re-renderizar lista
+      calcTotaisOnly();
+      renderPreview();
+    } else {
+      renderPreview();
+    }
   } else {
     v[field] = val;
     renderPreview();
   }
+}
+
+function calcTotaisOnly() {
+  const sal = parseFloat(document.getElementById('f-sal').value)||0;
+  const diasMes = parseFloat(document.getElementById('f-diasmes').value)||30;
+  const dias = parseFloat(document.getElementById('f-dias').value)||0;
+  const salDia = sal/diasMes, salHora = sal/220;
+
+  let totVenc = verbas.reduce((s,v)=>s+(v.venc||0),0);
+  let totDesc = verbas.reduce((s,v)=>s+(v.desc2||0),0);
+
+  let inssVal=0;
+  if(encs.inss){const a=parseFloat(document.getElementById('f-inss-aliq').value)||0;inssVal=totVenc*a/100;totDesc+=inssVal;}
+  let fgtsBase=totVenc, fgtsVal=0;
+  if(encs.fgts){const fb=parseFloat(document.getElementById('f-fgts-base').value);fgtsBase=isNaN(fb)?totVenc:fb;fgtsVal=fgtsBase*0.08;}
+  let irrfBase=totVenc-inssVal, irrfVal=0, irrfFaixa=0;
+  if(encs.irrf){const ib=parseFloat(document.getElementById('f-irrf-base').value);irrfBase=isNaN(ib)?irrfBase:ib;const r=calcIRRF(irrfBase);irrfVal=r.val;irrfFaixa=r.aliq;totDesc+=irrfVal;}
+
+  const liq = totVenc - totDesc;
+  document.getElementById('t-venc').textContent = fmtBRL(totVenc);
+  document.getElementById('t-desc').textContent = fmtBRL(totDesc);
+  document.getElementById('t-liq').textContent = fmtBRL(liq);
+  document.getElementById('t-salbase').textContent = fmtBRL(sal);
+  document.getElementById('t-salinss').textContent = fmtBRL(totVenc);
+  document.getElementById('t-basefgts').textContent = fmtBRL(encs.fgts?fgtsBase:totVenc);
+  document.getElementById('t-fgts').textContent = fmtBRL(fgtsVal);
+  document.getElementById('t-baseirrf').textContent = fmtBRL(irrfBase);
+  document.getElementById('t-faixairrf').textContent = encs.irrf?irrfFaixa+'%':'—';
 }
 
 function renderVerbasList() {
@@ -1320,17 +1628,15 @@ const SB_URL = 'https://vexaeculstthppbqmxqj.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZleGFlY3Vsc3R0aHBwYnFteHFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwMzM0NzIsImV4cCI6MjA4OTYwOTQ3Mn0.u-FLKKFarm_oqQeLhdOxx_zVDvDey2cQT209jdU1oQs';
 
 async function sbFetch(path, options={}) {
+  const token = localStorage.getItem('sb_token') || SB_KEY;
   const headers = {
     'apikey': SB_KEY,
-    'Authorization': 'Bearer ' + SB_KEY,
+    'Authorization': 'Bearer ' + token,
     'Content-Type': 'application/json',
   };
   if (options.prefer) headers['Prefer'] = options.prefer;
   const { prefer, ...rest } = options;
-  const res = await fetch(SB_URL + '/rest/v1/' + path, {
-    headers,
-    ...rest
-  });
+  const res = await fetch(SB_URL + '/rest/v1/' + path, { headers, ...rest });
   if (!res.ok) {
     const err = await res.text();
     console.error('Supabase error:', err);
@@ -1386,6 +1692,7 @@ function showMain() {
   document.getElementById('pg-main').style.display='block';
   document.getElementById('pg-hist').style.display='none';
   document.getElementById('pg-config').style.display='none';
+  document.getElementById('pg-empresas').style.display='none';
   syncQuickAddButtons();
 }
 
