@@ -1704,13 +1704,28 @@ async function sbFetch(path, options={}) {
   const res = await fetch(SB_URL + '/rest/v1/' + path, { headers, ...rest });
   if (!res.ok) {
     const err = await res.text();
+    // JWT expirado — limpa sessão e volta para o login
+    if (res.status === 401) {
+      localStorage.removeItem('sb_token');
+      localStorage.removeItem('sb_user');
+      document.getElementById('pg-login').style.display = 'flex';
+      document.getElementById('pg-main').style.display = 'none';
+      document.getElementById('pg-hist').style.display = 'none';
+      document.getElementById('pg-config').style.display = 'none';
+      document.getElementById('pg-empresas').style.display = 'none';
+      document.getElementById('user-badge').style.display = 'none';
+      document.getElementById('btn-logout').style.display = 'none';
+      document.getElementById('btn-empresas').style.display = 'none';
+      currentUser = null;
+      return null;
+    }
     console.error('Supabase error:', err);
     throw new Error(err);
   }
   const text = await res.text();
   return text ? JSON.parse(text) : null;
 }
-
+  
 // ── SAVE / HIST ──
 async function salvar() {
   const d = getData();
