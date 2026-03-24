@@ -1157,7 +1157,7 @@ function renderEmpresasList() {
       <div class="emp-card-info">
         <div class="emp-card-nome">${e.nome}</div>
         <div class="emp-card-cnpj">
-          ${e.cnpj ? 'CNPJ: '+e.cnpj : ''}${e.cc ? ' · '+e.cc : ''}
+          ${e.cnpj ? 'CNPJ: '+e.cnpj : ''}${e.cidade ? ' · '+e.cidade : ''}
           ${currentUser.isAdmin && e._grupoEmail ? ' <span style="color:var(--accent);font-size:.7rem">👤 '+e._grupoEmail+'</span>' : ''}
         </div>
       </div>
@@ -1182,7 +1182,7 @@ function showAddEmpresa() {
 
   document.getElementById('new-emp-nome').value = '';
   document.getElementById('new-emp-cnpj').value = '';
-  document.getElementById('new-emp-cc').value = '';
+  document.getElementById('new-emp-cidade').value = '';
 
   empresaEditando = null;
 
@@ -1217,7 +1217,7 @@ async function salvarEmpresa() {
 
       empresaEditando.nome = nome;
       empresaEditando.cnpj = cnpj;
-      empresaEditando.cc = cc;
+      empresaEditando.cidade = cidade;
 
       toast('Empresa atualizada!');
     } else {
