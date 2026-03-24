@@ -957,6 +957,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 const DEFAULT_CONFIG_VERBAS = [
   { id:'he50',   cod:'150', desc:'HORAS EXTRAS - 50%',      tipo:'venc', refLabel:'horas', formulaVenc:'ref * salHora * 1.5', formulaDesc:'' },
   { id:'he100',  cod:'200', desc:'HORAS EXTRAS 100%',       tipo:'venc', refLabel:'horas', formulaVenc:'ref * salHora * 2',   formulaDesc:'' },
+  { id:'dsrhe', cod:'9999', desc:'DSR SOBRE HORAS EXTRAS', tipo:'venc', refLabel:'auto', formulaVenc:'', formulaDesc:'' },
   { id:'adicfunc',cod:'348',desc:'ADICIONAL DE FUNÇÃO',     tipo:'venc', refLabel:'%',     formulaVenc:'sal * ref / 100',     formulaDesc:'' },
   { id:'premiotempo',cod:'576',desc:'PRÊMIO TEMPO SERVIÇO', tipo:'venc', refLabel:'%',     formulaVenc:'sal * ref / 100',     formulaDesc:'' },
   { id:'ajudacusto',cod:'583',desc:'AJUDA DE CUSTO',        tipo:'venc', refLabel:'valor', formulaVenc:'ref',                 formulaDesc:'' },
@@ -2256,6 +2257,17 @@ function calcVerba(v, sal, salDia, salHora, valDias) {
     case 'diasnormais': return { venc: valDias, desc: 0 };
     case 'he50':  return { venc: ref * salHoraCalc * (configParams.he50Mult||1.5), desc: 0 };
     case 'he100': return { venc: ref * salHoraCalc * (configParams.he100Mult||2.0), desc: 0 };
+    case 'dsrhe':
+      const totalHE = verbas
+        .filter(x => x.autoType === 'he50' || x.autoType === 'he100')
+        .reduce((s,x) => s + (x.venc || 0), 0);
+    
+      const dias = parseFloat(document.getElementById('f-dias').value) || 0;
+      const diasMes = parseFloat(document.getElementById('f-diasmes').value) || 30;
+    
+      const dsr = (totalHE / dias) * (diasMes - dias);
+    
+      return { venc: dsr, desc: 0 };
   }
 
   // verbas configuráveis com fórmula
