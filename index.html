@@ -479,6 +479,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
       <button class="hbtn ghost" onclick="showConfig()">⚙ Fórmulas</button>
       <button class="hbtn ghost" onclick="showHist()">Histórico</button>
       <button class="hbtn solid" onclick="novoRecibo()">+ Novo</button>
+      <button class="hbtn ghost" onclick="showAdmin()" id="btn-admin" style="display:none;background:#b45309;color:#fff;border-color:#b45309">👑 Admin</button>
       <button class="hbtn ghost" onclick="fazerLogout()" id="btn-logout" style="display:none">Sair</button>
     </div>
   </div>
@@ -535,6 +536,33 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
       <button class="abtn outline" onclick="document.getElementById('add-empresa-form').style.display='none'">Cancelar</button>
     </div>
   </div>
+</div>
+
+<!-- ADMIN PAGE -->
+<div id="pg-admin" style="display:none;padding:1.5rem;max-width:1100px;margin:0 auto;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+    <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800">👑 Painel Admin</div>
+    <button class="hbtn solid" onclick="showMain()">← Voltar</button>
+  </div>
+
+  <!-- filtros -->
+  <div style="display:flex;gap:.75rem;margin-bottom:1rem;flex-wrap:wrap;">
+    <div class="field" style="flex:1;min-width:200px">
+      <label>Filtrar por usuário</label>
+      <select id="admin-filter-user" onchange="adminFiltrar()">
+        <option value="">Todos os usuários</option>
+      </select>
+    </div>
+    <div class="field" style="flex:1;min-width:200px">
+      <label>Filtrar por empresa</label>
+      <select id="admin-filter-emp" onchange="adminFiltrar()">
+        <option value="">Todas as empresas</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="admin-stats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.25rem;"></div>
+  <div class="hist-grid" id="admin-hist-grid"></div>
 </div>
 
 <!-- MAIN -->
@@ -967,6 +995,20 @@ async function initApp() {
   document.getElementById('user-email-badge').textContent = currentUser.email;
   document.getElementById('btn-logout').style.display = 'block';
   document.getElementById('btn-empresas').style.display = 'block';
+
+  // verifica se é admin
+  try {
+    const adminCheck = await sbFetch('admins?user_id=eq.' + currentUser.id);
+    currentUser.isAdmin = adminCheck && adminCheck.length > 0;
+  } catch(e) { currentUser.isAdmin = false; }
+
+  if (currentUser.isAdmin) {
+    document.getElementById('user-email-badge').textContent = currentUser.email + ' 👑';
+    // admin vê botão extra
+    const btnAdmin = document.getElementById('btn-admin');
+    if (btnAdmin) btnAdmin.style.display = 'block';
+  }
+
   await carregarEmpresas();
   renderQuickAddButtons();
   addVerbaDiasNormais();
@@ -976,19 +1018,31 @@ async function initApp() {
 // ── EMPRESAS ──
 async function carregarEmpresas() {
   try {
-    // busca ou cria grupo do usuário
-    let grupos = await sbFetch('grupos?user_id=eq.' + currentUser.id);
-    if (!grupos || grupos.length === 0) {
-      const novoGrupo = await sbFetch('grupos', {
-        method: 'POST',
-        prefer: 'return=representation',
-        body: JSON.stringify({ nome: currentUser.email, user_id: currentUser.id })
-      });
-      grupoId = novoGrupo[0].id;
+    if (currentUser.isAdmin) {
+      // admin carrega todas as empresas de todos os grupos
+      const todosGrupos = await sbFetch('grupos?select=*&order=nome.asc') || [];
+      empresasList = [];
+      for (const g of todosGrupos) {
+        const emps = await sbFetch('empresas?grupo_id=eq.' + g.id + '&order=nome.asc') || [];
+        emps.forEach(e => e._grupoEmail = g.nome);
+        empresasList = empresasList.concat(emps);
+      }
+      grupoId = todosGrupos[0]?.id || null;
     } else {
-      grupoId = grupos[0].id;
+      // usuário normal — busca ou cria seu grupo
+      let grupos = await sbFetch('grupos?user_id=eq.' + currentUser.id);
+      if (!grupos || grupos.length === 0) {
+        const novoGrupo = await sbFetch('grupos', {
+          method: 'POST',
+          prefer: 'return=representation',
+          body: JSON.stringify({ nome: currentUser.email, user_id: currentUser.id })
+        });
+        grupoId = novoGrupo[0].id;
+      } else {
+        grupoId = grupos[0].id;
+      }
+      empresasList = await sbFetch('empresas?grupo_id=eq.' + grupoId + '&order=nome.asc') || [];
     }
-    empresasList = await sbFetch('empresas?grupo_id=eq.' + grupoId + '&order=nome.asc') || [];
     renderEmpresasSelect();
   } catch(e) {
     console.error('Erro ao carregar empresas:', e);
@@ -1000,7 +1054,10 @@ function renderEmpresasSelect() {
   const sel = document.getElementById('f-emp-select');
   sel.innerHTML = '<option value="">— Selecione ou preencha abaixo —</option>';
   empresasList.forEach(e => {
-    sel.innerHTML += `<option value="${e.id}" data-nome="${e.nome}" data-cnpj="${e.cnpj||''}">${e.nome}${e.cnpj?' — '+e.cnpj:''}</option>`;
+    const label = currentUser.isAdmin
+      ? `${e.nome}${e.cnpj?' — '+e.cnpj:''} (${e._grupoEmail||''})`
+      : `${e.nome}${e.cnpj?' — '+e.cnpj:''}`;
+    sel.innerHTML += `<option value="${e.id}" data-nome="${e.nome}" data-cnpj="${e.cnpj||''}">${label}</option>`;
   });
 }
 
@@ -1024,14 +1081,22 @@ async function showEmpresas() {
 function renderEmpresasList() {
   const list = document.getElementById('empresas-list');
   if (!empresasList.length) {
-    list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--ink3)">Nenhuma empresa cadastrada ainda. Clique em "+ Nova Empresa".</div>';
+    list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--ink3)">Nenhuma empresa cadastrada. Clique em "+ Nova Empresa".</div>';
     return;
   }
   list.innerHTML = empresasList.map(e => `
     <div class="emp-card">
       <div class="emp-card-info">
         <div class="emp-card-nome">${e.nome}</div>
-        <div class="emp-card-cnpj">${e.cnpj ? 'CNPJ: '+e.cnpj : ''}${e.cc ? ' · '+e.cc : ''}</div>
+        <div class="emp-card-cnpj">
+          ${e.cnpj ? 'CNPJ: '+e.cnpj : ''}${e.cc ? ' · '+e.cc : ''}
+          ${currentUser.isAdmin && e._grupoEmail ? ' <span style="color:var(--accent);font-size:.7rem">👤 '+e._grupoEmail+'</span>' : ''}
+        </div>
+      </div>
+      ${!currentUser.isAdmin ? `<button class="hcbtn d" onclick="deletarEmpresa('${e.id}')">✕ Remover</button>` : ''}
+    </div>
+  `).join('');
+}
       </div>
       <button class="hcbtn d" onclick="deletarEmpresa('${e.id}')">✕ Remover</button>
     </div>
@@ -1298,9 +1363,13 @@ function removeVerba(id) {
 function updateVerba(id, field, val) {
   const v = verbas.find(v => v.id === id);
   if (!v) return;
-  if (field === 'venc') { v.venc = parseFloat(val)||0; v.auto = false; calc(); }
-  else if (field === 'desc2') { v.desc2 = parseFloat(val)||0; v.auto = false; calc(); }
-  else if (field === 'ref') {
+  if (field === 'venc') {
+    v.venc = parseFloat(val)||0; v.auto = false;
+    calcTotaisOnly(); renderPreview();
+  } else if (field === 'desc2') {
+    v.desc2 = parseFloat(val)||0; v.auto = false;
+    calcTotaisOnly(); renderPreview();
+  } else if (field === 'ref') {
     v.ref = val;
     if (v.auto) {
       // recalcula sem re-renderizar a lista — só atualiza o input de valor
@@ -1675,6 +1744,8 @@ async function salvar() {
 async function showHist() {
   document.getElementById('pg-main').style.display='none';
   document.getElementById('pg-hist').style.display='block';
+  document.getElementById('pg-config').style.display='none';
+  document.getElementById('pg-empresas').style.display='none';
   document.getElementById('hist-grid').innerHTML='<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--ink3)">Carregando...</div>';
   try {
     const data = await sbFetch('recibos?select=*&order=saved_at.desc');
@@ -1694,6 +1765,11 @@ function showMain() {
   document.getElementById('pg-config').style.display='none';
   document.getElementById('pg-empresas').style.display='none';
   syncQuickAddButtons();
+}
+
+function showHist_wrapper() {
+  document.getElementById('pg-empresas').style.display='none';
+  showHist();
 }
 
 function renderHist() {
@@ -1830,27 +1906,25 @@ function saveConfig() {
 function showConfig() {
   const CONFIG_PASS = localStorage.getItem('cfg_senha') || '1234';
   const input = prompt('Digite a senha para acessar as Fórmulas:');
-  if (input === null) return; // cancelou
-  if (input !== CONFIG_PASS) {
-    toast('Senha incorreta!', 'err');
-    return;
-  }
+  if (input === null) return;
+  if (input !== CONFIG_PASS) { toast('Senha incorreta!', 'err'); return; }
   document.getElementById('pg-main').style.display='none';
   document.getElementById('pg-hist').style.display='none';
   document.getElementById('pg-config').style.display='block';
+  document.getElementById('pg-empresas').style.display='none';
   renderConfigVerbas();
   renderQuickList();
-  // load params
   document.getElementById('cfg-horas-mes').value = configParams.horasMes;
   document.getElementById('cfg-he50-mult').value = configParams.he50Mult;
   document.getElementById('cfg-he100-mult').value = configParams.he100Mult;
   document.getElementById('cfg-fgts-aliq').value = configParams.fgtsAliq;
 }
 
-function showMain() {
+function showMain_config() {
   document.getElementById('pg-main').style.display='block';
   document.getElementById('pg-hist').style.display='none';
   document.getElementById('pg-config').style.display='none';
+  document.getElementById('pg-empresas').style.display='none';
   // sync quickAdd buttons com configVerbas
   syncQuickAddButtons();
 }
@@ -1977,6 +2051,113 @@ function alterarSenha() {
   if (nova !== confirma) { toast('Senhas não conferem!', 'err'); return; }
   localStorage.setItem('cfg_senha', nova);
   toast('Senha alterada com sucesso!');
+}
+
+// ── ADMIN ──
+let adminData = { recibos: [], grupos: [], empresas: [] };
+
+async function showAdmin() {
+  if (!currentUser?.isAdmin) return;
+  ['pg-main','pg-hist','pg-config','pg-empresas'].forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
+  document.getElementById('pg-admin').style.display = 'block';
+  document.getElementById('admin-hist-grid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--ink3)">Carregando...</div>';
+
+  try {
+    // carrega todos os dados
+    const [recibos, grupos, empresas] = await Promise.all([
+      sbFetch('recibos?select=*&order=saved_at.desc'),
+      sbFetch('grupos?select=*&order=nome.asc'),
+      sbFetch('empresas?select=*&order=nome.asc'),
+    ]);
+    adminData = { recibos: recibos||[], grupos: grupos||[], empresas: empresas||[] };
+
+    // popula filtros
+    const selUser = document.getElementById('admin-filter-user');
+    selUser.innerHTML = '<option value="">Todos os usuários</option>';
+    grupos.forEach(g => {
+      selUser.innerHTML += `<option value="${g.user_id}">${g.nome}</option>`;
+    });
+
+    const selEmp = document.getElementById('admin-filter-emp');
+    selEmp.innerHTML = '<option value="">Todas as empresas</option>';
+    empresas.forEach(e => {
+      selEmp.innerHTML += `<option value="${e.id}">${e.nome}</option>`;
+    });
+
+    adminRenderStats();
+    adminRenderRecibos(recibos);
+  } catch(e) {
+    toast('Erro ao carregar dados: ' + e.message, 'err');
+  }
+}
+
+function adminFiltrar() {
+  const userId = document.getElementById('admin-filter-user').value;
+  const empId  = document.getElementById('admin-filter-emp').value;
+  let lista = [...adminData.recibos];
+  if (userId) lista = lista.filter(r => r.user_id === userId);
+  if (empId)  lista = lista.filter(r => r.dados?.emp === adminData.empresas.find(e=>e.id===empId)?.nome);
+  adminRenderRecibos(lista);
+}
+
+function adminRenderStats() {
+  const { recibos, grupos } = adminData;
+  const totalLiq = recibos.reduce((s,r) => s+(r.liq||0), 0);
+  document.getElementById('admin-stats').innerHTML = `
+    <div class="total-box" style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:.75rem 1rem">
+      <label style="font-size:.65rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ink3);display:block;margin-bottom:.25rem">Total de Usuários</label>
+      <div style="font-size:1.5rem;font-weight:700;font-family:'Inconsolata',monospace">${grupos.length}</div>
+    </div>
+    <div class="total-box" style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:.75rem 1rem">
+      <label style="font-size:.65rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ink3);display:block;margin-bottom:.25rem">Total de Recibos</label>
+      <div style="font-size:1.5rem;font-weight:700;font-family:'Inconsolata',monospace">${recibos.length}</div>
+    </div>
+    <div class="total-box" style="background:var(--ink);border-radius:8px;padding:.75rem 1rem">
+      <label style="font-size:.65rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:rgba(255,255,255,.5);display:block;margin-bottom:.25rem">Total Valor Líquido</label>
+      <div style="font-size:1.2rem;font-weight:700;font-family:'Inconsolata',monospace;color:#7dd3fc">${fmtBRL(totalLiq)}</div>
+    </div>
+  `;
+}
+
+function adminRenderRecibos(lista) {
+  const g = document.getElementById('admin-hist-grid');
+  if (!lista.length) {
+    g.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--ink3)">Nenhum recibo encontrado.</div>';
+    return;
+  }
+  // encontra grupo de cada recibo
+  g.innerHTML = lista.map(r => {
+    const grupo = adminData.grupos.find(g => g.user_id === r.user_id);
+    return `
+    <div class="hcard">
+      <div style="font-size:.65rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:.25rem">👤 ${grupo?.nome || r.user_id || '—'}</div>
+      <div class="hc-emp">${r.emp||'—'}</div>
+      <div class="hc-func">${r.func||'—'} · ${r.cargo||'—'}</div>
+      <div class="hc-comp">${r.comp||'—'} · ${r.folha||'—'}</div>
+      <div class="hc-foot">
+        <span class="hc-liq">${fmtBRL(r.liq||0)}</span>
+        <span style="font-size:.7rem;color:var(--ink3)">${fmtBRL(r.tot_venc||0)} bruto</span>
+      </div>
+      <div class="hc-acts">
+        <button class="hcbtn d" onclick="adminDelRec('${r.id}')">✕ Excluir</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function adminDelRec(id) {
+  if (!confirm('Excluir este recibo?')) return;
+  try {
+    await sbFetch('recibos?id=eq.' + id, { method: 'DELETE' });
+    adminData.recibos = adminData.recibos.filter(r => r.id != id);
+    adminRenderStats();
+    adminFiltrar();
+    toast('Recibo excluído!');
+  } catch(e) {
+    toast('Erro ao excluir!', 'err');
+  }
 }
 </script>
 </body>
