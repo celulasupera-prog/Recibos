@@ -1254,9 +1254,14 @@ async function deletarEmpresa(id) {
   }
 }
 
- function configVerbasEmpresa(id) {
+ window.configVerbasEmpresa = function(id) {
+  console.log('CLICOU VERBAS', id);
+
   const emp = empresasList.find(e => e.id == id);
-  if (!emp) return;
+  if (!emp) {
+    console.error('Empresa não encontrada');
+    return;
+  }
 
   empresaEditando = emp;
 
@@ -1266,12 +1271,10 @@ async function deletarEmpresa(id) {
 
   renderVerbasPadrao();
 
-  // ✅ ESCONDE formulário de nova empresa
+  // controla telas corretamente
   document.getElementById('add-empresa-form').style.display = 'none';
-
-  // ✅ MOSTRA só verbas
   document.getElementById('emp-verbas-config').style.display = 'block';
-}
+};
 
  function renderVerbasPadrao() {
   const el = document.getElementById('emp-verbas-list');
