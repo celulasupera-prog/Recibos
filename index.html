@@ -524,7 +524,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
       </div>
       <div class="field">
         <label>CNPJ</label>
-        <input type="text" id="new-emp-cnpj" placeholder="00.000.000/0001-00">
+        <input type="text" id="new-emp-cnpj" oninput="this.value = formatCNPJ(this.value)" placeholder="00.000.000/0001-00">
       </div>
       <div class="field">
         <label>CC / Departamento</label>
@@ -535,15 +535,14 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
       <button class="abtn primary" onclick="salvarEmpresa()">Salvar</button>
       <button class="abtn outline" onclick="document.getElementById('add-empresa-form').style.display='none'">Cancelar</button>
     </div>
-    <div id="emp-verbas-config" style="display:none;background:#fff;border:1px solid var(--border);border-radius:8px;padding:1rem;margin-top:1rem;">
-      <div style="font-family:'Syne';font-weight:700;margin-bottom:.5rem">
-            Configurar verbas padrão
-          </div>
-        
+      
           <div id="emp-verbas-list"></div>
         
           <button class="btn-add-verba" onclick="addVerbaPadrao()">+ Adicionar verba</button>
-        
+              <div id="emp-verbas-config" style="display:none;background:#fff;border:1px solid var(--border);border-radius:8px;padding:1rem;margin-top:1rem;">
+                <div style="font-family:'Syne';font-weight:700;margin-bottom:.5rem">
+                Configurar verbas padrão
+              </div>
           <div style="display:flex;gap:.5rem;margin-top:.75rem">
         <button class="abtn primary" onclick="salvarVerbasPadrao()">Salvar</button>
         <button class="abtn outline" onclick="fecharConfigVerbas()">Cancelar</button>
@@ -603,7 +602,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
         </div>
         <div class="field" style="grid-column:span 2">
           <label>CNPJ</label>
-          <input type="text" id="f-cnpj" placeholder="00.000.000/0001-00" oninput="calc()">
+          <input type="text" id="f-cnpj" oninput="this.value = formatCNPJ(this.value); calc()" placeholder="00.000.000/0001-00" oninput="calc()">
         </div>
       </div>
     </div>
@@ -1132,6 +1131,19 @@ async function showEmpresas() {
   renderEmpresasList();
 }
 
+function editarEmpresa(id) {
+  const emp = empresasList.find(e => e.id == id);
+  if (!emp) return;
+
+  document.getElementById('add-empresa-form').style.display = 'block';
+
+  document.getElementById('new-emp-nome').value = emp.nome || '';
+  document.getElementById('new-emp-cnpj').value = emp.cnpj || '';
+  document.getElementById('new-emp-cc').value = emp.cc || '';
+
+  empresaEditando = emp;
+}
+  
 function renderEmpresasList() {
   const list = document.getElementById('empresas-list');
 
@@ -1139,7 +1151,7 @@ function renderEmpresasList() {
     list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--ink3)">Nenhuma empresa cadastrada.</div>';
     return;
   }
-
+  <button class="hcbtn" onclick="editarEmpresa('${e.id}')">✏ Editar</button>
   list.innerHTML = empresasList.map(e => `
     <div class="emp-card">
 
@@ -1164,32 +1176,65 @@ function renderEmpresasList() {
 }
 
 function showAddEmpresa() {
-  document.getElementById('add-empresa-form').style.display = 'block';
   document.getElementById('new-emp-nome').focus();
+}
+
+function formatCNPJ(v) {
+  v = v.replace(/\D/g, '');
+
+  v = v.replace(/^(\d{2})(\d)/, '$1.$2');
+  v = v.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
+  v = v.replace(/\.(\d{3})(\d)/, '.$1/$2');
+  v = v.replace(/(\d{4})(\d)/, '$1-$2');
+
+  return v.substring(0, 18);
 }
 
 async function salvarEmpresa() {
   const nome = document.getElementById('new-emp-nome').value.trim();
   const cnpj = document.getElementById('new-emp-cnpj').value.trim();
   const cc   = document.getElementById('new-emp-cc').value.trim();
+
   if (!nome) { toast('Informe o nome da empresa!', 'err'); return; }
+
   try {
-    const nova = await sbFetch('empresas', {
-      method: 'POST',
-      prefer: 'return=representation',
-      body: JSON.stringify({grupo_id: grupoId, nome, cnpj, cc, verbas_padrao: [{ cod:'8781', desc:'DIAS NORMAIS', autoType:'diasnormais', tipo:'venc' }]})
-    });
-    empresasList.push(nova[0]);
-    empresasList.sort((a,b) => a.nome.localeCompare(b.nome));
+    if (empresaEditando) {
+      // ✏️ EDITAR
+      await sbFetch('empresas?id=eq.' + empresaEditando.id, {
+        method: 'PATCH',
+        body: JSON.stringify({ nome, cnpj, cc })
+      });
+
+      empresaEditando.nome = nome;
+      empresaEditando.cnpj = cnpj;
+      empresaEditando.cc = cc;
+
+      toast('Empresa atualizada!');
+    } else {
+      // ➕ NOVA
+      const nova = await sbFetch('empresas', {
+        method: 'POST',
+        prefer: 'return=representation',
+        body: JSON.stringify({
+          grupo_id: grupoId,
+          nome, cnpj, cc,
+          verbas_padrao: [{ cod:'8781', desc:'DIAS NORMAIS', autoType:'diasnormais', tipo:'venc' }]
+        })
+      });
+
+      empresasList.push(nova[0]);
+      toast('Empresa cadastrada!');
+    }
+
+    empresasList.sort((a,b)=>a.nome.localeCompare(b.nome));
     renderEmpresasList();
     renderEmpresasSelect();
-    document.getElementById('new-emp-nome').value = '';
-    document.getElementById('new-emp-cnpj').value = '';
-    document.getElementById('new-emp-cc').value = '';
+
     document.getElementById('add-empresa-form').style.display = 'none';
-    toast('Empresa cadastrada!');
+    empresaEditando = null;
+
   } catch(e) {
-    toast('Erro ao salvar: ' + e.message, 'err');
+    toast('Erro ao salvar!', 'err');
   }
 }
 
