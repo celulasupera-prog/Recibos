@@ -538,10 +538,10 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   </div>
 </div>
 
-<div id="emp-verbas-config" style="display:none;background:#fff;border:1px solid var(--border);border-radius:8px;padding:1rem;margin-top:1rem;">
+<div id="emp-verbas-config" class="card" style="display:none;margin-top:1rem;">
   <div style="font-family:'Syne';font-weight:700;margin-bottom:.5rem">Configurar verbas padrão</div>
     <div id="emp-verbas-list"></div>
-      <button class="btn-add-verba" onclick="addVerbaPadrao()">+ Adicionar verba</button>       
+      <button class="abtn outline" onclick="addVerbaPadrao()">+ Adicionar verba</button>       
       <div style="display:flex;gap:.5rem;margin-top:.75rem">
       <button class="abtn primary" onclick="salvarVerbasPadrao()">Salvar</button>
      <button class="abtn outline" onclick="fecharConfigVerbas()">Cancelar</button>
@@ -1282,18 +1282,20 @@ window.configVerbasEmpresa = function(id) {
   el.innerHTML = verbasPadraoTemp.map((v,i) => `
     <div style="
       display:grid;
-      grid-template-columns:80px 1fr 100px 30px;
+      grid-template-columns:70px 1fr 90px 30px;
       gap:.5rem;
       margin-bottom:.4rem;
       align-items:center;
     ">
-      <input value="${v.cod}" placeholder="Cód" oninput="updVP(${i},'cod',this.value)">
-      <input value="${v.desc}" placeholder="Descrição" oninput="updVP(${i},'desc',this.value)">
-      <select onchange="updVP(${i},'tipo',this.value)">
+      <input class="field-input" value="${v.cod}" placeholder="Cód" oninput="updVP(${i},'cod',this.value)">
+      <input class="field-input" value="${v.desc}" placeholder="Descrição" oninput="updVP(${i},'desc',this.value)">
+      
+      <select class="field-input" onchange="updVP(${i},'tipo',this.value)">
         <option value="venc" ${v.tipo==='venc'?'selected':''}>Venc</option>
         <option value="desc" ${v.tipo==='desc'?'selected':''}>Desc</option>
       </select>
-      <button onclick="delVP(${i})">×</button>
+
+      <button class="btn-rm" onclick="delVP(${i})">×</button>
     </div>
   `).join('');
 }
