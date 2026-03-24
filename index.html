@@ -1024,18 +1024,23 @@ async function initApp() {
   document.getElementById('btn-logout').style.display = 'block';
   document.getElementById('btn-empresas').style.display = 'block';
 
-// verifica se é admin
-currentUser.isAdmin = currentUser.email === 'gustavo@jaguarcontabilidade.com.br';
+  // verifica se é admin
+  currentUser.isAdmin = currentUser.email === 'gustavo@jaguarcontabilidade.com.br';
 
-// mostra ou esconde botão admin
-const btnAdmin = document.getElementById('btn-admin');
+  const btnAdmin = document.getElementById('btn-admin');
 
-if (currentUser.isAdmin) {
-  document.getElementById('user-email-badge').textContent = currentUser.email + ' 👑';
-  if (btnAdmin) btnAdmin.style.display = 'block';
-} else {
-  if (btnAdmin) btnAdmin.style.display = 'none';
-}
+  if (currentUser.isAdmin) {
+    document.getElementById('user-email-badge').textContent = currentUser.email + ' 👑';
+    if (btnAdmin) btnAdmin.style.display = 'block';
+  } else {
+    if (btnAdmin) btnAdmin.style.display = 'none';
+  }
+
+  // 🔥 ESSENCIAL PRA FUNCIONAR TUDO
+  await carregarEmpresas();
+  renderQuickAddButtons();
+  addVerbaDiasNormais();
+  calc();
 }
 // ── EMPRESAS ──
 async function carregarEmpresas() {
