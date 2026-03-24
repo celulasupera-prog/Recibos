@@ -1097,7 +1097,7 @@ function selecionarEmpresa(id) {
 
   document.getElementById('f-emp').value = emp.nome || '';
   document.getElementById('f-cnpj').value = emp.cnpj || '';
-
+  document.getElementById('f-cidade').value = emp.cidade || '';
   verbas = [];
 
   if (emp.verbas_padrao && emp.verbas_padrao.length) {
