@@ -1700,11 +1700,11 @@ function getData() {
 
 // ── PREVIEW ──
 function renderPreview() {
-  // sincroniza DOM -> array antes de ler
   syncDOMtoVerbas();
   const d = getData();
-  document.getElementById('recibo-doc').innerHTML = buildViaHTML(d, 'EMPRESA') + buildViaHTML(d, 'FUNCIONÁRIO');
-  document.getElementById('f-cidade').value = emp.cidade || '';
+
+  document.getElementById('recibo-doc').innerHTML =
+    buildViaHTML(d, 'EMPRESA') + buildViaHTML(d, 'FUNCIONÁRIO');
 }
 
 function syncDOMtoVerbas() {
