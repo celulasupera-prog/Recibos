@@ -1116,8 +1116,24 @@ function selecionarEmpresa(id) {
     });
   } 
   
-  if (!verbas.find(v => v.autoType === 'diasnormais')) {
+ // DIAS NORMAIS (fixo)
+if (!verbas.find(v => v.autoType === 'diasnormais')) {
   addVerbaDiasNormais();
+}
+
+// 🔥 DSR FIXO
+if (!verbas.find(v => v.autoType === 'dsrhe')) {
+  verbas.push({
+    id: Date.now() + Math.random(),
+    cod: '9999',
+    desc: 'DSR SOBRE HORAS EXTRAS',
+    ref: '',
+    venc: 0,
+    desc2: 0,
+    auto: true,
+    autoType: 'dsrhe',
+    tipo: 'venc'
+  });
 }
   calc();
 }
@@ -1727,16 +1743,40 @@ function buildViaHTML(d, viaLabel) {
   // montar linhas de verbas
   let rowsData = [];
   const dn = d.verbas.find(v=>v.autoType==='diasnormais');
-  if(dn) rowsData.push({cod:'8781', desc:'DIAS NORMAIS', ref:fmtRef(dn,'d',d.dias), venc:fmtN2(dn.venc), descv:''});
-  d.verbas.filter(v=>v.autoType!=='diasnormais').forEach(v=>{
+if(dn) rowsData.push({
+  cod:'8781',
+  desc:'DIAS NORMAIS',
+  ref:fmtRef(dn,'d',d.dias),
+  venc:fmtN2(dn.venc),
+  descv:''
+});
+
+// 🔥 OUTRAS VERBAS (SEM DSR)
+d.verbas
+  .filter(v => v.autoType !== 'diasnormais' && v.autoType !== 'dsrhe')
+  .forEach(v=>{
     const vencVal = v.venc > 0 ? fmtN2(v.venc) : '';
     const dv = v.desc2 > 0 ? v.desc2 : (v.tipo==='desc'&&v.ref ? parseFloat(v.ref)||0 : 0);
     const descVal = dv > 0 ? fmtN2(dv) : '';
-    rowsData.push({cod:v.cod||'', desc:v.desc||'', ref:fmtRef(v,'',null), venc:vencVal, descv:descVal});
+    rowsData.push({
+      cod:v.cod||'',
+      desc:v.desc||'',
+      ref:fmtRef(v,'',null),
+      venc:vencVal,
+      descv:descVal
+    });
   });
-  if(d.encs.inss && d.inssVal>0) rowsData.push({cod:'998', desc:'I.N.S.S.', ref:fmtN2(d.inssVal/d.totVenc*100), venc:'', descv:fmtN2(d.inssVal)});
-  if(d.encs.irrf && d.irrfVal>0) rowsData.push({cod:'999', desc:'IMPOSTO DE RENDA', ref:String(d.irrfFaixa), venc:'', descv:fmtN2(d.irrfVal)});
 
+// 🔥 DSR FIXO
+const dsr = d.verbas.find(v=>v.autoType==='dsrhe');
+if(dsr) rowsData.push({
+  cod:'9999',
+  desc:'DSR SOBRE HORAS EXTRAS',
+  ref:'',
+  venc:fmtN2(dsr.venc),
+  descv:''
+});
+  
   // preencher com linhas vazias até TOTAL_ROWS
   let rows = '';
   rowsData.forEach((r,i) => {
