@@ -1151,7 +1151,7 @@ function renderEmpresasList() {
     list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--ink3)">Nenhuma empresa cadastrada.</div>';
     return;
   }
-  <button class="hcbtn" onclick="editarEmpresa('${e.id}')">✏ Editar</button>
+
   list.innerHTML = empresasList.map(e => `
     <div class="emp-card">
 
@@ -1165,6 +1165,8 @@ function renderEmpresasList() {
 
       <div style="display:flex;gap:.4rem;">
         <button class="hcbtn" onclick="configVerbasEmpresa('${e.id}')">⚙ Verbas</button>
+
+        <button class="hcbtn" onclick="editarEmpresa('${e.id}')">✏ Editar</button>
 
         ${!currentUser.isAdmin 
           ? `<button class="hcbtn d" onclick="deletarEmpresa('${e.id}')">✕ Remover</button>` 
