@@ -1136,6 +1136,7 @@ function editarEmpresa(id) {
   if (!emp) return;
 
   document.getElementById('add-empresa-form').style.display = 'block';
+  document.getElementById('emp-verbas-config').style.display = 'none';
 
   document.getElementById('new-emp-nome').value = emp.nome || '';
   document.getElementById('new-emp-cnpj').value = emp.cnpj || '';
@@ -1253,7 +1254,7 @@ async function deletarEmpresa(id) {
   }
 }
 
-  function configVerbasEmpresa(id) {
+ function configVerbasEmpresa(id) {
   const emp = empresasList.find(e => e.id == id);
   if (!emp) return;
 
@@ -1265,12 +1266,14 @@ async function deletarEmpresa(id) {
 
   renderVerbasPadrao();
 
-  document.getElementById('add-empresa-form').style.display = 'block';
+  // ✅ ESCONDE formulário de nova empresa
+  document.getElementById('add-empresa-form').style.display = 'none';
 
+  // ✅ MOSTRA só verbas
   document.getElementById('emp-verbas-config').style.display = 'block';
 }
 
-  function renderVerbasPadrao() {
+ function renderVerbasPadrao() {
   const el = document.getElementById('emp-verbas-list');
 
   if (!verbasPadraoTemp.length) {
@@ -1278,19 +1281,23 @@ async function deletarEmpresa(id) {
     return;
   }
 
-  el.innerHTML = verbasPadraoTemp.map((v,i) => {
-    return `
-      <div style="display:flex;gap:.5rem;margin-bottom:.3rem">
-        <input value="${v.cod}" placeholder="Cód" oninput="updVP(${i},'cod',this.value)">
-        <input value="${v.desc}" placeholder="Descrição" oninput="updVP(${i},'desc',this.value)">
-        <select onchange="updVP(${i},'tipo',this.value)">
-          <option value="venc" ${v.tipo==='venc'?'selected':''}>Venc</option>
-          <option value="desc" ${v.tipo==='desc'?'selected':''}>Desc</option>
-        </select>
-        <button onclick="delVP(${i})">×</button>
-      </div>
-    `;
-  }).join('');
+  el.innerHTML = verbasPadraoTemp.map((v,i) => `
+    <div style="
+      display:grid;
+      grid-template-columns:80px 1fr 100px 30px;
+      gap:.5rem;
+      margin-bottom:.4rem;
+      align-items:center;
+    ">
+      <input value="${v.cod}" placeholder="Cód" oninput="updVP(${i},'cod',this.value)">
+      <input value="${v.desc}" placeholder="Descrição" oninput="updVP(${i},'desc',this.value)">
+      <select onchange="updVP(${i},'tipo',this.value)">
+        <option value="venc" ${v.tipo==='venc'?'selected':''}>Venc</option>
+        <option value="desc" ${v.tipo==='desc'?'selected':''}>Desc</option>
+      </select>
+      <button onclick="delVP(${i})">×</button>
+    </div>
+  `).join('');
 }
 
   function updVP(i, field, val) {
