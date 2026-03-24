@@ -1063,10 +1063,37 @@ function renderEmpresasSelect() {
 
 function selecionarEmpresa(id) {
   if (!id) return;
-  const opt = document.querySelector(`#f-emp-select option[value="${id}"]`);
-  if (!opt) return;
-  document.getElementById('f-emp').value = opt.dataset.nome || '';
-  document.getElementById('f-cnpj').value = opt.dataset.cnpj || '';
+
+  const emp = empresasList.find(e => e.id == id);
+  if (!emp) return;
+
+  document.getElementById('f-emp').value = emp.nome || '';
+  document.getElementById('f-cnpj').value = emp.cnpj || '';
+
+  // 👇 NOVO: carregar verbas padrão
+  verbas = [];
+
+  if (emp.verbas_padrao && emp.verbas_padrao.length) {
+    emp.verbas_padrao.forEach(v => {
+      verbas.push({
+        id: Date.now() + Math.random(),
+        cod: v.cod,
+        desc: v.desc,
+        ref: '',
+        venc: 0,
+        desc2: 0,
+        auto: !!v.autoType,
+        autoType: v.autoType,
+        tipo: v.tipo
+      });
+    });
+  } 
+  
+  if (!verbas.find(v => v.autoType === 'diasnormais')) {
+  addVerbaDiasNormais();
+}
+  }
+
   calc();
 }
 
@@ -1113,7 +1140,7 @@ async function salvarEmpresa() {
     const nova = await sbFetch('empresas', {
       method: 'POST',
       prefer: 'return=representation',
-      body: JSON.stringify({ grupo_id: grupoId, nome, cnpj, cc })
+      body: JSON.stringify({grupo_id: grupoId, nome, cnpj, cc, verbas_padrao: [{ cod:'8781', desc:'DIAS NORMAIS', autoType:'diasnormais', tipo:'venc' }]})
     });
     empresasList.push(nova[0]);
     empresasList.sort((a,b) => a.nome.localeCompare(b.nome));
