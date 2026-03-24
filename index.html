@@ -1177,6 +1177,15 @@ function renderEmpresasList() {
 }
 
 function showAddEmpresa() {
+  document.getElementById('add-empresa-form').style.display = 'block';
+  document.getElementById('emp-verbas-config').style.display = 'none';
+
+  document.getElementById('new-emp-nome').value = '';
+  document.getElementById('new-emp-cnpj').value = '';
+  document.getElementById('new-emp-cc').value = '';
+
+  empresaEditando = null;
+
   document.getElementById('new-emp-nome').focus();
 }
 
