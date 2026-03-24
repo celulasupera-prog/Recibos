@@ -1311,11 +1311,33 @@ function delVP(i) {
 }
 
 function addVerbaPadrao() {
+  if (!configVerbas.length) {
+    alert('Cadastre verbas na aba Fórmulas primeiro!');
+    return;
+  }
+
+  // cria lista para escolher
+  const lista = configVerbas.map((v,i) => `${i} - ${v.desc}`).join('\n');
+
+  const escolha = prompt('Escolha a verba pelo número:\n\n' + lista);
+
+  if (escolha === null) return;
+
+  const idx = parseInt(escolha);
+  const cfg = configVerbas[idx];
+
+  if (!cfg) {
+    alert('Opção inválida');
+    return;
+  }
+
   verbasPadraoTemp.push({
-    cod:'',
-    desc:'Nova verba',
-    tipo:'venc'
+    cod: cfg.cod,
+    desc: cfg.desc,
+    tipo: cfg.tipo,
+    autoType: cfg.id
   });
+
   renderVerbasPadrao();
 }
 
