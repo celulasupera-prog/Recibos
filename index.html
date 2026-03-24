@@ -582,6 +582,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 
 <!-- ── FORM ── -->
 <div class="form-side" id="form-side">
+<input type="hidden" id="f-cidade">
 
   <!-- EMPRESA -->
   <div>
@@ -1703,6 +1704,7 @@ function renderPreview() {
   syncDOMtoVerbas();
   const d = getData();
   document.getElementById('recibo-doc').innerHTML = buildViaHTML(d, 'EMPRESA') + buildViaHTML(d, 'FUNCIONÁRIO');
+  document.getElementById('f-cidade').value = emp.cidade || '';
 }
 
 function syncDOMtoVerbas() {
