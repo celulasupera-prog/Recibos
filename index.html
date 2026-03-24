@@ -1185,6 +1185,7 @@ async function deletarEmpresa(id) {
   } catch(e) {
     toast('Erro ao remover!', 'err');
   }
+}
 
   function configVerbasEmpresa(id) {
   const emp = empresasList.find(e => e.id == id);
@@ -1265,7 +1266,6 @@ function addVerbaPadrao() {
   function fecharConfigVerbas() {
   document.getElementById('emp-verbas-config').style.display = 'none';
   empresaEditando = null;
-}
 }
 
 // ── INIT ──
