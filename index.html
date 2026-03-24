@@ -956,6 +956,8 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 
 <script>
 const { jsPDF } = window.jspdf;
+let configVerbas = JSON.parse(localStorage.getItem('cfg_verbas') || 'null') || DEFAULT_CONFIG_VERBAS.map(v=>({...v}));
+let configParams = JSON.parse(localStorage.getItem('cfg_params') || 'null') || { horasMes:220, he50Mult:1.5, he100Mult:2.0, fgtsAliq:8 };
 
 // ── STATE ──
 let verbas = [];
@@ -1398,31 +1400,6 @@ function calc() {
   // depois renderPreview que lê do array já atualizado
   renderVerbasList();
   renderPreview();
-}
-
-function calcVerba(v, sal, salDia, salHora, valDias) {
-  let venc = 0, desc = 0;
-  switch(v.autoType) {
-    case 'diasnormais':
-      venc = valDias;
-      break;
-    case 'he50':
-      venc = (parseFloat(v.ref)||0) * salHora * 1.5;
-      break;
-    case 'he100':
-      venc = (parseFloat(v.ref)||0) * salHora * 2;
-      break;
-    case 'adicfunc':
-      venc = sal * (parseFloat(v.ref)||0) / 100;
-      break;
-    case 'premiotempo':
-      venc = sal * (parseFloat(v.ref)||0) / 100;
-      break;
-    case 'adiant':
-      desc = parseFloat(v.ref) || 0;
-      break;
-  }
-  return { venc, desc };
 }
 
 function calcIRRF(base) {
@@ -2034,8 +2011,6 @@ const DEFAULT_CONFIG_VERBAS = [
   { id:'almoco',  cod:'448', desc:'ALMOÇO MOTORISTA',       tipo:'venc', refLabel:'valor', formulaVenc:'ref',                 formulaDesc:'' },
 ];
 
-let configVerbas = JSON.parse(localStorage.getItem('cfg_verbas') || 'null') || DEFAULT_CONFIG_VERBAS.map(v=>({...v}));
-let configParams = JSON.parse(localStorage.getItem('cfg_params') || 'null') || { horasMes:220, he50Mult:1.5, he100Mult:2.0, fgtsAliq:8 };
 
 function saveConfig() {
   configParams.horasMes  = parseFloat(document.getElementById('cfg-horas-mes').value)||220;
@@ -2115,7 +2090,9 @@ function addConfigVerba() {
   });
   localStorage.setItem('cfg_verbas', JSON.stringify(configVerbas));
   renderConfigVerbas();
-  renderQuickList();
+  if (typeof configVerbas !== 'undefined') {
+  renderQuickAddButtons();
+}
 }
 
 function delConfigVerba(i) {
