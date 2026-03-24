@@ -1025,22 +1025,14 @@ async function initApp() {
   document.getElementById('btn-empresas').style.display = 'block';
 
   // verifica se é admin
-  try {
-    const adminCheck = await sbFetch('admins?user_id=eq.' + currentUser.id);
-    currentUser.isAdmin = adminCheck && adminCheck.length > 0;
-  } catch(e) { currentUser.isAdmin = false; }
+  currentUser.isAdmin = currentUser.email === 'gustavo@jaguarcontabilidade.com.br';catch(e) { currentUser.isAdmin = false; }
 
-  if (currentUser.isAdmin) {
-    document.getElementById('user-email-badge').textContent = currentUser.email + ' 👑';
-    // admin vê botão extra
-    const btnAdmin = document.getElementById('btn-admin');
-    if (btnAdmin) btnAdmin.style.display = 'block';
-  }
+  const btnAdmin = document.getElementById('btn-admin');
 
-  await carregarEmpresas();
-  renderQuickAddButtons();
-  addVerbaDiasNormais();
-  calc();
+if (currentUser.isAdmin) {
+  btnAdmin.style.display = 'block';
+} else {
+  btnAdmin.style.display = 'none';
 }
 
 // ── EMPRESAS ──
