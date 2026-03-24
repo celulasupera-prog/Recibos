@@ -1120,12 +1120,15 @@ async function showEmpresas() {
 
 function renderEmpresasList() {
   const list = document.getElementById('empresas-list');
+
   if (!empresasList.length) {
-    list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--ink3)">Nenhuma empresa cadastrada. Clique em "+ Nova Empresa".</div>';
+    list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--ink3)">Nenhuma empresa cadastrada.</div>';
     return;
   }
+
   list.innerHTML = empresasList.map(e => `
     <div class="emp-card">
+
       <div class="emp-card-info">
         <div class="emp-card-nome">${e.nome}</div>
         <div class="emp-card-cnpj">
@@ -1133,14 +1136,16 @@ function renderEmpresasList() {
           ${currentUser.isAdmin && e._grupoEmail ? ' <span style="color:var(--accent);font-size:.7rem">👤 '+e._grupoEmail+'</span>' : ''}
         </div>
       </div>
-      ${!currentUser.isAdmin ? `<button class="hcbtn d" onclick="deletarEmpresa('${e.id}')">✕ Remover</button>` : ''}
+
+      <div style="display:flex;gap:.4rem;">
+        <button class="hcbtn" onclick="configVerbasEmpresa('${e.id}')">⚙ Verbas</button>
+
+        ${!currentUser.isAdmin 
+          ? `<button class="hcbtn d" onclick="deletarEmpresa('${e.id}')">✕ Remover</button>` 
+          : ''}
+      </div>
+
     </div>
-    <div style="display:flex;gap:.4rem;">
-      <button class="hcbtn" onclick="configVerbasEmpresa('${e.id}')">⚙ Verbas</button>
-      ${!currentUser.isAdmin ? `<button class="hcbtn d" onclick="deletarEmpresa('${e.id}')">✕ Remover</button>` : ''}
-    </div>
-  </div>
- 
   `).join('');
 }
 
