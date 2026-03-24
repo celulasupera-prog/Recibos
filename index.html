@@ -1945,12 +1945,19 @@ async function salvar() {
   if(!d.emp||!d.func){ toast('Preencha empresa e funcionário!','err'); return; }
   toast('Salvando...');
   const row = {
-    id: editId || Date.now(),
-    emp: d.emp, func: d.func, cargo: d.cargo,
-    comp: d.comp, folha: d.folha,
-    liq: d.liq, tot_venc: d.totVenc, tot_desc: d.totDesc,
-    dados: d
-  };
+  id: editId || Date.now(),
+  emp: d.emp,
+  func: d.func,
+  cargo: d.cargo,
+  comp: d.comp,
+  folha: d.folha,
+  liq: d.liq,
+  tot_venc: d.totVenc,
+  tot_desc: d.totDesc,
+  grupo_id: grupoId,        // 🔥 ADICIONAR
+  user_id: currentUser.id,  // 🔥 ADICIONAR
+  dados: d
+};
   try {
     await sbFetch('recibos', {
       method: 'POST',
@@ -1970,13 +1977,31 @@ async function showHist() {
   document.getElementById('pg-hist').style.display='block';
   document.getElementById('pg-config').style.display='none';
   document.getElementById('pg-empresas').style.display='none';
-  document.getElementById('hist-grid').innerHTML='<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--ink3)">Carregando...</div>';
+
+  document.getElementById('hist-grid').innerHTML =
+    '<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--ink3)">Carregando...</div>';
+
   try {
-    const data = await sbFetch('recibos?select=*&order=saved_at.desc');
-    hist = data.map(r => ({...r.dados, id:r.id, liq:r.liq, totVenc:r.tot_venc, totDesc:r.tot_desc}));
+
+    let data;
+
+    if (currentUser.isAdmin) {
+      data = await sbFetch('recibos?select=*&order=saved_at.desc');
+    } else {
+      data = await sbFetch('recibos?grupo_id=eq.' + grupoId + '&order=saved_at.desc');
+    }
+
+    hist = data.map(r => ({
+      ...r.dados,
+      id: r.id,
+      liq: r.liq,
+      totVenc: r.tot_venc,
+      totDesc: r.tot_desc
+    }));
+
     renderHist();
+
   } catch(e) {
-    // fallback localStorage
     hist = JSON.parse(localStorage.getItem('rec_hist_v2')||'[]');
     renderHist();
     toast('Usando histórico local (sem conexão)', 'err');
