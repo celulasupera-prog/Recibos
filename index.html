@@ -535,6 +535,20 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
       <button class="abtn primary" onclick="salvarEmpresa()">Salvar</button>
       <button class="abtn outline" onclick="document.getElementById('add-empresa-form').style.display='none'">Cancelar</button>
     </div>
+    <div id="emp-verbas-config" style="display:none;background:#fff;border:1px solid var(--border);border-radius:8px;padding:1rem;margin-top:1rem;">
+      <div style="font-family:'Syne';font-weight:700;margin-bottom:.5rem">
+            Configurar verbas padrão
+          </div>
+        
+          <div id="emp-verbas-list"></div>
+        
+          <button class="btn-add-verba" onclick="addVerbaPadrao()">+ Adicionar verba</button>
+        
+          <div style="display:flex;gap:.5rem;margin-top:.75rem">
+        <button class="abtn primary" onclick="salvarVerbasPadrao()">Salvar</button>
+        <button class="abtn outline" onclick="fecharConfigVerbas()">Cancelar</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -951,6 +965,8 @@ let editId = null;
 let currentUser = null;
 let empresasList = [];
 let grupoId = null;
+let empresaEditando = null;
+let verbasPadraoTemp = [];
 
 // ── AUTH ──
 async function fazerLogin() {
@@ -1070,7 +1086,6 @@ function selecionarEmpresa(id) {
   document.getElementById('f-emp').value = emp.nome || '';
   document.getElementById('f-cnpj').value = emp.cnpj || '';
 
-  // 👇 NOVO: carregar verbas padrão
   verbas = [];
 
   if (emp.verbas_padrao && emp.verbas_padrao.length) {
@@ -1120,6 +1135,11 @@ function renderEmpresasList() {
       </div>
       ${!currentUser.isAdmin ? `<button class="hcbtn d" onclick="deletarEmpresa('${e.id}')">✕ Remover</button>` : ''}
     </div>
+    <div style="display:flex;gap:.4rem;">
+      <button class="hcbtn" onclick="configVerbasEmpresa('${e.id}')">⚙ Verbas</button>
+      ${!currentUser.isAdmin ? `<button class="hcbtn d" onclick="deletarEmpresa('${e.id}')">✕ Remover</button>` : ''}
+    </div>
+  </div>
  
   `).join('');
 }
@@ -1165,6 +1185,87 @@ async function deletarEmpresa(id) {
   } catch(e) {
     toast('Erro ao remover!', 'err');
   }
+
+  function configVerbasEmpresa(id) {
+  const emp = empresasList.find(e => e.id == id);
+  if (!emp) return;
+
+  empresaEditando = emp;
+
+  verbasPadraoTemp = emp.verbas_padrao
+    ? JSON.parse(JSON.stringify(emp.verbas_padrao))
+    : [];
+
+  renderVerbasPadrao();
+
+  document.getElementById('emp-verbas-config').style.display = 'block';
+}
+
+  function renderVerbasPadrao() {
+  const el = document.getElementById('emp-verbas-list');
+
+  if (!verbasPadraoTemp.length) {
+    el.innerHTML = '<div style="color:#999">Nenhuma verba definida</div>';
+    return;
+  }
+
+  el.innerHTML = verbasPadraoTemp.map((v,i) => {
+    return `
+      <div style="display:flex;gap:.5rem;margin-bottom:.3rem">
+        <input value="${v.cod}" placeholder="Cód" oninput="updVP(${i},'cod',this.value)">
+        <input value="${v.desc}" placeholder="Descrição" oninput="updVP(${i},'desc',this.value)">
+        <select onchange="updVP(${i},'tipo',this.value)">
+          <option value="venc" ${v.tipo==='venc'?'selected':''}>Venc</option>
+          <option value="desc" ${v.tipo==='desc'?'selected':''}>Desc</option>
+        </select>
+        <button onclick="delVP(${i})">×</button>
+      </div>
+    `;
+  }).join('');
+}
+
+  function updVP(i, field, val) {
+  verbasPadraoTemp[i][field] = val;
+}
+
+function delVP(i) {
+  verbasPadraoTemp.splice(i,1);
+  renderVerbasPadrao();
+}
+
+function addVerbaPadrao() {
+  verbasPadraoTemp.push({
+    cod:'',
+    desc:'Nova verba',
+    tipo:'venc'
+  });
+  renderVerbasPadrao();
+}
+
+  async function salvarVerbasPadrao() {
+  if (!empresaEditando) return;
+
+  try {
+    await sbFetch('empresas?id=eq.' + empresaEditando.id, {
+      method: 'PATCH',
+      body: JSON.stringify({
+        verbas_padrao: verbasPadraoTemp
+      })
+    });
+
+    empresaEditando.verbas_padrao = verbasPadraoTemp;
+
+    fecharConfigVerbas();
+    toast('Verbas padrão salvas!');
+  } catch(e) {
+    toast('Erro ao salvar!', 'err');
+  }
+}
+
+  function fecharConfigVerbas() {
+  document.getElementById('emp-verbas-config').style.display = 'none';
+  empresaEditando = null;
+}
 }
 
 // ── INIT ──
