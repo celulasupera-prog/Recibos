@@ -2302,13 +2302,16 @@ function calcVerba(v, sal, salDia, salHora, valDias) {
         .filter(x => x.autoType === 'he50' || x.autoType === 'he100')
         .reduce((s,x) => s + (x.venc || 0), 0);
     
-      const dias = parseFloat(document.getElementById('f-dias').value) || 0;
+      const diasTrab = parseFloat(document.getElementById('f-dias').value) || 0;
       const diasMes = parseFloat(document.getElementById('f-diasmes').value) || 30;
     
-      const dsr = (totalHE / dias) * (diasMes - dias);
+      if (!diasTrab || totalHE === 0) {
+        return { venc: 0, desc: 0 };
+      }
+    
+      const dsr = (totalHE / diasTrab) * (diasMes - diasTrab);
     
       return { venc: dsr, desc: 0 };
-  }
 
   // verbas configuráveis com fórmula
   const cfg = configVerbas.find(c=>c.id===v.autoType);
