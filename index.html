@@ -536,8 +536,8 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
         <input type="text" id="new-emp-cnpj" oninput="this.value = formatCNPJ(this.value)" placeholder="00.000.000/0001-00">
       </div>
       <div class="field">
-        <label>CC / Departamento</label>
-        <input type="text" id="new-emp-cc" placeholder="Ex: SERVIÇOS/CUSTO">
+        <label>Cidade</label>
+        <input type="text" id="new-emp-cidade" placeholder="Ex: Curitiba/PR">
       </div>
     </div>
     <div style="display:flex;gap:.5rem;margin-top:.75rem">
@@ -1138,7 +1138,7 @@ function editarEmpresa(id) {
 
   document.getElementById('new-emp-nome').value = emp.nome || '';
   document.getElementById('new-emp-cnpj').value = emp.cnpj || '';
-  document.getElementById('new-emp-cc').value = emp.cc || '';
+  document.getElementById('new-emp-cidade').value = emp.cidade || '';
 
   empresaEditando = emp;
 }
@@ -1203,7 +1203,7 @@ function formatCNPJ(v) {
 async function salvarEmpresa() {
   const nome = document.getElementById('new-emp-nome').value.trim();
   const cnpj = document.getElementById('new-emp-cnpj').value.trim();
-  const cc   = document.getElementById('new-emp-cc').value.trim();
+  const cidade = document.getElementById('new-emp-cidade').value.trim();
 
   if (!nome) { toast('Informe o nome da empresa!', 'err'); return; }
 
@@ -1212,7 +1212,7 @@ async function salvarEmpresa() {
       // ✏️ EDITAR
       await sbFetch('empresas?id=eq.' + empresaEditando.id, {
         method: 'PATCH',
-        body: JSON.stringify({ nome, cnpj, cc })
+        body: JSON.stringify({ nome, cnpj, cidade })
       });
 
       empresaEditando.nome = nome;
@@ -1227,7 +1227,7 @@ async function salvarEmpresa() {
         prefer: 'return=representation',
         body: JSON.stringify({
           grupo_id: grupoId,
-          nome, cnpj, cc,
+          nome, cnpj, cidade,
           verbas_padrao: [{ cod:'8781', desc:'DIAS NORMAIS', autoType:'diasnormais', tipo:'venc' }]
         })
       });
@@ -1681,6 +1681,7 @@ function getData() {
   return {
     emp: document.getElementById('f-emp').value,
     cnpj: document.getElementById('f-cnpj').value,
+    cidade: document.getElementById('f-cidade')?.value || '',
     func: document.getElementById('f-func').value,
     cargo: document.getElementById('f-cargo').value,
     tipo: document.getElementById('f-tipo').value,
@@ -1753,7 +1754,10 @@ function buildViaHTML(d, viaLabel) {
         <div class="rec-header">
           <div>
             <div class="rec-empresa">${d.emp||'Nome da Empresa'}</div>
-            <div class="rec-cnpj">${d.cnpj?'CNPJ: '+d.cnpj:''}</div>
+            <div class="rec-cnpj">
+              ${d.cnpj ? 'CNPJ: ' + d.cnpj : ''}
+              ${d.cidade ? ' • ' + d.cidade : ''}
+            </div>
           </div>
           <div class="rec-header-right">
             <div class="rec-folha">${d.folha||'Folha Mensal'}</div>
