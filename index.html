@@ -1631,11 +1631,7 @@ function updateVerba(id, field, val) {
     v.ref = val;
 
     if (v.auto) {
-      // DSR depende das horas extras; nesses casos precisa recalcular tudo
-      if (v.autoType === 'he50' || v.autoType === 'he100') {
-        calc();
-        return;
-      }
+      
       // recalcula sem re-renderizar a lista — só atualiza o input de valor
       const sal = parseFloat(document.getElementById('f-sal').value) || 0;
       const diasMes = parseFloat(document.getElementById('f-diasmes').value) || 30;
