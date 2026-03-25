@@ -1458,10 +1458,18 @@ function calc() {
 
   // recalc auto verbas
   verbas.forEach(v => {
-    if (v.auto) {
+    if (v.auto && v.autoType !== 'dsrhe') {
       const r = calcVerba(v, sal, salDia, salHora, valDias);
       v.venc = r.venc;
-      v.desc2 = r.desc || 0; // desc2 = valor desconto, desc = descrição textual
+      v.desc2 = r.desc || 0;
+    }
+  });
+  
+  verbas.forEach(v => {
+    if (v.auto && v.autoType === 'dsrhe') {
+      const r = calcVerba(v, sal, salDia, salHora, valDias);
+      v.venc = r.venc;
+      v.desc2 = r.desc || 0;
     }
   });
 
