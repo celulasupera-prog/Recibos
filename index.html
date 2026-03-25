@@ -888,6 +888,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
       <div class="formula-hint" style="line-height:1.5;background:#f3f6ff;border:1px solid #dbe7ff;padding:.45rem .55rem;border-radius:6px">
         <b style="color:var(--accent)">Variáveis de fórmula:</b>
         <code>sal</code>, <code>salHora</code>, <code>salDia</code>, <code>ref</code>, <code>diasTrab</code>, <code>diasMes</code>, <code>diasUteis</code>, <code>diasDSR</code>, <code>totalHE</code>.
+        <div style="margin-top:.2rem">Para incluir uma nova rubrica (ex.: HE 60%) no DSR, marque <b>Compõe HE/DSR</b> na linha dela.</div>
       </div>
       <table class="config-table" style="margin-top:.75rem">
         <thead><tr>
@@ -895,6 +896,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
           <th>Descrição</th>
           <th style="width:80px">Tipo</th>
           <th style="width:80px">Ref.</th>
+          <th style="width:95px">Compõe HE/DSR</th>
           <th>Fórmula (Vencimento)</th>
           <th>Fórmula (Desconto)</th>
           <th style="width:30px"></th>
@@ -970,16 +972,16 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 <script>
 // ── CONFIG ──
 const DEFAULT_CONFIG_VERBAS = [
-  { id:'he50',   cod:'150', desc:'HORAS EXTRAS - 50%',      tipo:'venc', refLabel:'horas', formulaVenc:'ref * salHora * 1.5', formulaDesc:'' },
-  { id:'he100',  cod:'200', desc:'HORAS EXTRAS 100%',       tipo:'venc', refLabel:'horas', formulaVenc:'ref * salHora * 2',   formulaDesc:'' },
-  { id:'dsrhe', cod:'9999', desc:'DSR SOBRE HORAS EXTRAS', tipo:'venc', refLabel:'auto', formulaVenc:'', formulaDesc:'' },
-  { id:'adicfunc',cod:'348',desc:'ADICIONAL DE FUNÇÃO',     tipo:'venc', refLabel:'%',     formulaVenc:'sal * ref / 100',     formulaDesc:'' },
-  { id:'premiotempo',cod:'576',desc:'PRÊMIO TEMPO SERVIÇO', tipo:'venc', refLabel:'%',     formulaVenc:'sal * ref / 100',     formulaDesc:'' },
-  { id:'ajudacusto',cod:'583',desc:'AJUDA DE CUSTO',        tipo:'venc', refLabel:'valor', formulaVenc:'ref',                 formulaDesc:'' },
-  { id:'adiant',  cod:'231', desc:'DESC. ADIANT. SALARIAL', tipo:'desc', refLabel:'valor', formulaVenc:'',                   formulaDesc:'ref' },
-  { id:'pernoite',cod:'256', desc:'PERNOITE',               tipo:'venc', refLabel:'qtd',   formulaVenc:'ref',                 formulaDesc:'' },
-  { id:'gratviagem',cod:'588',desc:'GRATIFICAÇÃO VIAGEM',   tipo:'venc', refLabel:'valor', formulaVenc:'ref',                 formulaDesc:'' },
-  { id:'almoco',  cod:'448', desc:'ALMOÇO MOTORISTA',       tipo:'venc', refLabel:'valor', formulaVenc:'ref',                 formulaDesc:'' },
+  { id:'he50',   cod:'150', desc:'HORAS EXTRAS - 50%',      tipo:'venc', refLabel:'horas', formulaVenc:'ref * salHora * 1.5', formulaDesc:'', compoeHE:true },
+  { id:'he100',  cod:'200', desc:'HORAS EXTRAS 100%',       tipo:'venc', refLabel:'horas', formulaVenc:'ref * salHora * 2',   formulaDesc:'', compoeHE:true },
+  { id:'dsrhe', cod:'9999', desc:'DSR SOBRE HORAS EXTRAS', tipo:'venc', refLabel:'auto', formulaVenc:'', formulaDesc:'', compoeHE:false },
+  { id:'adicfunc',cod:'348',desc:'ADICIONAL DE FUNÇÃO',     tipo:'venc', refLabel:'%',     formulaVenc:'sal * ref / 100',     formulaDesc:'', compoeHE:false },
+  { id:'premiotempo',cod:'576',desc:'PRÊMIO TEMPO SERVIÇO', tipo:'venc', refLabel:'%',     formulaVenc:'sal * ref / 100',     formulaDesc:'', compoeHE:false },
+  { id:'ajudacusto',cod:'583',desc:'AJUDA DE CUSTO',        tipo:'venc', refLabel:'valor', formulaVenc:'ref',                 formulaDesc:'', compoeHE:false },
+  { id:'adiant',  cod:'231', desc:'DESC. ADIANT. SALARIAL', tipo:'desc', refLabel:'valor', formulaVenc:'',                   formulaDesc:'ref', compoeHE:false },
+  { id:'pernoite',cod:'256', desc:'PERNOITE',               tipo:'venc', refLabel:'qtd',   formulaVenc:'ref',                 formulaDesc:'', compoeHE:false },
+  { id:'gratviagem',cod:'588',desc:'GRATIFICAÇÃO VIAGEM',   tipo:'venc', refLabel:'valor', formulaVenc:'ref',                 formulaDesc:'', compoeHE:false },
+  { id:'almoco',  cod:'448', desc:'ALMOÇO MOTORISTA',       tipo:'venc', refLabel:'valor', formulaVenc:'ref',                 formulaDesc:'', compoeHE:false },
 ];
 const jsPDF = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : null;
 
@@ -995,6 +997,7 @@ let configVerbas = safeParseJSON(localStorage.getItem('cfg_verbas'), null);
 if (!Array.isArray(configVerbas) || !configVerbas.length) {
   configVerbas = DEFAULT_CONFIG_VERBAS.map(v => ({ ...v }));
 }
+configVerbas = configVerbas.map(v => ({ ...v, compoeHE: !!v.compoeHE }));
 
 let configParams = safeParseJSON(localStorage.getItem('cfg_params'), null);
 if (!configParams || typeof configParams !== 'object') {
@@ -1649,6 +1652,8 @@ function removeVerba(id) {
 function updateVerba(id, field, val) {
   const v = verbas.find(v => v.id === id);
   if (!v) return;
+  if (field === 'venc' && v.tipo === 'desc') return;
+  if (field === 'desc2' && v.tipo === 'venc') return;
 
   if (field === 'venc') {
     v.venc = parseFloat(val) || 0;
@@ -1756,6 +1761,8 @@ function renderVerbasList() {
   list.innerHTML = verbas.map(v => {
     const vencCls = v.auto && v.autoType !== 'adiant' ? 'auto' : '';
     const descCls = v.auto && v.autoType === 'adiant' ? 'desc-auto' : '';
+    const lockVenc = v.tipo === 'desc' || (v.auto && v.autoType!=='adiant');
+    const lockDesc = v.tipo === 'venc' || (v.auto && v.autoType==='adiant');
     const cfgV = configVerbas.find(c=>c.id===v.autoType);
     const refLabel = v.autoType==='he50'||v.autoType==='he100' ? 'horas' :
                      v.autoType==='adicfunc'||v.autoType==='premiotempo' ? '%' :
@@ -1764,8 +1771,8 @@ function renderVerbasList() {
       <input value="${escHtml(v.cod||'')}" placeholder="Cód" style="text-align:left" oninput="updateVerba(${v.id},'cod',this.value)">
       <input value="${escHtml(v.desc||'')}" placeholder="Descrição do lançamento" class="desc-input" style="text-align:left;font-size:.82rem" oninput="updateVerba(${v.id},'desc',this.value)">
       <input value="${escHtml(v.ref||'')}" placeholder="${refLabel||'ref'}" oninput="updateVerba(${v.id},'ref',this.value)">
-      <input value="${v.venc > 0 ? fmtN(v.venc) : ''}" placeholder="0,00" class="${vencCls}" ${v.auto && v.autoType!=='adiant' ? 'readonly' : ''} oninput="updateVerba(${v.id},'venc',this.value)" data-field="venc">
-      <input value="${v.desc2 > 0 ? fmtN(v.desc2) : v.tipo==='desc'&&v.ref ? fmtN(parseFloat(v.ref)||0) : ''}" placeholder="0,00" class="${descCls}" ${v.auto && v.autoType==='adiant' ? 'readonly' : ''} oninput="updateVerba(${v.id},'desc2',this.value)" data-field="desc2">
+      <input value="${v.venc > 0 ? fmtN(v.venc) : ''}" placeholder="0,00" class="${vencCls}" ${lockVenc ? 'readonly' : ''} oninput="updateVerba(${v.id},'venc',this.value)" data-field="venc">
+      <input value="${v.desc2 > 0 ? fmtN(v.desc2) : v.tipo==='desc'&&v.ref ? fmtN(parseFloat(v.ref)||0) : ''}" placeholder="0,00" class="${descCls}" ${lockDesc ? 'readonly' : ''} oninput="updateVerba(${v.id},'desc2',this.value)" data-field="desc2">
       <button class="btn-rm" onclick="removeVerba(${v.id})">×</button>
     </div>`;
   }).join('');
@@ -2331,6 +2338,7 @@ function renderConfigVerbas() {
         </select>
       </td>
       <td><input value="${v.refLabel}" oninput="updateConfigVerba(${i},'refLabel',this.value)" placeholder="ex: horas"></td>
+      <td style="text-align:center"><input type="checkbox" ${v.compoeHE ? 'checked' : ''} onchange="updateConfigVerba(${i},'compoeHE',this.checked)"></td>
       <td><input value="${v.formulaVenc}" oninput="updateConfigVerba(${i},'formulaVenc',this.value)" placeholder="ex: ref * salHora * 1.5" style="font-family:'Inconsolata',monospace;font-size:.78rem"></td>
       <td><input value="${v.formulaDesc}" oninput="updateConfigVerba(${i},'formulaDesc',this.value)" placeholder="ex: ref" style="font-family:'Inconsolata',monospace;font-size:.78rem"></td>
       <td><button class="btn-del-config" onclick="delConfigVerba(${i})">×</button></td>
@@ -2357,7 +2365,7 @@ function updateConfigVerba(i, field, val) {
 function addConfigVerba() {
   configVerbas.push({
     id: 'custom_'+Date.now(), cod:'', desc:'Nova Verba',
-    tipo:'venc', refLabel:'valor', formulaVenc:'ref', formulaDesc:''
+    tipo:'venc', refLabel:'valor', formulaVenc:'ref', formulaDesc:'', compoeHE:false
   });
   localStorage.setItem('cfg_verbas', JSON.stringify(configVerbas));
   renderConfigVerbas();
@@ -2404,11 +2412,18 @@ function calcVerba(v, sal, salDia, salHora, valDias) {
   const diasUteis = parseFloat(document.getElementById('f-diasuteis').value) || 0;
   const diasDSR = parseFloat(document.getElementById('f-diasdsr').value) || 0;
   const totalHE = verbas
-    .filter(h => h.autoType === 'he50' || h.autoType === 'he100')
+    .filter(h => {
+      if (h.autoType === 'he50' || h.autoType === 'he100') return true;
+      const cfgHE = configVerbas.find(c => c.id === h.autoType);
+      return !!(cfgHE && cfgHE.compoeHE);
+    })
     .reduce((sum, h) => {
+      const valorVenc = parseFloat(h.venc) || 0;
+      if (valorVenc > 0) return sum + valorVenc;
       const refHE = parseFloat(h.ref) || 0;
       if (h.autoType === 'he50') return sum + (refHE * salHoraCalc * (configParams.he50Mult || 1.5));
-      return sum + (refHE * salHoraCalc * (configParams.he100Mult || 2));
+      if (h.autoType === 'he100') return sum + (refHE * salHoraCalc * (configParams.he100Mult || 2));
+      return sum;
     }, 0);
   const cfg = configVerbas.find(c=>c.id===v.autoType);
 
