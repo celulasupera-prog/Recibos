@@ -2341,6 +2341,16 @@ function calcVerba(v, sal, salDia, salHora, valDias) {
   const ref = parseFloat(v.ref)||0;
   const horasMes = configParams.horasMes||220;
   const salHoraCalc = sal / horasMes;
+  const diasTrab = parseFloat(document.getElementById('f-dias').value) || 0;
+  const diasMes = parseFloat(document.getElementById('f-diasmes').value) || 30;
+  const totalHE = verbas
+    .filter(h => h.autoType === 'he50' || h.autoType === 'he100')
+    .reduce((sum, h) => {
+      const refHE = parseFloat(h.ref) || 0;
+      if (h.autoType === 'he50') return sum + (refHE * salHoraCalc * (configParams.he50Mult || 1.5));
+      return sum + (refHE * salHoraCalc * (configParams.he100Mult || 2));
+    }, 0);
+  const cfg = configVerbas.find(c=>c.id===v.autoType);
 
   switch(v.autoType) {
 
@@ -2353,28 +2363,16 @@ function calcVerba(v, sal, salDia, salHora, valDias) {
     case 'he100':
       return { venc: ref * salHoraCalc * (configParams.he100Mult||2.0), desc: 0 };
 
-    case 'dsrhe': {
-      const horasExtras = verbas.filter(h => h.autoType === 'he50' || h.autoType === 'he100');
-
-      let totalHE = 0;
-
-      horasExtras.forEach(h => {
-        const r = parseFloat(h.ref) || 0;
-
-        if (h.autoType === 'he50') {
-          totalHE += r * salHoraCalc * (configParams.he50Mult || 1.5);
+     case 'dsrhe':
+      // mantém fórmula padrão se a verba DSR estiver sem fórmula configurada
+      if(!cfg || (!cfg.formulaVenc && !cfg.formulaDesc)) {
+        if (!diasTrab || totalHE === 0) {
+          return { venc: 0, desc: 0 };
+          
+    const dsr = (totalHE / diasTrab) * (diasMes - diasTrab);
+        return { venc: dsr, desc: 0 };
         }
-
-        if (h.autoType === 'he100') {
-          totalHE += r * salHoraCalc * (configParams.he100Mult || 2);
-        }
-      });
-
-      const diasTrab = parseFloat(document.getElementById('f-dias').value) || 0;
-      const diasMes = parseFloat(document.getElementById('f-diasmes').value) || 30;
-
-      if (!diasTrab || totalHE === 0) {
-        return { venc: 0, desc: 0 };
+         break;
       }
 
       const dsr = (totalHE / diasTrab) * (diasMes - diasTrab);
@@ -2384,11 +2382,13 @@ function calcVerba(v, sal, salDia, salHora, valDias) {
   }
 
   // verbas configuráveis
-  const cfg = configVerbas.find(c=>c.id===v.autoType);
+
   if(cfg) {
     try {
-      if(cfg.formulaVenc) venc = Function('sal','salHora','salDia','ref','valDias',`return ${cfg.formulaVenc}`)(sal, salHoraCalc, salDia, ref, valDias)||0;
-      if(cfg.formulaDesc) desc = Function('sal','salHora','salDia','ref','valDias',`return ${cfg.formulaDesc}`)(sal, salHoraCalc, salDia, ref, valDias)||0;
+   if(cfg.formulaVenc) venc = Function('sal','salHora','salDia','ref','valDias','diasTrab','diasMes','totalHE',`return ${cfg.formulaVenc}`)
+      (sal, salHoraCalc, salDia, ref, valDias, diasTrab, diasMes, totalHE)||0;
+    if(cfg.formulaDesc) desc = Function('sal','salHora','salDia','ref','valDias','diasTrab','diasMes','totalHE',`return ${cfg.formulaDesc}`)
+      (sal, salHoraCalc, salDia, ref, valDias, diasTrab, diasMes, totalHE)||0;
     } catch(e) {
       venc = 0;
       desc = 0;
