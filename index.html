@@ -1424,6 +1424,26 @@ function renderQuickAddButtons() {
   container.innerHTML = html;
 }
 
+function ensureFixedVerbas() {
+  if (!verbas.find(v => v.autoType === 'diasnormais')) {
+    addVerbaDiasNormais();
+  }
+
+  if (!verbas.find(v => v.autoType === 'dsrhe')) {
+    verbas.push({
+      id: Date.now() + Math.random(),
+      cod: '9999',
+      desc: 'DSR SOBRE HORAS EXTRAS',
+      ref: '',
+      venc: 0,
+      desc2: 0,
+      auto: true,
+      autoType: 'dsrhe',
+      tipo: 'venc'
+    });
+  }
+}
+  
 // ── TOGGLE ENCS ──
 function toggleEnc(key) {
   encs[key] = !encs[key];
@@ -1436,6 +1456,8 @@ function toggleEnc(key) {
 
 // ── CALC ──
 function calc() {
+  ensureFixedVerbas();
+  
   const sal = parseFloat(document.getElementById('f-sal').value) || 0;
   const dias = parseFloat(document.getElementById('f-dias').value) || 0;
 
@@ -2181,7 +2203,7 @@ function novoRecibo() {
     const b=document.getElementById('badge-'+k);
     b.textContent='Desativado'; b.className='toggle-badge off';
   });
-  addVerbaDiasNormais();
+  ensureFixedVerbas();
   calc();
   showMain();
 }
