@@ -676,6 +676,18 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
           <div class="field-hint">Auto pelo mês selecionado</div>
         </div>
       </div>
+      <div class="fg fg2" style="margin-top:.5rem">
+        <div class="field">
+          <label>Dias Úteis (HE)</label>
+          <input type="number" id="f-diasuteis" placeholder="24" min="0" max="31" oninput="calc()">
+          <div class="field-hint">Usado em fórmulas como <code>diasUteis</code></div>
+        </div>
+        <div class="field">
+          <label>Dias DSR (HE)</label>
+          <input type="number" id="f-diasdsr" placeholder="6" min="0" max="31" oninput="calc()">
+          <div class="field-hint">Usado em fórmulas como <code>diasDSR</code></div>
+        </div>
+      </div>
       <div class="fg fg3" style="margin-top:.5rem">
         <div class="field">
           <label>Salário/Dia (R$)</label>
@@ -873,6 +885,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
         Verbas Cadastradas
         <button class="btn-add-config" style="width:auto;padding:.35rem 1rem" onclick="addConfigVerba()">+ Nova Verba</button>
       </div>
+      <div class="formula-hint">Fórmulas disponíveis: <code>sal</code> = salário base, <code>salHora</code> = salário/hora, <code>salDia</code> = salário/dia, <code>ref</code> = referência digitada no recibo, <code>diasTrab</code> = dias trabalhados, <code>diasMes</code> = dias do mês, <code>diasUteis</code> = dias úteis para HE, <code>diasDSR</code> = dias de DSR para HE, <code>totalHE</code> = total de horas extras calculado no recibo</div>
       <div class="formula-hint">Fórmulas disponíveis: <code>sal</code> = salário base, <code>salHora</code> = salário/hora, <code>salDia</code> = salário/dia, <code>ref</code> = referência digitada no recibo, <code>diasTrab</code> = dias trabalhados, <code>diasMes</code> = dias do mês, <code>totalHE</code> = total de horas extras calculado no recibo</div>
       <table class="config-table" style="margin-top:.75rem">
         <thead><tr>
@@ -1416,6 +1429,8 @@ window.onload = async () => {
   const dias = new Date(y, now.getMonth()+1, 0).getDate();
   document.getElementById('f-diasmes').value = dias;
   document.getElementById('f-dias').value = dias;
+  document.getElementById('f-diasuteis').value = Math.max(dias - 6, 0);
+  document.getElementById('f-diasdsr').value = Math.min(6, dias);
 
   // verifica se já tem sessão salva
   const token = localStorage.getItem('sb_token');
@@ -1672,6 +1687,20 @@ function updateVerba(id, field, val) {
         if (inpDesc2) inpDesc2.value = v.desc2 > 0 ? fmtN(v.desc2) : '';
       }
 
+      // recalcula DSR automaticamente quando muda HE/ref de qualquer verba auto
+      verbas.forEach(dsrV => {
+        if (!dsrV.auto || dsrV.autoType !== 'dsrhe') return;
+        const dr = calcVerba(dsrV, sal, salDia, salHora, valDias);
+        dsrV.venc = dr.venc;
+        dsrV.desc2 = dr.desc || 0;
+        const dsrRow = document.querySelector(`.verba-row[data-id="${dsrV.id}"]`);
+        if (!dsrRow) return;
+        const dsrVencInp = dsrRow.querySelector('[data-field="venc"]');
+        const dsrDescInp = dsrRow.querySelector('[data-field="desc2"]');
+        if (dsrVencInp) dsrVencInp.value = dsrV.venc > 0 ? fmtN(dsrV.venc) : '';
+        if (dsrDescInp) dsrDescInp.value = dsrV.desc2 > 0 ? fmtN(dsrV.desc2) : '';
+      });
+
       // atualiza totais e preview sem re-renderizar lista
       calcTotaisOnly();
       renderPreview();
@@ -1745,6 +1774,8 @@ function getData() {
   const sal = parseFloat(document.getElementById('f-sal').value)||0;
   const diasMes = parseFloat(document.getElementById('f-diasmes').value)||30;
   const dias = parseFloat(document.getElementById('f-dias').value)||0;
+  const diasUteis = parseFloat(document.getElementById('f-diasuteis').value)||0;
+  const diasDSR = parseFloat(document.getElementById('f-diasdsr').value)||0;
   const salDia = sal/diasMes, salHora = sal/220, valDias = salDia*dias;
 
   let totVenc = verbas.reduce((s,v)=>s+(v.venc||0),0);
@@ -1771,7 +1802,7 @@ function getData() {
     folha: document.getElementById('f-folha').value,
     comp: compFmt,
     admissao: admFmt,
-    sal, dias, diasMes, salDia, salHora, valDias,
+    sal, dias, diasMes, diasUteis, diasDSR, salDia, salHora, valDias,
     verbas: verbas.map(v=>({...v})),
     totVenc, totDesc, liq: totVenc-totDesc,
     inssVal, fgtsBase, fgtsVal, irrfBase, irrfVal, irrfFaixa,
@@ -2156,6 +2187,16 @@ function loadRec(id) {
   setV('f-emp',h.emp); setV('f-cnpj',h.cnpj);
   setV('f-func',h.func); setV('f-cargo',h.cargo);
   setV('f-sal',h.sal); setV('f-dias',h.dias); setV('f-diasmes',h.diasMes);
+  setV('f-diasuteis',h.diasUteis);
+  setV('f-diasdsr',h.diasDSR);
+  if (!document.getElementById('f-diasuteis').value) {
+    const dm = parseFloat(h.diasMes) || 30;
+    document.getElementById('f-diasuteis').value = Math.max(dm - 6, 0);
+  }
+  if (!document.getElementById('f-diasdsr').value) {
+    const dm = parseFloat(h.diasMes) || 30;
+    document.getElementById('f-diasdsr').value = Math.min(6, dm);
+  }
 
   if(h.comp) {
     const meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -2213,6 +2254,8 @@ function novoRecibo() {
   const dias=new Date(y,now.getMonth()+1,0).getDate();
   document.getElementById('f-diasmes').value=dias;
   document.getElementById('f-dias').value=dias;
+  document.getElementById('f-diasuteis').value=Math.max(dias-6,0);
+  document.getElementById('f-diasdsr').value=Math.min(6,dias);
   verbas=[];
   encs={inss:false,fgts:false,irrf:false};
   ['inss','fgts','irrf'].forEach(k=>{
@@ -2359,6 +2402,8 @@ function calcVerba(v, sal, salDia, salHora, valDias) {
   const salHoraCalc = sal / horasMes;
   const diasTrab = parseFloat(document.getElementById('f-dias').value) || 0;
   const diasMes = parseFloat(document.getElementById('f-diasmes').value) || 30;
+  const diasUteis = parseFloat(document.getElementById('f-diasuteis').value) || 0;
+  const diasDSR = parseFloat(document.getElementById('f-diasdsr').value) || 0;
   const totalHE = verbas
     .filter(h => h.autoType === 'he50' || h.autoType === 'he100')
     .reduce((sum, h) => {
@@ -2403,8 +2448,8 @@ function calcVerba(v, sal, salDia, salHora, valDias) {
       const exp = sanitizeFormula(formula);
       if (!exp) return 0;
       try {
-        const fn = Function('sal','salHora','salDia','ref','valDias','diasTrab','diasMes','totalHE', `return (${exp});`);
-        return fn(sal, salHoraCalc, salDia, ref, valDias, diasTrab, diasMes, totalHE) || 0;
+        const fn = Function('sal','salHora','salDia','ref','valDias','diasTrab','diasMes','diasUteis','diasDSR','totalHE', `return (${exp});`);
+        return fn(sal, salHoraCalc, salDia, ref, valDias, diasTrab, diasMes, diasUteis, diasDSR, totalHE) || 0;
       } catch (e) {
         return 0;
       }
