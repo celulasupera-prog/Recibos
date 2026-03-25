@@ -885,8 +885,10 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
         Verbas Cadastradas
         <button class="btn-add-config" style="width:auto;padding:.35rem 1rem" onclick="addConfigVerba()">+ Nova Verba</button>
       </div>
-      <div class="formula-hint">Fórmulas disponíveis: <code>sal</code> = salário base, <code>salHora</code> = salário/hora, <code>salDia</code> = salário/dia, <code>ref</code> = referência digitada no recibo, <code>diasTrab</code> = dias trabalhados, <code>diasMes</code> = dias do mês, <code>diasUteis</code> = dias úteis para HE, <code>diasDSR</code> = dias de DSR para HE, <code>totalHE</code> = total de horas extras calculado no recibo</div>
-      <div class="formula-hint">Fórmulas disponíveis: <code>sal</code> = salário base, <code>salHora</code> = salário/hora, <code>salDia</code> = salário/dia, <code>ref</code> = referência digitada no recibo, <code>diasTrab</code> = dias trabalhados, <code>diasMes</code> = dias do mês, <code>totalHE</code> = total de horas extras calculado no recibo</div>
+      <div class="formula-hint" style="line-height:1.5;background:#f3f6ff;border:1px solid #dbe7ff;padding:.45rem .55rem;border-radius:6px">
+        <b style="color:var(--accent)">Variáveis de fórmula:</b>
+        <code>sal</code>, <code>salHora</code>, <code>salDia</code>, <code>ref</code>, <code>diasTrab</code>, <code>diasMes</code>, <code>diasUteis</code>, <code>diasDSR</code>, <code>totalHE</code>.
+      </div>
       <table class="config-table" style="margin-top:.75rem">
         <thead><tr>
           <th style="width:60px">Código</th>
@@ -1449,7 +1451,9 @@ function renderQuickAddButtons() {
   let html = `<button class="hcbtn" onclick="quickAdd('he50')">HE 50%</button>
     <button class="hcbtn" onclick="quickAdd('he100')">HE 100%</button>`;
   // verbas configuradas
-  configVerbas.forEach(v => {
+  configVerbas
+    .filter(v => v.id !== 'he50' && v.id !== 'he100')
+    .forEach(v => {
     html += `<button class="hcbtn" onclick="quickAddConfig('${v.id}')">${v.desc.length>15?v.cod+' '+v.desc.slice(0,12)+'…':v.desc}</button>`;
   });
   container.innerHTML = html;
@@ -2372,12 +2376,7 @@ function delConfigVerba(i) {
 }
 
 function syncQuickAddButtons() {
-  // atualiza os botões rápidos no formulário
-  const container = document.querySelector('.hcbtns-quick');
-  if(!container) return;
-  container.innerHTML = configVerbas.map(v =>
-    `<button class="hcbtn" onclick="quickAddConfig('${v.id}')">${v.desc}</button>`
-  ).join('');
+  renderQuickAddButtons();
 }
 
 function quickAddConfig(id) {
