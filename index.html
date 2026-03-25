@@ -2400,15 +2400,25 @@ function calcVerba(v, sal, salDia, salHora, valDias) {
   // verbas configuráveis
 
   if(cfg) {
-    try {
-   const formulaVenc = String(cfg.formulaVenc || '').trim().replace(/^return\s+/i, '');
-      const formulaDesc = String(cfg.formulaDesc || '').trim().replace(/^return\s+/i, '');
-      if(formulaVenc) venc = Function('sal','salHora','salDia','ref','valDias','diasTrab','diasMes','totalHE',`return (${formulaVenc})`)(sal, salHoraCalc, salDia, ref, valDias, diasTrab, diasMes, totalHE)||0;
-      if(formulaDesc) desc = Function('sal','salHora','salDia','ref','valDias','diasTrab','diasMes','totalHE',`return (${formulaDesc})`)(sal, salHoraCalc, salDia, ref, valDias, diasTrab, diasMes, totalHE)||0;
-    } catch(e) {
-      venc = 0;
-      desc = 0;
-    }
+    const sanitizeFormula = (raw) => String(raw || '')
+      .trim()
+      .replace(/^return\s+/i, '')
+      .replace(/;+$/g, '')
+      .trim();
+
+    const runFormula = (formula) => {
+      const exp = sanitizeFormula(formula);
+      if (!exp) return 0;
+      try {
+        const fn = Function('sal','salHora','salDia','ref','valDias','diasTrab','diasMes','totalHE', `return (${exp});`);
+        return fn(sal, salHoraCalc, salDia, ref, valDias, diasTrab, diasMes, totalHE) || 0;
+      } catch (e) {
+        return 0;
+      }
+    };
+
+    venc = runFormula(cfg.formulaVenc);
+    desc = runFormula(cfg.formulaDesc);
     return { venc, desc };
   }
 
