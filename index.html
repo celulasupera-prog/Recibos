@@ -2289,70 +2289,79 @@ function calcVerba(v, sal, salDia, salHora, valDias) {
   const horasMes = configParams.horasMes||220;
   const salHoraCalc = sal / horasMes;
 
-  // verbas fixas
   switch(v.autoType) {
-    case 'diasnormais': return { venc: valDias, desc: 0 };
-    case 'he50':  return { venc: ref * salHoraCalc * (configParams.he50Mult||1.5), desc: 0 };
-    case 'he100': return { venc: ref * salHoraCalc * (configParams.he100Mult||2.0), desc: 0 };
+
+    case 'diasnormais':
+      return { venc: valDias, desc: 0 };
+
+    case 'he50':
+      return { venc: ref * salHoraCalc * (configParams.he50Mult||1.5), desc: 0 };
+
+    case 'he100':
+      return { venc: ref * salHoraCalc * (configParams.he100Mult||2.0), desc: 0 };
+
     case 'dsrhe': {
-     const horasExtras = verbas.filter(h => h.autoType === 'he50' || h.autoType === 'he100');
-      let totalHE = 0;  
+      const horasExtras = verbas.filter(h => h.autoType === 'he50' || h.autoType === 'he100');
+
+      let totalHE = 0;
+
       horasExtras.forEach(h => {
         const r = parseFloat(h.ref) || 0;
+
         if (h.autoType === 'he50') {
           totalHE += r * salHoraCalc * (configParams.he50Mult || 1.5);
         }
+
         if (h.autoType === 'he100') {
           totalHE += r * salHoraCalc * (configParams.he100Mult || 2);
         }
-    });
-  
-    const diasTrab = parseFloat(document.getElementById('f-dias').value) || 0;
-    const diasMes = parseFloat(document.getElementById('f-diasmes').value) || 30;
-  
-    if (!diasTrab || totalHE === 0) {
-      return { venc: 0, desc: 0 };
-    }
-  
-    const dsr = (totalHE / diasTrab) * (diasMes - diasTrab);
-  
-    return { venc: dsr, desc: 0 };
-  }
-      };
-    
+      });
+
       const diasTrab = parseFloat(document.getElementById('f-dias').value) || 0;
       const diasMes = parseFloat(document.getElementById('f-diasmes').value) || 30;
-    
-      const diasDSR = diasMes - diasTrab;
-    
+
       if (!diasTrab || totalHE === 0) {
         return { venc: 0, desc: 0 };
       }
-    
-      const dsr = (totalHE / diasTrab) * diasDSR;
-    
+
+      const dsr = (totalHE / diasTrab) * (diasMes - diasTrab);
+
       return { venc: dsr, desc: 0 };
     }
+  }
 
-  // verbas configuráveis com fórmula
+  // verbas configuráveis
   const cfg = configVerbas.find(c=>c.id===v.autoType);
   if(cfg) {
     try {
       if(cfg.formulaVenc) venc = Function('sal','salHora','salDia','ref','valDias',`return ${cfg.formulaVenc}`)(sal, salHoraCalc, salDia, ref, valDias)||0;
       if(cfg.formulaDesc) desc = Function('sal','salHora','salDia','ref','valDias',`return ${cfg.formulaDesc}`)(sal, salHoraCalc, salDia, ref, valDias)||0;
-    } catch(e) { venc = 0; desc = 0; }
+    } catch(e) {
+      venc = 0;
+      desc = 0;
+    }
     return { venc, desc };
   }
 
   // legado
   switch(v.autoType) {
-    case 'adicfunc':   venc = sal*(parseFloat(v.ref)||0)/100; break;
-    case 'premiotempo':venc = sal*(parseFloat(v.ref)||0)/100; break;
-    case 'adiant':     desc = parseFloat(v.ref)||0; break;
+    case 'adicfunc':
+      venc = sal*(parseFloat(v.ref)||0)/100;
+      break;
+
+    case 'premiotempo':
+      venc = sal*(parseFloat(v.ref)||0)/100;
+      break;
+
+    case 'adiant':
+      desc = parseFloat(v.ref)||0;
+      break;
   }
+
   return { venc, desc };
 }
 
+  
 function alterarSenha() {
   const atual = localStorage.getItem('cfg_senha') || '1234';
   const confirmAtual = prompt('Digite a senha atual:');
