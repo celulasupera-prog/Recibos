@@ -2305,22 +2305,30 @@ function calcVerba(v, sal, salDia, salHora, valDias) {
     case 'diasnormais': return { venc: valDias, desc: 0 };
     case 'he50':  return { venc: ref * salHoraCalc * (configParams.he50Mult||1.5), desc: 0 };
     case 'he100': return { venc: ref * salHoraCalc * (configParams.he100Mult||2.0), desc: 0 };
-   case 'dsrhe': {
-
-      const horasExtras = verbas.filter(v => v.autoType === 'he50' || v.autoType === 'he100');
-    
-      let totalHE = 0;
-    
-      horasExtras.forEach(v => {
-        const ref = parseFloat(v.ref) || 0;
-    
-        if (v.autoType === 'he50') {
-          totalHE += ref * salHoraCalc * (configParams.he50Mult || 1.5);
+    case 'dsrhe': {
+     const horasExtras = verbas.filter(h => h.autoType === 'he50' || h.autoType === 'he100');
+      let totalHE = 0;  
+      horasExtras.forEach(h => {
+        const r = parseFloat(h.ref) || 0;
+        if (h.autoType === 'he50') {
+          totalHE += r * salHoraCalc * (configParams.he50Mult || 1.5);
         }
-    
-        if (v.autoType === 'he100') {
-          totalHE += ref * salHoraCalc * (configParams.he100Mult || 2);
+        if (h.autoType === 'he100') {
+          totalHE += r * salHoraCalc * (configParams.he100Mult || 2);
         }
+    });
+  
+    const diasTrab = parseFloat(document.getElementById('f-dias').value) || 0;
+    const diasMes = parseFloat(document.getElementById('f-diasmes').value) || 30;
+  
+    if (!diasTrab || totalHE === 0) {
+      return { venc: 0, desc: 0 };
+    }
+  
+    const dsr = (totalHE / diasTrab) * (diasMes - diasTrab);
+  
+    return { venc: dsr, desc: 0 };
+  }
       });
     
       const diasTrab = parseFloat(document.getElementById('f-dias').value) || 0;
