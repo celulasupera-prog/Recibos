@@ -601,7 +601,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
         </div>
         <div class="field" style="grid-column:span 2">
           <label>CNPJ</label>
-          <input type="text" id="f-cnpj" oninput="this.value = formatCNPJ(this.value); calc()" placeholder="00.000.000/0001-00" oninput="calc()">
+          <input type="text" id="f-cnpj" oninput="this.value = formatCNPJ(this.value); calc()" placeholder="00.000.000/0001-00">
         </div>
       </div>
     </div>
@@ -873,7 +873,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
         Verbas Cadastradas
         <button class="btn-add-config" style="width:auto;padding:.35rem 1rem" onclick="addConfigVerba()">+ Nova Verba</button>
       </div>
-      <div class="formula-hint">Fórmulas disponíveis: <code>sal</code> = salário base, <code>salHora</code> = salário/hora, <code>salDia</code> = salário/dia, <code>ref</code> = referência digitada no recibo</div>
+     <div class="formula-hint">Fórmulas disponíveis: <code>sal</code> = salário base, <code>salHora</code> = salário/hora, <code>salDia</code> = salário/dia, <code>ref</code> = referência digitada no recibo, <code>diasTrab</code> = dias trabalhados, <code>diasMes</code> = dias do mês, <code>totalHE</code> = total de horas extras calculado no recibo</div>
       <table class="config-table" style="margin-top:.75rem">
         <thead><tr>
           <th style="width:60px">Código</th>
@@ -966,9 +966,25 @@ const DEFAULT_CONFIG_VERBAS = [
   { id:'gratviagem',cod:'588',desc:'GRATIFICAÇÃO VIAGEM',   tipo:'venc', refLabel:'valor', formulaVenc:'ref',                 formulaDesc:'' },
   { id:'almoco',  cod:'448', desc:'ALMOÇO MOTORISTA',       tipo:'venc', refLabel:'valor', formulaVenc:'ref',                 formulaDesc:'' },
 ];
-const { jsPDF } = window.jspdf;
-let configVerbas = JSON.parse(localStorage.getItem('cfg_verbas') || 'null') || DEFAULT_CONFIG_VERBAS.map(v=>({...v}));
-let configParams = JSON.parse(localStorage.getItem('cfg_params') || 'null') || { horasMes:220, he50Mult:1.5, he100Mult:2.0, fgtsAliq:8 };
+const jsPDF = window.jspdf?.jsPDF || null;
+
+function safeParseJSON(raw, fallback) {
+  try {
+    return raw ? JSON.parse(raw) : fallback;
+  } catch (e) {
+    return fallback;
+  }
+}
+
+let configVerbas = safeParseJSON(localStorage.getItem('cfg_verbas'), null);
+if (!Array.isArray(configVerbas) || !configVerbas.length) {
+  configVerbas = DEFAULT_CONFIG_VERBAS.map(v => ({ ...v }));
+}
+
+let configParams = safeParseJSON(localStorage.getItem('cfg_params'), null);
+if (!configParams || typeof configParams !== 'object') {
+  configParams = { horasMes:220, he50Mult:1.5, he100Mult:2.0, fgtsAliq:8 };
+}
 
 // ── STATE ──
 let verbas = [];
@@ -2385,10 +2401,10 @@ function calcVerba(v, sal, salDia, salHora, valDias) {
 
   if(cfg) {
     try {
-   if(cfg.formulaVenc) venc = Function('sal','salHora','salDia','ref','valDias','diasTrab','diasMes','totalHE',`return ${cfg.formulaVenc}`)
-      (sal, salHoraCalc, salDia, ref, valDias, diasTrab, diasMes, totalHE)||0;
-    if(cfg.formulaDesc) desc = Function('sal','salHora','salDia','ref','valDias','diasTrab','diasMes','totalHE',`return ${cfg.formulaDesc}`)
-      (sal, salHoraCalc, salDia, ref, valDias, diasTrab, diasMes, totalHE)||0;
+   const formulaVenc = String(cfg.formulaVenc || '').trim().replace(/^return\s+/i, '');
+      const formulaDesc = String(cfg.formulaDesc || '').trim().replace(/^return\s+/i, '');
+      if(formulaVenc) venc = Function('sal','salHora','salDia','ref','valDias','diasTrab','diasMes','totalHE',`return (${formulaVenc})`)(sal, salHoraCalc, salDia, ref, valDias, diasTrab, diasMes, totalHE)||0;
+      if(formulaDesc) desc = Function('sal','salHora','salDia','ref','valDias','diasTrab','diasMes','totalHE',`return (${formulaDesc})`)(sal, salHoraCalc, salDia, ref, valDias, diasTrab, diasMes, totalHE)||0;
     } catch(e) {
       venc = 0;
       desc = 0;
