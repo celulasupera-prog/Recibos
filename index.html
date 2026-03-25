@@ -873,7 +873,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
         Verbas Cadastradas
         <button class="btn-add-config" style="width:auto;padding:.35rem 1rem" onclick="addConfigVerba()">+ Nova Verba</button>
       </div>
-     <div class="formula-hint">Fórmulas disponíveis: <code>sal</code> = salário base, <code>salHora</code> = salário/hora, <code>salDia</code> = salário/dia, <code>ref</code> = referência digitada no recibo, <code>diasTrab</code> = dias trabalhados, <code>diasMes</code> = dias do mês, <code>totalHE</code> = total de horas extras calculado no recibo</div>
+      <div class="formula-hint">Fórmulas disponíveis: <code>sal</code> = salário base, <code>salHora</code> = salário/hora, <code>salDia</code> = salário/dia, <code>ref</code> = referência digitada no recibo, <code>diasTrab</code> = dias trabalhados, <code>diasMes</code> = dias do mês, <code>totalHE</code> = total de horas extras calculado no recibo</div>
       <table class="config-table" style="margin-top:.75rem">
         <thead><tr>
           <th style="width:60px">Código</th>
@@ -966,7 +966,7 @@ const DEFAULT_CONFIG_VERBAS = [
   { id:'gratviagem',cod:'588',desc:'GRATIFICAÇÃO VIAGEM',   tipo:'venc', refLabel:'valor', formulaVenc:'ref',                 formulaDesc:'' },
   { id:'almoco',  cod:'448', desc:'ALMOÇO MOTORISTA',       tipo:'venc', refLabel:'valor', formulaVenc:'ref',                 formulaDesc:'' },
 ];
-const jsPDF = window.jspdf?.jsPDF || null;
+const jsPDF = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : null;
 
 function safeParseJSON(raw, fallback) {
   try {
@@ -2379,26 +2379,19 @@ function calcVerba(v, sal, salDia, salHora, valDias) {
     case 'he100':
       return { venc: ref * salHoraCalc * (configParams.he100Mult||2.0), desc: 0 };
 
-     case 'dsrhe':
+    case 'dsrhe':
       // mantém fórmula padrão se a verba DSR estiver sem fórmula configurada
       if(!cfg || (!cfg.formulaVenc && !cfg.formulaDesc)) {
         if (!diasTrab || totalHE === 0) {
           return { venc: 0, desc: 0 };
-          
-    const dsr = (totalHE / diasTrab) * (diasMes - diasTrab);
-        return { venc: dsr, desc: 0 };
         }
-         break;
+        const dsr = (totalHE / diasTrab) * (diasMes - diasTrab);
+        return { venc: dsr, desc: 0 };
       }
-
-      const dsr = (totalHE / diasTrab) * (diasMes - diasTrab);
-
-      return { venc: dsr, desc: 0 };
-    }
+      break;
   }
 
   // verbas configuráveis
-
   if(cfg) {
     const sanitizeFormula = (raw) => String(raw || '')
       .trim()
