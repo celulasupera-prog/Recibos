@@ -679,21 +679,21 @@ function calcIRRF(base) {
   let aliq = 0;
   let valBase = 0;
 
-  if (baseCalc <= 2259.20) {
+  if (baseCalc <= 2428.80) {
     aliq = 0;
     valBase = 0;
   } else if (baseCalc <= 2826.65) {
     aliq = 7.5;
-    valBase = (baseCalc * 0.075) - 169.44;
+    valBase = (baseCalc * 0.075) - 182.16;
   } else if (baseCalc <= 3751.05) {
     aliq = 15;
-    valBase = (baseCalc * 0.15) - 381.44;
+    valBase = (baseCalc * 0.15) - 394.16;
   } else if (baseCalc <= 4664.68) {
     aliq = 22.5;
-    valBase = (baseCalc * 0.225) - 662.77;
+    valBase = (baseCalc * 0.225) - 675.49;
   } else {
     aliq = 27.5;
-    valBase = (baseCalc * 0.275) - 896.00;
+    valBase = (baseCalc * 0.275) - 908.73;
   }
 
   valBase = Math.max(roundFiscal(valBase), 0);
@@ -702,7 +702,7 @@ function calcIRRF(base) {
   if (baseCalc <= 5000) return { aliq, valBase, reducao: valBase, val: 0 };
   if (baseCalc > 7350) return { aliq, valBase, reducao: 0, val: valBase };
 
-  const reducao = roundFiscal(978.62 - (0.133145 * baseCalc));
+  const reducao = Math.max(roundFiscal(978.62 - (0.133145 * baseCalc)), 0);
   const valorFinal = Math.max(roundFiscal(valBase - reducao), 0);
   return { aliq, valBase, reducao, val: valorFinal };
 }
