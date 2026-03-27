@@ -574,9 +574,16 @@ function verbaIncideIRRF(v) {
   return true;
 }
 
-function calcBaseIRRFAutomatica(inssVal) {
+function calcBaseIRRFAutomatica(deducaoBaseIRRF) {
   const baseComVerbas = verbas.reduce((s, v) => s + (verbaIncideIRRF(v) ? (parseFloat(v.venc) || 0) : 0), 0);
-  return roundFiscal(baseComVerbas - (inssVal || 0));
+  return roundFiscal(baseComVerbas - (deducaoBaseIRRF || 0));
+}
+
+function calcDeducaoBaseIRRF(inssVal) {
+  const dependentes = parseInt(document.getElementById('f-irrf-dependentes')?.value, 10) || 0;
+  const deducaoDependentes = roundFiscal(dependentes * 189.59);
+  const deducaoLegal = roundFiscal((inssVal || 0) + deducaoDependentes);
+  return roundFiscal(Math.max(607.20, deducaoLegal));
 }
 
 // ── CALC ──
@@ -627,8 +634,13 @@ function calc() {
   // INSS
   let inssVal = 0;
   if (encs.inss) {
-    const aliq = parseFloat(document.getElementById('f-inss-aliq').value) || 0;
-    inssVal = roundFiscal(totVenc * aliq / 100);
+    const inssManual = parseFloat(document.getElementById('f-inss-manual').value);
+    if (!isNaN(inssManual)) {
+      inssVal = roundFiscal(inssManual);
+    } else {
+      const aliq = parseFloat(document.getElementById('f-inss-aliq').value) || 0;
+      inssVal = roundFiscal(totVenc * aliq / 100);
+    }
     document.getElementById('f-inss-val').value = fmtN(inssVal);
     totDesc += inssVal;
   }
@@ -644,7 +656,8 @@ function calc() {
   }
 
   // IRRF
-  let irrfBase = calcBaseIRRFAutomatica(inssVal);
+  const deducaoBaseIRRF = calcDeducaoBaseIRRF(inssVal);
+  let irrfBase = calcBaseIRRFAutomatica(deducaoBaseIRRF);
   let irrfVal = 0, irrfFaixa = 0;
   if (encs.irrf) {
     const ib = parseFloat(document.getElementById('f-irrf-base').value);
@@ -653,7 +666,10 @@ function calc() {
     irrfVal = r.val; irrfFaixa = r.aliq;
     document.getElementById('f-irrf-faixa').value = irrfFaixa + '%';
     document.getElementById('f-irrf-val').value = fmtN(irrfVal);
+    document.getElementById('f-irrf-deducao').value = fmtN(deducaoBaseIRRF);
     totDesc += irrfVal;
+  } else {
+    document.getElementById('f-irrf-deducao').value = fmtN(deducaoBaseIRRF);
   }
 
   const liq = totVenc - totDesc;
@@ -856,10 +872,19 @@ function calcTotaisOnly() {
   let totDesc = verbas.reduce((s,v)=>s+(v.desc2||0),0);
 
   let inssVal=0;
-  if(encs.inss){const a=parseFloat(document.getElementById('f-inss-aliq').value)||0;inssVal=roundFiscal(totVenc*a/100);totDesc+=inssVal;}
+  if(encs.inss){
+    const manual=parseFloat(document.getElementById('f-inss-manual').value);
+    if(!isNaN(manual)) inssVal=roundFiscal(manual);
+    else {const a=parseFloat(document.getElementById('f-inss-aliq').value)||0;inssVal=roundFiscal(totVenc*a/100);}
+    totDesc+=inssVal;
+  }
   let fgtsBase=totVenc, fgtsVal=0;
   if(encs.fgts){const fb=parseFloat(document.getElementById('f-fgts-base').value);fgtsBase=isNaN(fb)?totVenc:fb;fgtsVal=roundFiscal(fgtsBase*0.08);}
-  let irrfBase=calcBaseIRRFAutomatica(inssVal), irrfVal=0, irrfFaixa=0;
+  const deducaoBaseIRRF=calcDeducaoBaseIRRF(inssVal);
+  if (document.getElementById('f-irrf-deducao')) {
+    document.getElementById('f-irrf-deducao').value = fmtN(deducaoBaseIRRF);
+  }
+  let irrfBase=calcBaseIRRFAutomatica(deducaoBaseIRRF), irrfVal=0, irrfFaixa=0;
   if(encs.irrf){const ib=parseFloat(document.getElementById('f-irrf-base').value);irrfBase=isNaN(ib)?irrfBase:ib;const r=calcIRRF(irrfBase);irrfVal=r.val;irrfFaixa=r.aliq;totDesc+=irrfVal;}
 
   const liq = totVenc - totDesc;
@@ -916,10 +941,16 @@ function getData() {
   let totVenc = verbas.reduce((s,v)=>s+(v.venc||0),0);
   let totDesc = verbas.reduce((s,v)=>s+(v.desc2||0)+(v.tipo==='desc'&&v.auto?parseFloat(v.ref)||0:0),0);
 
-  let inssVal=0, fgtsBase=totVenc, fgtsVal=0, irrfBase=calcBaseIRRFAutomatica(0), irrfVal=0, irrfFaixa=0;
-  if(encs.inss){const a=parseFloat(document.getElementById('f-inss-aliq').value)||0;inssVal=roundFiscal(totVenc*a/100);totDesc+=inssVal;}
+  let inssVal=0, fgtsBase=totVenc, fgtsVal=0, irrfBase=0, irrfVal=0, irrfFaixa=0;
+  if(encs.inss){
+    const manual=parseFloat(document.getElementById('f-inss-manual').value);
+    if(!isNaN(manual)) inssVal=roundFiscal(manual);
+    else {const a=parseFloat(document.getElementById('f-inss-aliq').value)||0;inssVal=roundFiscal(totVenc*a/100);}
+    totDesc+=inssVal;
+  }
   if(encs.fgts){const fb=parseFloat(document.getElementById('f-fgts-base').value);fgtsBase=isNaN(fb)?totVenc:fb;fgtsVal=roundFiscal(fgtsBase*0.08);}
-  if(encs.irrf){const ib=parseFloat(document.getElementById('f-irrf-base').value);irrfBase=isNaN(ib)?calcBaseIRRFAutomatica(inssVal):ib;const r=calcIRRF(irrfBase);irrfVal=r.val;irrfFaixa=r.aliq;totDesc+=irrfVal;}
+  const deducaoBaseIRRF=calcDeducaoBaseIRRF(inssVal);
+  if(encs.irrf){const ib=parseFloat(document.getElementById('f-irrf-base').value);irrfBase=isNaN(ib)?calcBaseIRRFAutomatica(deducaoBaseIRRF):ib;const r=calcIRRF(irrfBase);irrfVal=r.val;irrfFaixa=r.aliq;totDesc+=irrfVal;}
 
   const comp = document.getElementById('f-comp').value;
   const compFmt = comp ? (() => { const [y,m]=comp.split('-'); const meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro']; return meses[parseInt(m)-1]+' de '+y; })() : '';
@@ -1411,7 +1442,7 @@ async function delRec(id){
 
 function novoRecibo() {
   editId=null;
-  ['f-emp','f-cnpj','f-func','f-cargo','f-sal','f-dias','f-admissao'].forEach(id=>{
+  ['f-emp','f-cnpj','f-func','f-cargo','f-sal','f-dias','f-admissao','f-inss-aliq','f-inss-manual','f-inss-val','f-fgts-base','f-fgts-val','f-irrf-base','f-irrf-faixa','f-irrf-val','f-irrf-dependentes','f-irrf-deducao'].forEach(id=>{
     const e=document.getElementById(id); if(e) e.value='';
   });
   const now=new Date();

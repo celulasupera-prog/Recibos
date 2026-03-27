@@ -285,10 +285,15 @@
         <span class="toggle-badge off" id="badge-inss">Desativado</span>
       </div>
       <div class="toggle-content" id="tc-inss">
-        <div class="fg fg2" style="margin-top:.5rem">
+        <div class="fg fg3" style="margin-top:.5rem">
           <div class="field">
             <label>Alíquota INSS (%)</label>
             <input type="number" id="f-inss-aliq" placeholder="9.00" step="0.01" oninput="calc()">
+          </div>
+          <div class="field">
+            <label>INSS Manual (R$)</label>
+            <input type="number" id="f-inss-manual" placeholder="Opcional" step="0.01" oninput="calc()">
+            <div class="field-hint">Se preenchido, substitui o cálculo por alíquota</div>
           </div>
           <div class="field">
             <label>Valor INSS (R$)</label>
@@ -321,14 +326,25 @@
         <span class="toggle-badge off" id="badge-irrf">Desativado</span>
       </div>
       <div class="toggle-content" id="tc-irrf">
-        <div class="fg fg3" style="margin-top:.5rem">
+        <div class="fg fg2" style="margin-top:.5rem">
           <div class="field">
             <label>Base IRRF (R$)</label>
             <input type="number" id="f-irrf-base" placeholder="Auto" step="0.01" oninput="calc()">
+            <div class="field-hint">Auto = Base tributável - maior dedução entre simplificado e (INSS + dependentes)</div>
           </div>
           <div class="field">
             <label>Faixa (%)</label>
             <input type="text" id="f-irrf-faixa" class="calc" readonly>
+          </div>
+        </div>
+        <div class="fg fg3" style="margin-top:.5rem">
+          <div class="field">
+            <label>Dependentes (IRRF)</label>
+            <input type="number" id="f-irrf-dependentes" min="0" step="1" placeholder="0" oninput="calc()">
+          </div>
+          <div class="field">
+            <label>Dedução Base IRRF (R$)</label>
+            <input type="text" id="f-irrf-deducao" class="calc" readonly>
           </div>
           <div class="field">
             <label>Valor IRRF (R$)</label>
