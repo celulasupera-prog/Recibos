@@ -1,15 +1,15 @@
 // ── CONFIG ──
 const DEFAULT_CONFIG_VERBAS = [
-  { id:'he50',   cod:'150', desc:'HORAS EXTRAS - 50%',      tipo:'venc', refLabel:'horas', formulaVenc:'ref * salHora * 1.5', formulaDesc:'', compoeHE:true },
-  { id:'he100',  cod:'200', desc:'HORAS EXTRAS 100%',       tipo:'venc', refLabel:'horas', formulaVenc:'ref * salHora * 2',   formulaDesc:'', compoeHE:true },
-  { id:'dsrhe', cod:'9999', desc:'DSR SOBRE HORAS EXTRAS', tipo:'venc', refLabel:'auto', formulaVenc:'', formulaDesc:'', compoeHE:false },
-  { id:'adicfunc',cod:'348',desc:'ADICIONAL DE FUNÇÃO',     tipo:'venc', refLabel:'%',     formulaVenc:'sal * ref / 100',     formulaDesc:'', compoeHE:false },
-  { id:'premiotempo',cod:'576',desc:'PRÊMIO TEMPO SERVIÇO', tipo:'venc', refLabel:'%',     formulaVenc:'sal * ref / 100',     formulaDesc:'', compoeHE:false },
-  { id:'ajudacusto',cod:'583',desc:'AJUDA DE CUSTO',        tipo:'venc', refLabel:'valor', formulaVenc:'ref',                 formulaDesc:'', compoeHE:false },
-  { id:'adiant',  cod:'231', desc:'DESC. ADIANT. SALARIAL', tipo:'desc', refLabel:'valor', formulaVenc:'',                   formulaDesc:'ref', compoeHE:false },
-  { id:'pernoite',cod:'256', desc:'PERNOITE',               tipo:'venc', refLabel:'qtd',   formulaVenc:'ref',                 formulaDesc:'', compoeHE:false },
-  { id:'gratviagem',cod:'588',desc:'GRATIFICAÇÃO VIAGEM',   tipo:'venc', refLabel:'valor', formulaVenc:'ref',                 formulaDesc:'', compoeHE:false },
-  { id:'almoco',  cod:'448', desc:'ALMOÇO MOTORISTA',       tipo:'venc', refLabel:'valor', formulaVenc:'ref',                 formulaDesc:'', compoeHE:false },
+  { id:'he50',   cod:'150', desc:'HORAS EXTRAS - 50%',      tipo:'venc', refLabel:'horas', formulaVenc:'ref * salHora * 1.5', formulaDesc:'', compoeHE:true, compoeIRRF:true },
+  { id:'he100',  cod:'200', desc:'HORAS EXTRAS 100%',       tipo:'venc', refLabel:'horas', formulaVenc:'ref * salHora * 2',   formulaDesc:'', compoeHE:true, compoeIRRF:true },
+  { id:'dsrhe', cod:'9999', desc:'DSR SOBRE HORAS EXTRAS', tipo:'venc', refLabel:'auto', formulaVenc:'', formulaDesc:'', compoeHE:false, compoeIRRF:true },
+  { id:'adicfunc',cod:'348',desc:'ADICIONAL DE FUNÇÃO',     tipo:'venc', refLabel:'%',     formulaVenc:'sal * ref / 100',     formulaDesc:'', compoeHE:false, compoeIRRF:true },
+  { id:'premiotempo',cod:'576',desc:'PRÊMIO TEMPO SERVIÇO', tipo:'venc', refLabel:'%',     formulaVenc:'sal * ref / 100',     formulaDesc:'', compoeHE:false, compoeIRRF:true },
+  { id:'ajudacusto',cod:'583',desc:'AJUDA DE CUSTO',        tipo:'venc', refLabel:'valor', formulaVenc:'ref',                 formulaDesc:'', compoeHE:false, compoeIRRF:true },
+  { id:'adiant',  cod:'231', desc:'DESC. ADIANT. SALARIAL', tipo:'desc', refLabel:'valor', formulaVenc:'',                   formulaDesc:'ref', compoeHE:false, compoeIRRF:false },
+  { id:'pernoite',cod:'256', desc:'PERNOITE',               tipo:'venc', refLabel:'qtd',   formulaVenc:'ref',                 formulaDesc:'', compoeHE:false, compoeIRRF:true },
+  { id:'gratviagem',cod:'588',desc:'GRATIFICAÇÃO VIAGEM',   tipo:'venc', refLabel:'valor', formulaVenc:'ref',                 formulaDesc:'', compoeHE:false, compoeIRRF:true },
+  { id:'almoco',  cod:'448', desc:'ALMOÇO MOTORISTA',       tipo:'venc', refLabel:'valor', formulaVenc:'ref',                 formulaDesc:'', compoeHE:false, compoeIRRF:true },
 ];
 const jsPDF = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : null;
 const LOGIN_REMEMBER_KEY = 'login_remember';
@@ -28,7 +28,11 @@ let configVerbas = safeParseJSON(localStorage.getItem('cfg_verbas'), null);
 if (!Array.isArray(configVerbas) || !configVerbas.length) {
   configVerbas = DEFAULT_CONFIG_VERBAS.map(v => ({ ...v }));
 }
-configVerbas = configVerbas.map(v => ({ ...v, compoeHE: !!v.compoeHE }));
+configVerbas = configVerbas.map(v => ({
+  ...v,
+  compoeHE: !!v.compoeHE,
+  compoeIRRF: typeof v.compoeIRRF === 'boolean' ? v.compoeIRRF : v.tipo !== 'desc'
+}));
 
 let configParams = safeParseJSON(localStorage.getItem('cfg_params'), null);
 if (!configParams || typeof configParams !== 'object') {
@@ -190,6 +194,7 @@ function selecionarEmpresa(id) {
 
   if (emp.verbas_padrao && emp.verbas_padrao.length) {
     emp.verbas_padrao.forEach(v => {
+      const cfg = configVerbas.find(c => c.id === v.autoType);
       verbas.push({
         id: Date.now() + Math.random(),
         cod: v.cod,
@@ -197,6 +202,9 @@ function selecionarEmpresa(id) {
         ref: '',
         venc: 0,
         desc2: 0,
+        incideIRRF: typeof v.incideIRRF === 'boolean'
+          ? v.incideIRRF
+          : (cfg && typeof cfg.compoeIRRF === 'boolean' ? cfg.compoeIRRF : v.tipo !== 'desc'),
         auto: !!v.autoType,
         autoType: v.autoType,
         tipo: v.tipo
@@ -218,6 +226,7 @@ if (!verbas.find(v => v.autoType === 'dsrhe')) {
     ref: '',
     venc: 0,
     desc2: 0,
+    incideIRRF: true,
     auto: true,
     autoType: 'dsrhe',
     tipo: 'venc'
@@ -331,7 +340,7 @@ async function salvarEmpresa() {
         body: JSON.stringify({
           grupo_id: grupoId,
           nome, cnpj, cidade,
-          verbas_padrao: [{ cod:'8781', desc:'DIAS NORMAIS', autoType:'diasnormais', tipo:'venc' }]
+          verbas_padrao: [{ cod:'8781', desc:'DIAS NORMAIS', autoType:'diasnormais', tipo:'venc', incideIRRF:true }]
         })
       });
 
@@ -395,7 +404,7 @@ window.configVerbasEmpresa = function(id) {
   el.innerHTML = verbasPadraoTemp.map((v,i) => `
     <div style="
       display:grid;
-      grid-template-columns:70px 1fr 90px 30px;
+      grid-template-columns:70px 1fr 90px 80px 30px;
       gap:.5rem;
       margin-bottom:.4rem;
       align-items:center;
@@ -407,6 +416,11 @@ window.configVerbasEmpresa = function(id) {
         <option value="venc" ${v.tipo==='venc'?'selected':''}>Venc</option>
         <option value="desc" ${v.tipo==='desc'?'selected':''}>Desc</option>
       </select>
+      <label style="font-size:.72rem;display:flex;align-items:center;gap:.25rem;justify-content:center">
+        <input type="checkbox" ${typeof v.incideIRRF === 'boolean' ? (v.incideIRRF ? 'checked' : '') : (v.tipo !== 'desc' ? 'checked' : '')}
+          onchange="updVP(${i},'incideIRRF',this.checked)">
+        IRRF
+      </label>
 
       <button class="btn-rm" onclick="delVP(${i})">×</button>
     </div>
@@ -447,7 +461,8 @@ function addVerbaPadrao() {
     cod: cfg.cod,
     desc: cfg.desc,
     tipo: cfg.tipo,
-    autoType: cfg.id
+    autoType: cfg.id,
+    incideIRRF: typeof cfg.compoeIRRF === 'boolean' ? cfg.compoeIRRF : cfg.tipo !== 'desc'
   });
 
   renderVerbasPadrao();
@@ -529,6 +544,7 @@ function ensureFixedVerbas() {
       ref: '',
       venc: 0,
       desc2: 0,
+      incideIRRF: true,
       auto: true,
       autoType: 'dsrhe',
       tipo: 'venc'
@@ -544,6 +560,23 @@ function toggleEnc(key) {
   badge.textContent = encs[key] ? 'Ativado' : 'Desativado';
   badge.className = 'toggle-badge ' + (encs[key] ? 'on' : 'off');
   calc();
+}
+
+function roundFiscal(v) {
+  return Math.round((Number(v) || 0) * 100) / 100;
+}
+
+function verbaIncideIRRF(v) {
+  if (!v || v.tipo === 'desc') return false;
+  if (typeof v.incideIRRF === 'boolean') return v.incideIRRF;
+  const cfg = configVerbas.find(c => c.id === v.autoType);
+  if (cfg && typeof cfg.compoeIRRF === 'boolean') return cfg.compoeIRRF;
+  return true;
+}
+
+function calcBaseIRRFAutomatica(inssVal) {
+  const baseComVerbas = verbas.reduce((s, v) => s + (verbaIncideIRRF(v) ? (parseFloat(v.venc) || 0) : 0), 0);
+  return roundFiscal(baseComVerbas - (inssVal || 0));
 }
 
 // ── CALC ──
@@ -595,7 +628,7 @@ function calc() {
   let inssVal = 0;
   if (encs.inss) {
     const aliq = parseFloat(document.getElementById('f-inss-aliq').value) || 0;
-    inssVal = totVenc * aliq / 100;
+    inssVal = roundFiscal(totVenc * aliq / 100);
     document.getElementById('f-inss-val').value = fmtN(inssVal);
     totDesc += inssVal;
   }
@@ -606,12 +639,12 @@ function calc() {
   if (encs.fgts) {
     const fb = parseFloat(document.getElementById('f-fgts-base').value);
     fgtsBase = isNaN(fb) ? totVenc : fb;
-    fgtsVal = fgtsBase * 0.08;
+    fgtsVal = roundFiscal(fgtsBase * 0.08);
     document.getElementById('f-fgts-val').value = fmtN(fgtsVal);
   }
 
   // IRRF
-  let irrfBase = totVenc - inssVal;
+  let irrfBase = calcBaseIRRFAutomatica(inssVal);
   let irrfVal = 0, irrfFaixa = 0;
   if (encs.irrf) {
     const ib = parseFloat(document.getElementById('f-irrf-base').value);
@@ -642,11 +675,37 @@ function calc() {
 }
 
 function calcIRRF(base) {
-  if (base <= 2259.20) return { aliq: 0, val: 0 };
-  if (base <= 2826.65) return { aliq: 7.5, val: base*0.075 - 169.44 };
-  if (base <= 3751.05) return { aliq: 15, val: base*0.15 - 381.44 };
-  if (base <= 4664.68) return { aliq: 22.5, val: base*0.225 - 662.77 };
-  return { aliq: 27.5, val: base*0.275 - 896.00 };
+  const baseCalc = Math.max(roundFiscal(base), 0);
+  let aliq = 0;
+  let valBase = 0;
+
+  if (baseCalc <= 2259.20) {
+    aliq = 0;
+    valBase = 0;
+  } else if (baseCalc <= 2826.65) {
+    aliq = 7.5;
+    valBase = (baseCalc * 0.075) - 169.44;
+  } else if (baseCalc <= 3751.05) {
+    aliq = 15;
+    valBase = (baseCalc * 0.15) - 381.44;
+  } else if (baseCalc <= 4664.68) {
+    aliq = 22.5;
+    valBase = (baseCalc * 0.225) - 662.77;
+  } else {
+    aliq = 27.5;
+    valBase = (baseCalc * 0.275) - 896.00;
+  }
+
+  valBase = Math.max(roundFiscal(valBase), 0);
+
+  // Regras 2026: isenção até R$ 5.000 e redução linear de R$ 5.000,01 até R$ 7.350,00.
+  if (baseCalc <= 5000) return { aliq, valBase, reducao: valBase, val: 0 };
+  if (baseCalc > 7350) return { aliq, valBase, reducao: 0, val: valBase };
+
+  const fatorReducao = (7350 - baseCalc) / (7350 - 5000);
+  const reducao = roundFiscal(valBase * fatorReducao);
+  const valorFinal = Math.max(roundFiscal(valBase - reducao), 0);
+  return { aliq, valBase, reducao, val: valorFinal };
 }
 
 // ── VERBAS ──
@@ -654,7 +713,7 @@ function addVerbaDiasNormais() {
   const dias = parseFloat(document.getElementById('f-dias').value) || 28;
   verbas.push({
     id: Date.now(), cod:'8781', desc:'DIAS NORMAIS', ref: String(dias),
-    venc: 0, desc2: 0, auto: true, autoType:'diasnormais', tipo:'venc'
+    venc: 0, desc2: 0, auto: true, autoType:'diasnormais', tipo:'venc', incideIRRF: true
   });
   renderVerbasList();
 }
@@ -662,7 +721,7 @@ function addVerbaDiasNormais() {
 function quickAdd(type) {
   const sal = parseFloat(document.getElementById('f-sal').value) || 0;
   const salHora = sal / 220;
-  let v = { id: Date.now(), auto: false, tipo:'venc', venc:0, desc2:0, ref:'' };
+  let v = { id: Date.now(), auto: false, tipo:'venc', venc:0, desc2:0, ref:'', incideIRRF:true };
   switch(type) {
     case 'he50':
       v = {...v, cod:'150', desc:'HORAS EXTRAS - 50%', ref:'', auto:true, autoType:'he50', tipo:'venc'};
@@ -677,7 +736,7 @@ function quickAdd(type) {
       v = {...v, cod:'583', desc:'AJUDA DE CUSTO', ref:'', tipo:'venc'};
       break;
     case 'adiant':
-      v = {...v, cod:'231', desc:'DESC. ADIANT. SALARIAL', ref:'', auto:true, autoType:'adiant', tipo:'desc'};
+      v = {...v, cod:'231', desc:'DESC. ADIANT. SALARIAL', ref:'', auto:true, autoType:'adiant', tipo:'desc', incideIRRF:false};
       break;
     case 'pernoite':
       v = {...v, cod:'256', desc:'PERNOITE', ref:'', tipo:'venc'};
@@ -689,12 +748,18 @@ function quickAdd(type) {
       v = {...v, cod:'448', desc:'ALMOÇO MOTORISTA', ref:'', tipo:'venc'};
       break;
   }
+  const cfgTipo = configVerbas.find(c => c.id === type || c.id === v.autoType);
+  if (cfgTipo && typeof cfgTipo.compoeIRRF === 'boolean') {
+    v.incideIRRF = cfgTipo.compoeIRRF;
+  } else if (v.tipo === 'desc') {
+    v.incideIRRF = false;
+  }
   verbas.push(v);
   calc();
 }
 
 function addVerba(tipo) {
-  verbas.push({ id: Date.now(), cod:'', desc:'', ref:'', venc:0, desc2:0, auto:false, tipo });
+  verbas.push({ id: Date.now(), cod:'', desc:'', ref:'', venc:0, desc2:0, auto:false, tipo, incideIRRF: tipo !== 'desc' });
   renderVerbasList();
 }
 
@@ -771,6 +836,10 @@ function updateVerba(id, field, val) {
     } else {
       renderPreview();
     }
+  } else if (field === 'incideIRRF') {
+    v.incideIRRF = !!val;
+    calcTotaisOnly();
+    renderPreview();
 
   } else {
     v[field] = val;
@@ -788,10 +857,10 @@ function calcTotaisOnly() {
   let totDesc = verbas.reduce((s,v)=>s+(v.desc2||0),0);
 
   let inssVal=0;
-  if(encs.inss){const a=parseFloat(document.getElementById('f-inss-aliq').value)||0;inssVal=totVenc*a/100;totDesc+=inssVal;}
+  if(encs.inss){const a=parseFloat(document.getElementById('f-inss-aliq').value)||0;inssVal=roundFiscal(totVenc*a/100);totDesc+=inssVal;}
   let fgtsBase=totVenc, fgtsVal=0;
-  if(encs.fgts){const fb=parseFloat(document.getElementById('f-fgts-base').value);fgtsBase=isNaN(fb)?totVenc:fb;fgtsVal=fgtsBase*0.08;}
-  let irrfBase=totVenc-inssVal, irrfVal=0, irrfFaixa=0;
+  if(encs.fgts){const fb=parseFloat(document.getElementById('f-fgts-base').value);fgtsBase=isNaN(fb)?totVenc:fb;fgtsVal=roundFiscal(fgtsBase*0.08);}
+  let irrfBase=calcBaseIRRFAutomatica(inssVal), irrfVal=0, irrfFaixa=0;
   if(encs.irrf){const ib=parseFloat(document.getElementById('f-irrf-base').value);irrfBase=isNaN(ib)?irrfBase:ib;const r=calcIRRF(irrfBase);irrfVal=r.val;irrfFaixa=r.aliq;totDesc+=irrfVal;}
 
   const liq = totVenc - totDesc;
@@ -821,12 +890,14 @@ function renderVerbasList() {
     const refLabel = v.autoType==='he50'||v.autoType==='he100' ? 'horas' :
                      v.autoType==='adicfunc'||v.autoType==='premiotempo' ? '%' :
                      cfgV ? cfgV.refLabel : '';
+    const incideIRRF = verbaIncideIRRF(v);
     return `<div class="verba-row" data-id="${v.id}">
       <input value="${escHtml(v.cod||'')}" placeholder="Cód" style="text-align:left" oninput="updateVerba(${v.id},'cod',this.value)">
       <input value="${escHtml(v.desc||'')}" placeholder="Descrição do lançamento" class="desc-input" style="text-align:left;font-size:.82rem" oninput="updateVerba(${v.id},'desc',this.value)">
       <input value="${escHtml(v.ref||'')}" placeholder="${refLabel||'ref'}" oninput="updateVerba(${v.id},'ref',this.value)">
       <input value="${v.venc > 0 ? fmtN(v.venc) : ''}" placeholder="0,00" class="${vencCls}" ${lockVenc ? 'readonly' : ''} oninput="updateVerba(${v.id},'venc',this.value)" data-field="venc">
       <input value="${v.desc2 > 0 ? fmtN(v.desc2) : v.tipo==='desc'&&v.ref ? fmtN(parseFloat(v.ref)||0) : ''}" placeholder="0,00" class="${descCls}" ${lockDesc ? 'readonly' : ''} oninput="updateVerba(${v.id},'desc2',this.value)" data-field="desc2">
+      <label class="irrf-flag"><input type="checkbox" ${incideIRRF ? 'checked' : ''} ${v.tipo === 'desc' ? 'disabled' : ''} onchange="updateVerba(${v.id},'incideIRRF',this.checked)"></label>
       <button class="btn-rm" onclick="removeVerba(${v.id})">×</button>
     </div>`;
   }).join('');
@@ -846,10 +917,10 @@ function getData() {
   let totVenc = verbas.reduce((s,v)=>s+(v.venc||0),0);
   let totDesc = verbas.reduce((s,v)=>s+(v.desc2||0)+(v.tipo==='desc'&&v.auto?parseFloat(v.ref)||0:0),0);
 
-  let inssVal=0, fgtsBase=totVenc, fgtsVal=0, irrfBase=totVenc, irrfVal=0, irrfFaixa=0;
-  if(encs.inss){const a=parseFloat(document.getElementById('f-inss-aliq').value)||0;inssVal=totVenc*a/100;totDesc+=inssVal;}
-  if(encs.fgts){const fb=parseFloat(document.getElementById('f-fgts-base').value);fgtsBase=isNaN(fb)?totVenc:fb;fgtsVal=fgtsBase*0.08;}
-  if(encs.irrf){const ib=parseFloat(document.getElementById('f-irrf-base').value);irrfBase=isNaN(ib)?totVenc-inssVal:ib;const r=calcIRRF(irrfBase);irrfVal=r.val;irrfFaixa=r.aliq;totDesc+=irrfVal;}
+  let inssVal=0, fgtsBase=totVenc, fgtsVal=0, irrfBase=calcBaseIRRFAutomatica(0), irrfVal=0, irrfFaixa=0;
+  if(encs.inss){const a=parseFloat(document.getElementById('f-inss-aliq').value)||0;inssVal=roundFiscal(totVenc*a/100);totDesc+=inssVal;}
+  if(encs.fgts){const fb=parseFloat(document.getElementById('f-fgts-base').value);fgtsBase=isNaN(fb)?totVenc:fb;fgtsVal=roundFiscal(fgtsBase*0.08);}
+  if(encs.irrf){const ib=parseFloat(document.getElementById('f-irrf-base').value);irrfBase=isNaN(ib)?calcBaseIRRFAutomatica(inssVal):ib;const r=calcIRRF(irrfBase);irrfVal=r.val;irrfFaixa=r.aliq;totDesc+=irrfVal;}
 
   const comp = document.getElementById('f-comp').value;
   const compFmt = comp ? (() => { const [y,m]=comp.split('-'); const meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro']; return meses[parseInt(m)-1]+' de '+y; })() : '';
@@ -1393,6 +1464,7 @@ function renderConfigVerbas() {
       </td>
       <td><input value="${v.refLabel}" oninput="updateConfigVerba(${i},'refLabel',this.value)" placeholder="ex: horas"></td>
       <td style="text-align:center"><input type="checkbox" ${v.compoeHE ? 'checked' : ''} onchange="updateConfigVerba(${i},'compoeHE',this.checked)"></td>
+      <td style="text-align:center"><input type="checkbox" ${v.compoeIRRF ? 'checked' : ''} onchange="updateConfigVerba(${i},'compoeIRRF',this.checked)"></td>
       <td><input value="${v.formulaVenc}" oninput="updateConfigVerba(${i},'formulaVenc',this.value)" placeholder="ex: ref * salHora * 1.5" style="font-family:'Inconsolata',monospace;font-size:.78rem"></td>
       <td><input value="${v.formulaDesc}" oninput="updateConfigVerba(${i},'formulaDesc',this.value)" placeholder="ex: ref" style="font-family:'Inconsolata',monospace;font-size:.78rem"></td>
       <td><button class="btn-del-config" onclick="delConfigVerba(${i})">×</button></td>
@@ -1413,13 +1485,14 @@ function renderQuickList() {
 
 function updateConfigVerba(i, field, val) {
   configVerbas[i][field] = val;
+  if (field === 'tipo' && val === 'desc') configVerbas[i].compoeIRRF = false;
   localStorage.setItem('cfg_verbas', JSON.stringify(configVerbas));
 }
 
 function addConfigVerba() {
   configVerbas.push({
     id: 'custom_'+Date.now(), cod:'', desc:'Nova Verba',
-    tipo:'venc', refLabel:'valor', formulaVenc:'ref', formulaDesc:'', compoeHE:false
+    tipo:'venc', refLabel:'valor', formulaVenc:'ref', formulaDesc:'', compoeHE:false, compoeIRRF:true
   });
   localStorage.setItem('cfg_verbas', JSON.stringify(configVerbas));
   renderConfigVerbas();
@@ -1449,6 +1522,7 @@ function quickAddConfig(id) {
     ref:'', venc:0, desc2:0,
     auto: !!(cfg.formulaVenc||cfg.formulaDesc),
     autoType: cfg.id, tipo: cfg.tipo,
+    incideIRRF: typeof cfg.compoeIRRF === 'boolean' ? cfg.compoeIRRF : cfg.tipo !== 'desc',
     formulaVenc: cfg.formulaVenc, formulaDesc: cfg.formulaDesc,
     refLabel: cfg.refLabel
   });
