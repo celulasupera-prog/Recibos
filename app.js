@@ -1000,6 +1000,37 @@ d.verbas
     });
   });
 
+// 🔥 ENCARGOS COMO LINHAS DE DESCONTO/INFORMATIVO NO RECIBO
+if (d.encs.inss && d.inssVal > 0) {
+  rowsData.push({
+    cod:'9981',
+    desc:'DESCONTO INSS',
+    ref:'',
+    venc:'',
+    descv:fmtN2(d.inssVal)
+  });
+}
+
+if (d.encs.irrf && d.irrfVal > 0) {
+  rowsData.push({
+    cod:'9982',
+    desc:'DESCONTO IRRF',
+    ref:d.irrfFaixa ? `${String(d.irrfFaixa).replace('.',',')}%` : '',
+    venc:'',
+    descv:fmtN2(d.irrfVal)
+  });
+}
+
+if (d.encs.fgts && d.fgtsVal > 0) {
+  rowsData.push({
+    cod:'9983',
+    desc:'FGTS (INFORMATIVO)',
+    ref:`R$ ${fmtN2(d.fgtsVal)}`,
+    venc:'',
+    descv:''
+  });
+}
+
 // 🔥 DSR FIXO
 const dsr = d.verbas.find(v=>v.autoType==='dsrhe');
 if(dsr) rowsData.push({

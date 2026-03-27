@@ -508,7 +508,15 @@
           <tr><td>Acima de R$ 4.664,68</td><td style="text-align:right"><span class="config-badge desc">27,5%</span></td><td style="text-align:right;font-family:'Inconsolata',monospace">R$ 896,00</td></tr>
         </tbody>
       </table>
-      <div class="formula-hint" style="margin-top:.5rem">Isenção até R$ 5.000,00 e redução linear entre R$ 5.000,01 e R$ 7.350,00 são aplicadas após o cálculo da tabela.</div>
+      <div class="formula-hint" style="margin-top:.5rem">
+        Isenção até R$ 5.000,00 e redução linear entre R$ 5.000,01 e R$ 7.350,00 são aplicadas após o cálculo da tabela.
+        <div style="margin-top:.2rem">
+          <b>Fórmula usada na redução linear:</b>
+          <code>fator = (7.350 - base) / (7.350 - 5.000)</code> ·
+          <code>redução = IRRF_base × fator</code> ·
+          <code>IRRF_final = IRRF_base - redução</code>.
+        </div>
+      </div>
     </div>
 
   </div>
