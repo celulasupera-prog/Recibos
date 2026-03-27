@@ -15,6 +15,7 @@ const jsPDF = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : null;
 const LOGIN_REMEMBER_KEY = 'login_remember';
 const LOGIN_REMEMBER_EMAIL_KEY = 'login_remember_email';
 const LOGIN_REMEMBER_SENHA_KEY = 'login_remember_senha';
+const HOLIDAYS_KEY = 'cfg_feriados_v1';
 
 function safeParseJSON(raw, fallback) {
   try {
@@ -56,6 +57,14 @@ let configParams = safeParseJSON(localStorage.getItem('cfg_params'), null);
 if (!configParams || typeof configParams !== 'object') {
   configParams = { horasMes:220, he50Mult:1.5, he100Mult:2.0, fgtsAliq:8 };
 }
+
+let feriadosConfig = safeParseJSON(localStorage.getItem(HOLIDAYS_KEY), null);
+if (!feriadosConfig || typeof feriadosConfig !== 'object') {
+  feriadosConfig = { global: [], byCity: {}, byEmpresa: {} };
+}
+feriadosConfig.global = Array.isArray(feriadosConfig.global) ? feriadosConfig.global : [];
+feriadosConfig.byCity = feriadosConfig.byCity && typeof feriadosConfig.byCity === 'object' ? feriadosConfig.byCity : {};
+feriadosConfig.byEmpresa = feriadosConfig.byEmpresa && typeof feriadosConfig.byEmpresa === 'object' ? feriadosConfig.byEmpresa : {};
 
 // ── STATE ──
 let verbas = [];
@@ -122,6 +131,7 @@ async function fazerLogout() {
   currentUser = null;
   document.getElementById('pg-login').style.display = 'flex';
   document.getElementById('pg-main').style.display = 'none';
+  document.getElementById('pg-feriados').style.display = 'none';
   document.getElementById('user-badge').style.display = 'none';
   document.getElementById('btn-logout').style.display = 'none';
   document.getElementById('btn-empresas').style.display = 'none';
@@ -182,6 +192,9 @@ async function carregarEmpresas() {
       empresasList = await sbFetch('empresas?grupo_id=eq.' + grupoId + '&order=nome.asc') || [];
     }
     renderEmpresasSelect();
+    if (document.getElementById('pg-feriados')?.style.display === 'block') {
+      renderFeriadosPage();
+    }
   } catch(e) {
     console.error('Erro ao carregar empresas:', e);
     empresasList = [];
@@ -265,6 +278,7 @@ async function showEmpresas() {
   document.getElementById('pg-main').style.display = 'none';
   document.getElementById('pg-hist').style.display = 'none';
   document.getElementById('pg-config').style.display = 'none';
+  document.getElementById('pg-feriados').style.display = 'none';
   document.getElementById('pg-empresas').style.display = 'block';
   renderEmpresasList();
 }
@@ -531,8 +545,7 @@ window.onload = async () => {
   const dias = new Date(y, now.getMonth()+1, 0).getDate();
   document.getElementById('f-diasmes').value = dias;
   document.getElementById('f-dias').value = dias;
-  document.getElementById('f-diasuteis').value = Math.max(dias - 6, 0);
-  document.getElementById('f-diasdsr').value = Math.min(6, dias);
+  applyAutoDiasHE();
 
   // verifica se já tem sessão salva
   const token = localStorage.getItem('sb_token');
@@ -703,6 +716,62 @@ function calcINSSProgressivo(base) {
   return { aliq, deducao: 0, valor };
 }
 
+function saveFeriadosConfig() {
+  localStorage.setItem(HOLIDAYS_KEY, JSON.stringify(feriadosConfig));
+}
+
+function normalizeCityKey(city) {
+  return String(city || '').trim().toLowerCase();
+}
+
+function uniqueSortedDates(arr) {
+  return [...new Set((arr || []).filter(Boolean))].sort();
+}
+
+function getFeriadosDoContexto() {
+  const empresaId = document.getElementById('f-emp-select')?.value || '';
+  const cityKey = normalizeCityKey(document.getElementById('f-cidade')?.value || '');
+  const globalDates = feriadosConfig.global || [];
+  const cityDates = cityKey ? (feriadosConfig.byCity[cityKey] || []) : [];
+  const empresaDates = empresaId ? (feriadosConfig.byEmpresa[empresaId] || []) : [];
+  return uniqueSortedDates([...globalDates, ...cityDates, ...empresaDates]);
+}
+
+function calcDiasUteisEDSR(y, m) {
+  const diasMes = new Date(y, m, 0).getDate();
+  const feriadosSet = new Set(getFeriadosDoContexto().filter(d => d.startsWith(`${y}-${String(m).padStart(2,'0')}-`)));
+  let domingos = 0;
+  let feriadosEmDiaUtil = 0;
+
+  for (let dia = 1; dia <= diasMes; dia++) {
+    const data = new Date(y, m - 1, dia);
+    const iso = `${y}-${String(m).padStart(2,'0')}-${String(dia).padStart(2,'0')}`;
+    const dow = data.getDay();
+    if (dow === 0) {
+      domingos++;
+      continue;
+    }
+    if (feriadosSet.has(iso)) {
+      feriadosEmDiaUtil++;
+    }
+  }
+
+  const diasDSR = domingos + feriadosEmDiaUtil;
+  const diasUteis = Math.max(diasMes - diasDSR, 0);
+  return { diasMes, diasUteis, diasDSR };
+}
+
+function applyAutoDiasHE() {
+  const comp = document.getElementById('f-comp')?.value;
+  if (!comp) return;
+  const [y, m] = comp.split('-').map(Number);
+  if (!y || !m) return;
+  const { diasMes, diasUteis, diasDSR } = calcDiasUteisEDSR(y, m);
+  document.getElementById('f-diasmes').value = diasMes;
+  document.getElementById('f-diasuteis').value = diasUteis;
+  document.getElementById('f-diasdsr').value = diasDSR;
+}
+
 // ── CALC ──
 function calc() {
   ensureFixedVerbas();
@@ -711,12 +780,7 @@ function calc() {
   const dias = parseFloat(document.getElementById('f-dias').value) || 0;
 
   // auto diasmes from month
-  const comp = document.getElementById('f-comp').value;
-  if (comp) {
-    const [y,m] = comp.split('-').map(Number);
-    const diasMes = new Date(y, m, 0).getDate();
-    document.getElementById('f-diasmes').value = diasMes;
-  }
+  applyAutoDiasHE();
   const diasMes = parseFloat(document.getElementById('f-diasmes').value) || 30;
   const diasLimitados = Math.max(0, Math.min(dias, diasMes));
   if (dias !== diasLimitados) {
@@ -1445,6 +1509,7 @@ async function showHist() {
   document.getElementById('pg-hist').style.display='block';
   document.getElementById('pg-config').style.display='none';
   document.getElementById('pg-empresas').style.display='none';
+  document.getElementById('pg-feriados').style.display='none';
 
   document.getElementById('hist-grid').innerHTML =
     '<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--ink3)">Carregando...</div>';
@@ -1481,13 +1546,113 @@ function showMain() {
   document.getElementById('pg-hist').style.display='none';
   document.getElementById('pg-config').style.display='none';
   document.getElementById('pg-empresas').style.display='none';
+  document.getElementById('pg-feriados').style.display='none';
   document.getElementById('pg-admin').style.display='none';
   syncQuickAddButtons();
 }
 
 function showHist_wrapper() {
   document.getElementById('pg-empresas').style.display='none';
+  document.getElementById('pg-feriados').style.display='none';
   showHist();
+}
+
+function getFeriadosScope() {
+  const scope = document.getElementById('fer-scope')?.value || 'global';
+  if (scope === 'empresa') {
+    const empresaId = document.getElementById('fer-empresa')?.value || '';
+    return { scope, key: empresaId, label: 'Empresa' };
+  }
+  if (scope === 'cidade') {
+    const cityKey = normalizeCityKey(document.getElementById('fer-cidade')?.value || '');
+    return { scope, key: cityKey, label: 'Cidade' };
+  }
+  return { scope: 'global', key: 'global', label: 'Geral' };
+}
+
+function getFeriadosArrayByScope(scope, key) {
+  if (scope === 'empresa') return feriadosConfig.byEmpresa[key] || [];
+  if (scope === 'cidade') return feriadosConfig.byCity[key] || [];
+  return feriadosConfig.global || [];
+}
+
+function setFeriadosArrayByScope(scope, key, arr) {
+  const clean = uniqueSortedDates(arr);
+  if (scope === 'empresa') {
+    if (!key) return;
+    feriadosConfig.byEmpresa[key] = clean;
+    return;
+  }
+  if (scope === 'cidade') {
+    if (!key) return;
+    feriadosConfig.byCity[key] = clean;
+    return;
+  }
+  feriadosConfig.global = clean;
+}
+
+function renderFeriadosPage() {
+  const empresaSel = document.getElementById('fer-empresa');
+  if (empresaSel) {
+    empresaSel.innerHTML = '<option value="">Selecione a empresa</option>' + empresasList.map(e => `<option value="${e.id}">${e.nome}${e.cnpj ? ' — '+e.cnpj : ''}</option>`).join('');
+  }
+
+  const { scope, key, label } = getFeriadosScope();
+  const cityWrap = document.getElementById('fer-cidade-wrap');
+  const empWrap = document.getElementById('fer-empresa-wrap');
+  if (cityWrap) cityWrap.style.display = scope === 'cidade' ? 'block' : 'none';
+  if (empWrap) empWrap.style.display = scope === 'empresa' ? 'block' : 'none';
+
+  const list = document.getElementById('feriados-list');
+  if (!list) return;
+  if ((scope === 'cidade' || scope === 'empresa') && !key) {
+    list.innerHTML = '<div style="color:var(--ink3)">Selecione o contexto para listar os feriados.</div>';
+    return;
+  }
+  const datas = getFeriadosArrayByScope(scope, key);
+  if (!datas.length) {
+    list.innerHTML = '<div style="color:var(--ink3)">Nenhum feriado cadastrado neste contexto.</div>';
+    return;
+  }
+  list.innerHTML = datas.map(d => `<div style="display:flex;justify-content:space-between;align-items:center;padding:.4rem .5rem;border:1px solid var(--border);border-radius:6px;background:#fff">
+    <span style="font-family:'Inconsolata',monospace">${d}</span>
+    <button class="btn-rm" onclick="removerFeriado('${d}')">×</button>
+  </div>`).join('');
+  const ctx = document.getElementById('fer-context-label');
+  if (ctx) ctx.textContent = `${label}${key ? `: ${key}` : ''}`;
+}
+
+function addFeriado() {
+  const data = document.getElementById('fer-data')?.value;
+  if (!data) return toast('Selecione a data do feriado.', 'err');
+  const { scope, key } = getFeriadosScope();
+  if ((scope === 'cidade' || scope === 'empresa') && !key) {
+    return toast('Selecione cidade/empresa para cadastrar o feriado.', 'err');
+  }
+  const arr = getFeriadosArrayByScope(scope, key);
+  setFeriadosArrayByScope(scope, key, [...arr, data]);
+  saveFeriadosConfig();
+  renderFeriadosPage();
+  calc();
+}
+
+function removerFeriado(data) {
+  const { scope, key } = getFeriadosScope();
+  const arr = getFeriadosArrayByScope(scope, key).filter(d => d !== data);
+  setFeriadosArrayByScope(scope, key, arr);
+  saveFeriadosConfig();
+  renderFeriadosPage();
+  calc();
+}
+
+function showFeriados() {
+  document.getElementById('pg-main').style.display='none';
+  document.getElementById('pg-hist').style.display='none';
+  document.getElementById('pg-config').style.display='none';
+  document.getElementById('pg-empresas').style.display='none';
+  document.getElementById('pg-admin').style.display='none';
+  document.getElementById('pg-feriados').style.display='block';
+  renderFeriadosPage();
 }
 
 function renderHist() {
@@ -1519,14 +1684,6 @@ function loadRec(id) {
   setV('f-sal',h.sal); setV('f-dias',h.dias); setV('f-diasmes',h.diasMes);
   setV('f-diasuteis',h.diasUteis);
   setV('f-diasdsr',h.diasDSR);
-  if (!document.getElementById('f-diasuteis').value) {
-    const dm = parseFloat(h.diasMes) || 30;
-    document.getElementById('f-diasuteis').value = Math.max(dm - 6, 0);
-  }
-  if (!document.getElementById('f-diasdsr').value) {
-    const dm = parseFloat(h.diasMes) || 30;
-    document.getElementById('f-diasdsr').value = Math.min(6, dm);
-  }
 
   if(h.comp) {
     const meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -1584,8 +1741,7 @@ function novoRecibo() {
   const dias=new Date(y,now.getMonth()+1,0).getDate();
   document.getElementById('f-diasmes').value=dias;
   document.getElementById('f-dias').value=dias;
-  document.getElementById('f-diasuteis').value=Math.max(dias-6,0);
-  document.getElementById('f-diasdsr').value=Math.min(6,dias);
+  applyAutoDiasHE();
   verbas=[];
   encs={inss:false,fgts:false,irrf:false};
   ['inss','fgts','irrf'].forEach(k=>{
@@ -1627,6 +1783,7 @@ function showConfig() {
   document.getElementById('pg-hist').style.display='none';
   document.getElementById('pg-config').style.display='block';
   document.getElementById('pg-empresas').style.display='none';
+  document.getElementById('pg-feriados').style.display='none';
   renderConfigVerbas();
   renderQuickList();
   document.getElementById('cfg-horas-mes').value = configParams.horasMes;
@@ -1640,6 +1797,7 @@ function showMain_config() {
   document.getElementById('pg-hist').style.display='none';
   document.getElementById('pg-config').style.display='none';
   document.getElementById('pg-empresas').style.display='none';
+  document.getElementById('pg-feriados').style.display='none';
   // sync quickAdd buttons com configVerbas
   syncQuickAddButtons();
 }
@@ -1841,7 +1999,7 @@ let adminData = { recibos: [], grupos: [], empresas: [] };
 
 async function showAdmin() {
   if (!currentUser?.isAdmin) return;
-  ['pg-main','pg-hist','pg-config','pg-empresas'].forEach(id => {
+  ['pg-main','pg-hist','pg-config','pg-empresas','pg-feriados'].forEach(id => {
     document.getElementById(id).style.display = 'none';
   });
   document.getElementById('pg-admin').style.display = 'block';

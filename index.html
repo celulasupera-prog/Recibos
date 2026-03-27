@@ -18,6 +18,7 @@
     <div class="user-badge" id="user-badge" style="display:none">👤 <b id="user-email-badge"></b></div>
     <div class="hbtns">
       <button class="hbtn ghost" onclick="showEmpresas()" id="btn-empresas" style="display:none">🏢 Empresas</button>
+      <button class="hbtn ghost" onclick="showFeriados()">📅 Feriados</button>
       <button class="hbtn ghost" onclick="showConfig()">⚙ Fórmulas</button>
       <button class="hbtn ghost" onclick="showHist()">Histórico</button>
       <button class="hbtn solid" onclick="novoRecibo()">+ Novo</button>
@@ -419,6 +420,44 @@
 
 </div><!-- /workspace -->
 </div><!-- /pg-main -->
+
+<!-- HOLIDAYS -->
+<div id="pg-feriados" style="display:none;padding:1.5rem;max-width:1000px;margin:0 auto;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+    <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800">📅 Feriados</div>
+    <button class="hbtn solid" onclick="showMain()">← Voltar</button>
+  </div>
+  <div class="card">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:.6rem;align-items:end;">
+      <div class="field">
+        <label>Contexto</label>
+        <select id="fer-scope" onchange="renderFeriadosPage()">
+          <option value="global">Geral (todos)</option>
+          <option value="cidade">Por cidade</option>
+          <option value="empresa">Por empresa</option>
+        </select>
+      </div>
+      <div class="field" id="fer-cidade-wrap" style="display:none">
+        <label>Cidade</label>
+        <input id="fer-cidade" placeholder="Ex: Curitiba/PR" oninput="renderFeriadosPage()">
+      </div>
+      <div class="field" id="fer-empresa-wrap" style="display:none">
+        <label>Empresa</label>
+        <select id="fer-empresa" onchange="renderFeriadosPage()"></select>
+      </div>
+      <div class="field">
+        <label>Data</label>
+        <input type="date" id="fer-data">
+      </div>
+      <button class="abtn primary" onclick="addFeriado()">+ Adicionar</button>
+    </div>
+    <div style="margin-top:.8rem;font-size:.74rem;color:var(--ink3)">
+      Contexto atual: <b id="fer-context-label">Geral</b>
+    </div>
+    <div id="feriados-list" style="margin-top:.6rem;display:flex;flex-direction:column;gap:.45rem;"></div>
+    <div class="field-hint" style="margin-top:.65rem">Os feriados cadastrados impactam o cálculo automático de Dias Úteis e Dias DSR da competência selecionada.</div>
+  </div>
+</div>
 
 <!-- HISTORY -->
 <div id="pg-hist">
