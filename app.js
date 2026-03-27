@@ -586,6 +586,31 @@ function calcDeducaoBaseIRRF(inssVal) {
   return roundFiscal(Math.max(607.20, deducaoLegal));
 }
 
+function calcINSSProgressivo(base) {
+  const baseCalc = Math.max(roundFiscal(base), 0);
+  const teto = 8475.55;
+  const baseLimitada = Math.min(baseCalc, teto);
+  let aliq = 7.5;
+  let deducao = 0;
+
+  if (baseLimitada <= 1621.00) {
+    aliq = 7.5;
+    deducao = 0;
+  } else if (baseLimitada <= 2902.84) {
+    aliq = 9;
+    deducao = 24.32;
+  } else if (baseLimitada <= 4354.27) {
+    aliq = 12;
+    deducao = 111.48;
+  } else {
+    aliq = 14;
+    deducao = 198.59;
+  }
+
+  const valor = roundFiscal(Math.max((baseLimitada * aliq / 100) - deducao, 0));
+  return { aliq, deducao, valor };
+}
+
 // ── CALC ──
 function calc() {
   ensureFixedVerbas();
@@ -637,12 +662,17 @@ function calc() {
     const inssManual = parseFloat(document.getElementById('f-inss-manual').value);
     if (!isNaN(inssManual)) {
       inssVal = roundFiscal(inssManual);
+      const inssAuto = calcINSSProgressivo(totVenc);
+      document.getElementById('f-inss-aliq').value = fmtN(inssAuto.aliq);
     } else {
-      const aliq = parseFloat(document.getElementById('f-inss-aliq').value) || 0;
-      inssVal = roundFiscal(totVenc * aliq / 100);
+      const inssAuto = calcINSSProgressivo(totVenc);
+      inssVal = inssAuto.valor;
+      document.getElementById('f-inss-aliq').value = fmtN(inssAuto.aliq);
     }
     document.getElementById('f-inss-val').value = fmtN(inssVal);
     totDesc += inssVal;
+  } else {
+    document.getElementById('f-inss-aliq').value = '';
   }
 
   // FGTS
@@ -875,7 +905,7 @@ function calcTotaisOnly() {
   if(encs.inss){
     const manual=parseFloat(document.getElementById('f-inss-manual').value);
     if(!isNaN(manual)) inssVal=roundFiscal(manual);
-    else {const a=parseFloat(document.getElementById('f-inss-aliq').value)||0;inssVal=roundFiscal(totVenc*a/100);}
+    else inssVal=calcINSSProgressivo(totVenc).valor;
     totDesc+=inssVal;
   }
   let fgtsBase=totVenc, fgtsVal=0;
@@ -945,7 +975,7 @@ function getData() {
   if(encs.inss){
     const manual=parseFloat(document.getElementById('f-inss-manual').value);
     if(!isNaN(manual)) inssVal=roundFiscal(manual);
-    else {const a=parseFloat(document.getElementById('f-inss-aliq').value)||0;inssVal=roundFiscal(totVenc*a/100);}
+    else inssVal=calcINSSProgressivo(totVenc).valor;
     totDesc+=inssVal;
   }
   if(encs.fgts){const fb=parseFloat(document.getElementById('f-fgts-base').value);fgtsBase=isNaN(fb)?totVenc:fb;fgtsVal=roundFiscal(fgtsBase*0.08);}
