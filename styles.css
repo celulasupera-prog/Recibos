@@ -421,6 +421,8 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .login-field label{ font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink2); }
 .login-field input{ font-family:'Lato',sans-serif;font-size:.95rem;padding:.65rem .85rem;border:1.5px solid var(--border);border-radius:6px;outline:none;transition:border-color .15s; }
 .login-field input:focus{ border-color:var(--accent); }
+.login-remember{ display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--ink2);margin-top:.1rem;user-select:none; }
+.login-remember input{ width:14px;height:14px;accent-color:var(--accent);cursor:pointer; }
 .btn-login{ width:100%;font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:var(--accent);color:#fff;border:none;border-radius:6px;padding:.8rem;cursor:pointer;margin-top:.5rem;transition:background .18s; }
 .btn-login:hover{ background:#1648c0; }
 .login-err{ font-size:.78rem;color:var(--red);text-align:center;margin-top:.5rem; }
