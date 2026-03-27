@@ -648,28 +648,40 @@ function calcDeducaoBaseIRRF(inssVal) {
 }
 
 function calcINSSProgressivo(base) {
-  const baseCalc = Math.max(roundFiscal(base), 0);
+  const baseCalc = Math.max(base, 0);
   const teto = 8475.55;
-  const baseLimitada = Math.min(baseCalc, teto);
-  let aliq = 7.5;
-  let deducao = 0;
-
-  if (baseLimitada <= 1621.00) {
-    aliq = 7.5;
-    deducao = 0;
-  } else if (baseLimitada <= 2902.84) {
-    aliq = 9;
-    deducao = 24.32;
-  } else if (baseLimitada <= 4354.27) {
-    aliq = 12;
-    deducao = 111.48;
-  } else {
-    aliq = 14;
-    deducao = 198.59;
+  if (baseCalc === 0) return { aliq: 0, deducao: 0, valor: 0 };  
+  const baseLimitada = Math.min(baseCalc, teto); 
+  // Cálculo progressivo por faixa (SEM arredondamento intermediário)
+  let inss = 0;
+  let faixaAnterior = 0;
+  // Faixa 1: até 1.621,00 → 7,5%
+  if (baseLimitada > 0) {
+    const limiteF1 = Math.min(baseLimitada, 1621.00);
+    inss += (limiteF1 - faixaAnterior) * 0.075;
+    faixaAnterior = 1621.00;
   }
-
-  const valor = roundFiscal(Math.max((baseLimitada * aliq / 100) - deducao, 0));
-  return { aliq, deducao, valor };
+  // Faixa 2: 1.621,01 até 2.902,84 → 9%
+  if (baseLimitada > 1621.00) {
+    const limiteF2 = Math.min(baseLimitada, 2902.84);
+    inss += (limiteF2 - faixaAnterior) * 0.09;
+    faixaAnterior = 2902.84;
+  }
+  // Faixa 3: 2.902,85 até 4.354,27 → 12%
+  if (baseLimitada > 2902.84) {
+    const limiteF3 = Math.min(baseLimitada, 4354.27);
+    inss += (limiteF3 - faixaAnterior) * 0.12;
+    faixaAnterior = 4354.27;
+  }
+  // Faixa 4: 4.354,28 até 8.475,55 → 14%
+  if (baseLimitada > 4354.27) {
+    inss += (baseLimitada - faixaAnterior) * 0.14;
+  }
+  // 🔥 ARREDONDA APENAS NO FINAL!
+  const valor = roundFiscal(Math.max(inss, 0));
+  // Calcula alíquota efetiva para exibição
+  const aliq = baseLimitada > 0 ? roundFiscal((valor / baseLimitada) * 100) : 0;
+  return { aliq, deducao: 0, valor };
 }
 
 // ── CALC ──
