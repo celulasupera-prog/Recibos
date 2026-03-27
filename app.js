@@ -24,6 +24,17 @@ function safeParseJSON(raw, fallback) {
   }
 }
 
+function parseN(raw) {
+  if (typeof raw === 'number') return Number.isFinite(raw) ? raw : 0;
+  const s = String(raw ?? '').trim();
+  if (!s) return 0;
+  const normalized = s.includes(',')
+    ? s.replace(/\./g, '').replace(',', '.')
+    : s;
+  const n = Number(normalized);
+  return Number.isFinite(n) ? n : 0;
+}
+
 function normalizeConfigVerba(v) {
   return {
     ...v,
@@ -648,40 +659,28 @@ function calcDeducaoBaseIRRF(inssVal) {
 }
 
 function calcINSSProgressivo(base) {
-  const baseCalc = Math.max(base, 0);
+  const baseCalc = Math.max(roundFiscal(base), 0);
   const teto = 8475.55;
-  if (baseCalc === 0) return { aliq: 0, deducao: 0, valor: 0 };  
-  const baseLimitada = Math.min(baseCalc, teto); 
-  // Cálculo progressivo por faixa (SEM arredondamento intermediário)
-  let inss = 0;
-  let faixaAnterior = 0;
-  // Faixa 1: até 1.621,00 → 7,5%
-  if (baseLimitada > 0) {
-    const limiteF1 = Math.min(baseLimitada, 1621.00);
-    inss += (limiteF1 - faixaAnterior) * 0.075;
-    faixaAnterior = 1621.00;
+  const baseLimitada = Math.min(baseCalc, teto);
+  let aliq = 7.5;
+  let deducao = 0;
+
+  if (baseLimitada <= 1621.00) {
+    aliq = 7.5;
+    deducao = 0;
+  } else if (baseLimitada <= 2902.84) {
+    aliq = 9;
+    deducao = 24.32;
+  } else if (baseLimitada <= 4354.27) {
+    aliq = 12;
+    deducao = 111.48;
+  } else {
+    aliq = 14;
+    deducao = 198.59;
   }
-  // Faixa 2: 1.621,01 até 2.902,84 → 9%
-  if (baseLimitada > 1621.00) {
-    const limiteF2 = Math.min(baseLimitada, 2902.84);
-    inss += (limiteF2 - faixaAnterior) * 0.09;
-    faixaAnterior = 2902.84;
-  }
-  // Faixa 3: 2.902,85 até 4.354,27 → 12%
-  if (baseLimitada > 2902.84) {
-    const limiteF3 = Math.min(baseLimitada, 4354.27);
-    inss += (limiteF3 - faixaAnterior) * 0.12;
-    faixaAnterior = 4354.27;
-  }
-  // Faixa 4: 4.354,28 até 8.475,55 → 14%
-  if (baseLimitada > 4354.27) {
-    inss += (baseLimitada - faixaAnterior) * 0.14;
-  }
-  // 🔥 ARREDONDA APENAS NO FINAL!
-  const valor = roundFiscal(Math.max(inss, 0));
-  // Calcula alíquota efetiva para exibição
-  const aliq = baseLimitada > 0 ? roundFiscal((valor / baseLimitada) * 100) : 0;
-  return { aliq, deducao: 0, valor };
+
+  const valor = roundFiscal(Math.max((baseLimitada * aliq / 100) - deducao, 0));
+  return { aliq, deducao, valor };
 }
 
 // ── CALC ──
@@ -902,13 +901,13 @@ function updateVerba(id, field, val) {
   if (field === 'desc2' && v.tipo === 'venc') return;
 
   if (field === 'venc') {
-    v.venc = parseFloat(val) || 0;
+    v.venc = parseN(val);
     v.auto = false;
     calcTotaisOnly();
     renderPreview();
 
   } else if (field === 'desc2') {
-    v.desc2 = parseFloat(val) || 0;
+    v.desc2 = parseN(val);
     v.auto = false;
     calcTotaisOnly();
     renderPreview();
@@ -1033,7 +1032,7 @@ function renderVerbasList() {
       <input value="${escHtml(v.desc||'')}" placeholder="Descrição do lançamento" class="desc-input" style="text-align:left;font-size:.82rem" oninput="updateVerba(${v.id},'desc',this.value)">
       <input value="${escHtml(v.ref||'')}" placeholder="${refLabel||'ref'}" oninput="updateVerba(${v.id},'ref',this.value)">
       <input value="${v.venc > 0 ? fmtN(v.venc) : ''}" placeholder="0,00" class="${vencCls}" ${lockVenc ? 'readonly' : ''} oninput="updateVerba(${v.id},'venc',this.value)" data-field="venc">
-      <input value="${v.desc2 > 0 ? fmtN(v.desc2) : v.tipo==='desc'&&v.ref ? fmtN(parseFloat(v.ref)||0) : ''}" placeholder="0,00" class="${descCls}" ${lockDesc ? 'readonly' : ''} oninput="updateVerba(${v.id},'desc2',this.value)" data-field="desc2">
+      <input value="${v.desc2 > 0 ? fmtN(v.desc2) : v.tipo==='desc'&&v.ref ? fmtN(parseN(v.ref)||0) : ''}" placeholder="0,00" class="${descCls}" ${lockDesc ? 'readonly' : ''} oninput="updateVerba(${v.id},'desc2',this.value)" data-field="desc2">
       <label class="irrf-flag"><input type="checkbox" ${incideIRRF ? 'checked' : ''} ${v.tipo === 'desc' ? 'disabled' : ''} onchange="updateVerba(${v.id},'incideIRRF',this.checked)"></label>
       <button class="btn-rm" onclick="removeVerba(${v.id})">×</button>
     </div>`;
@@ -1052,7 +1051,7 @@ function getData() {
   const salDia = sal/diasMes, salHora = sal/220, valDias = salDia*dias;
 
   let totVenc = verbas.reduce((s,v)=>s+(v.venc||0),0);
-  let totDesc = verbas.reduce((s,v)=>s+(v.desc2||0)+(v.tipo==='desc'&&v.auto?parseFloat(v.ref)||0:0),0);
+  let totDesc = verbas.reduce((s,v)=>s+(v.desc2||0)+(v.tipo==='desc'&&v.auto?parseN(v.ref)||0:0),0);
 
   const inssBase = calcBaseINSSAutomatica();
   let inssVal=0, fgtsBase=calcBaseFGTSAutomatica(), fgtsVal=0, irrfBase=0, irrfVal=0, irrfFaixa=0;
@@ -1133,7 +1132,7 @@ d.verbas
   .filter(v => v.autoType !== 'diasnormais' && v.autoType !== 'dsrhe')
   .forEach(v=>{
     const vencVal = v.venc > 0 ? fmtN2(v.venc) : '';
-    const dv = v.desc2 > 0 ? v.desc2 : (v.tipo==='desc'&&v.ref ? parseFloat(v.ref)||0 : 0);
+    const dv = v.desc2 > 0 ? v.desc2 : (v.tipo==='desc'&&v.ref ? parseN(v.ref)||0 : 0);
     const descVal = dv > 0 ? fmtN2(dv) : '';
     rowsData.push({
       cod:v.cod||'',
@@ -1715,7 +1714,7 @@ function quickAddConfig(id) {
 // sobrescreve calcVerba para usar fórmulas configuráveis
 function calcVerba(v, sal, salDia, salHora, valDias) {
   let venc = 0, desc = 0;
-  const ref = parseFloat(v.ref)||0;
+  const ref = parseN(v.ref)||0;
   const horasMes = configParams.horasMes||220;
   const salHoraCalc = sal / horasMes;
   const diasTrab = parseFloat(document.getElementById('f-dias').value) || 0;
@@ -1731,7 +1730,7 @@ function calcVerba(v, sal, salDia, salHora, valDias) {
     .reduce((sum, h) => {
       const valorVenc = parseFloat(h.venc) || 0;
       if (valorVenc > 0) return sum + valorVenc;
-      const refHE = parseFloat(h.ref) || 0;
+      const refHE = parseN(h.ref) || 0;
       if (h.autoType === 'he50') return sum + (refHE * salHoraCalc * (configParams.he50Mult || 1.5));
       if (h.autoType === 'he100') return sum + (refHE * salHoraCalc * (configParams.he100Mult || 2));
       return sum;
@@ -1788,15 +1787,15 @@ function calcVerba(v, sal, salDia, salHora, valDias) {
   // legado
   switch(v.autoType) {
     case 'adicfunc':
-      venc = sal*(parseFloat(v.ref)||0)/100;
+      venc = sal*(parseN(v.ref)||0)/100;
       break;
 
     case 'premiotempo':
-      venc = sal*(parseFloat(v.ref)||0)/100;
+      venc = sal*(parseN(v.ref)||0)/100;
       break;
 
     case 'adiant':
-      desc = parseFloat(v.ref)||0;
+      desc = parseN(v.ref)||0;
       break;
   }
 
