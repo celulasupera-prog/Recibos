@@ -40,6 +40,10 @@
       <label>Senha</label>
       <input type="password" id="login-senha" placeholder="••••••••" onkeydown="if(event.key==='Enter')fazerLogin()">
     </div>
+    <label class="login-remember">
+      <input type="checkbox" id="login-remember">
+      <span>Lembrar senha</span>
+    </label>
     <div class="login-err" id="login-err"></div>
     <button class="btn-login" onclick="fazerLogin()">Entrar</button>
   </div>

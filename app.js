@@ -12,6 +12,9 @@ const DEFAULT_CONFIG_VERBAS = [
   { id:'almoco',  cod:'448', desc:'ALMOÇO MOTORISTA',       tipo:'venc', refLabel:'valor', formulaVenc:'ref',                 formulaDesc:'', compoeHE:false },
 ];
 const jsPDF = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : null;
+const LOGIN_REMEMBER_KEY = 'login_remember';
+const LOGIN_REMEMBER_EMAIL_KEY = 'login_remember_email';
+const LOGIN_REMEMBER_SENHA_KEY = 'login_remember_senha';
 
 function safeParseJSON(raw, fallback) {
   try {
@@ -47,6 +50,7 @@ let verbasPadraoTemp = [];
 async function fazerLogin() {
   const email = document.getElementById('login-email').value.trim();
   const senha = document.getElementById('login-senha').value;
+  const lembrarSenha = document.getElementById('login-remember')?.checked;
   const errEl = document.getElementById('login-err');
   errEl.style.display = 'none';
   if (!email || !senha) { errEl.textContent = 'Preencha email e senha.'; errEl.style.display = 'block'; return; }
@@ -61,11 +65,33 @@ async function fazerLogin() {
     currentUser = data.user;
     localStorage.setItem('sb_token', data.access_token);
     localStorage.setItem('sb_user', JSON.stringify(data.user));
+    if (lembrarSenha) {
+      localStorage.setItem(LOGIN_REMEMBER_KEY, '1');
+      localStorage.setItem(LOGIN_REMEMBER_EMAIL_KEY, email);
+      localStorage.setItem(LOGIN_REMEMBER_SENHA_KEY, senha);
+    } else {
+      localStorage.removeItem(LOGIN_REMEMBER_KEY);
+      localStorage.removeItem(LOGIN_REMEMBER_EMAIL_KEY);
+      localStorage.removeItem(LOGIN_REMEMBER_SENHA_KEY);
+    }
     await initApp();
   } catch(e) {
     errEl.textContent = e.message;
     errEl.style.display = 'block';
   }
+}
+
+function carregarLoginLembrado() {
+  const lembrar = localStorage.getItem(LOGIN_REMEMBER_KEY) === '1';
+  const email = localStorage.getItem(LOGIN_REMEMBER_EMAIL_KEY) || '';
+  const senha = localStorage.getItem(LOGIN_REMEMBER_SENHA_KEY) || '';
+  const emailEl = document.getElementById('login-email');
+  const senhaEl = document.getElementById('login-senha');
+  const lembrarEl = document.getElementById('login-remember');
+
+  if (emailEl) emailEl.value = email;
+  if (senhaEl) senhaEl.value = lembrar ? senha : '';
+  if (lembrarEl) lembrarEl.checked = lembrar;
 }
 
 async function fazerLogout() {
@@ -246,9 +272,7 @@ function renderEmpresasList() {
 
         <button class="hcbtn" onclick="editarEmpresa('${e.id}')">✏ Editar</button>
 
-        ${!currentUser.isAdmin 
-          ? `<button class="hcbtn d" onclick="deletarEmpresa('${e.id}')">✕ Remover</button>` 
-          : ''}
+        <button class="hcbtn d" onclick="deletarEmpresa('${e.id}')">🗑 Excluir</button>
       </div>
 
     </div>
@@ -328,7 +352,7 @@ async function salvarEmpresa() {
 }
 
 async function deletarEmpresa(id) {
-  if (!confirm('Remover esta empresa?')) return;
+  if (!confirm('Tem certeza que quer excluir?')) return;
   try {
     await sbFetch('empresas?id=eq.' + id, { method: 'DELETE' });
     empresasList = empresasList.filter(e => e.id !== id);
@@ -456,6 +480,8 @@ function addVerbaPadrao() {
 
 // ── INIT ──
 window.onload = async () => {
+  carregarLoginLembrado();
+
   const now = new Date();
   const y = now.getFullYear(), m = String(now.getMonth()+1).padStart(2,'0');
   document.getElementById('f-comp').value = `${y}-${m}`;
