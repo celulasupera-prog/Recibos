@@ -84,8 +84,11 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   padding:2px 7px;border-radius:3px;}
 .toggle-badge.off{background:var(--border);color:var(--ink3);}
 .toggle-badge.on{background:var(--accent2);color:var(--accent);}
-.toggle-content{display:none;margin-top:.6rem;}
+.toggle-content{display:none;margin:.35rem 0 .75rem 0;padding:.55rem;border:1px dashed #e7e2d9;border-radius:8px;background:#fcfcfa;}
 .toggle-content.open{display:block;}
+#tc-inss{border-left:3px solid #60a5fa;}
+#tc-fgts{border-left:3px solid #34d399;}
+#tc-irrf{border-left:3px solid #f59e0b;}
 
 /* verbas table */
 .verbas-header{display:grid;grid-template-columns:60px 1fr 90px 90px 90px 48px 30px;
