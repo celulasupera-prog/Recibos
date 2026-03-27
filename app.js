@@ -1,20 +1,21 @@
 // ── CONFIG ──
 const DEFAULT_CONFIG_VERBAS = [
-  { id:'he50',   cod:'150', desc:'HORAS EXTRAS - 50%',      tipo:'venc', refLabel:'horas', formulaVenc:'ref * salHora * 1.5', formulaDesc:'', compoeHE:true },
-  { id:'he100',  cod:'200', desc:'HORAS EXTRAS 100%',       tipo:'venc', refLabel:'horas', formulaVenc:'ref * salHora * 2',   formulaDesc:'', compoeHE:true },
-  { id:'dsrhe', cod:'9999', desc:'DSR SOBRE HORAS EXTRAS', tipo:'venc', refLabel:'auto', formulaVenc:'', formulaDesc:'', compoeHE:false },
-  { id:'adicfunc',cod:'348',desc:'ADICIONAL DE FUNÇÃO',     tipo:'venc', refLabel:'%',     formulaVenc:'sal * ref / 100',     formulaDesc:'', compoeHE:false },
-  { id:'premiotempo',cod:'576',desc:'PRÊMIO TEMPO SERVIÇO', tipo:'venc', refLabel:'%',     formulaVenc:'sal * ref / 100',     formulaDesc:'', compoeHE:false },
-  { id:'ajudacusto',cod:'583',desc:'AJUDA DE CUSTO',        tipo:'venc', refLabel:'valor', formulaVenc:'ref',                 formulaDesc:'', compoeHE:false },
-  { id:'adiant',  cod:'231', desc:'DESC. ADIANT. SALARIAL', tipo:'desc', refLabel:'valor', formulaVenc:'',                   formulaDesc:'ref', compoeHE:false },
-  { id:'pernoite',cod:'256', desc:'PERNOITE',               tipo:'venc', refLabel:'qtd',   formulaVenc:'ref',                 formulaDesc:'', compoeHE:false },
-  { id:'gratviagem',cod:'588',desc:'GRATIFICAÇÃO VIAGEM',   tipo:'venc', refLabel:'valor', formulaVenc:'ref',                 formulaDesc:'', compoeHE:false },
-  { id:'almoco',  cod:'448', desc:'ALMOÇO MOTORISTA',       tipo:'venc', refLabel:'valor', formulaVenc:'ref',                 formulaDesc:'', compoeHE:false },
+  { id:'he50',   cod:'150', desc:'HORAS EXTRAS - 50%',      tipo:'venc', refLabel:'horas', formulaVenc:'ref * salHora * 1.5', formulaDesc:'', compoeHE:true, compoeIRRF:true, compoeINSS:true, compoeFGTS:true },
+  { id:'he100',  cod:'200', desc:'HORAS EXTRAS 100%',       tipo:'venc', refLabel:'horas', formulaVenc:'ref * salHora * 2',   formulaDesc:'', compoeHE:true, compoeIRRF:true, compoeINSS:true, compoeFGTS:true },
+  { id:'dsrhe', cod:'9999', desc:'DSR SOBRE HORAS EXTRAS', tipo:'venc', refLabel:'auto', formulaVenc:'', formulaDesc:'', compoeHE:false, compoeIRRF:true, compoeINSS:true, compoeFGTS:true },
+  { id:'adicfunc',cod:'348',desc:'ADICIONAL DE FUNÇÃO',     tipo:'venc', refLabel:'%',     formulaVenc:'sal * ref / 100',     formulaDesc:'', compoeHE:false, compoeIRRF:true, compoeINSS:true, compoeFGTS:true },
+  { id:'premiotempo',cod:'576',desc:'PRÊMIO TEMPO SERVIÇO', tipo:'venc', refLabel:'%',     formulaVenc:'sal * ref / 100',     formulaDesc:'', compoeHE:false, compoeIRRF:true, compoeINSS:true, compoeFGTS:true },
+  { id:'ajudacusto',cod:'583',desc:'AJUDA DE CUSTO',        tipo:'venc', refLabel:'valor', formulaVenc:'ref',                 formulaDesc:'', compoeHE:false, compoeIRRF:true, compoeINSS:true, compoeFGTS:true },
+  { id:'adiant',  cod:'231', desc:'DESC. ADIANT. SALARIAL', tipo:'desc', refLabel:'valor', formulaVenc:'',                   formulaDesc:'ref', compoeHE:false, compoeIRRF:false, compoeINSS:false, compoeFGTS:false },
+  { id:'pernoite',cod:'256', desc:'PERNOITE',               tipo:'venc', refLabel:'qtd',   formulaVenc:'ref',                 formulaDesc:'', compoeHE:false, compoeIRRF:true, compoeINSS:true, compoeFGTS:true },
+  { id:'gratviagem',cod:'588',desc:'GRATIFICAÇÃO VIAGEM',   tipo:'venc', refLabel:'valor', formulaVenc:'ref',                 formulaDesc:'', compoeHE:false, compoeIRRF:true, compoeINSS:true, compoeFGTS:true },
+  { id:'almoco',  cod:'448', desc:'ALMOÇO MOTORISTA',       tipo:'venc', refLabel:'valor', formulaVenc:'ref',                 formulaDesc:'', compoeHE:false, compoeIRRF:true, compoeINSS:true, compoeFGTS:true },
 ];
 const jsPDF = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : null;
 const LOGIN_REMEMBER_KEY = 'login_remember';
 const LOGIN_REMEMBER_EMAIL_KEY = 'login_remember_email';
 const LOGIN_REMEMBER_SENHA_KEY = 'login_remember_senha';
+const HOLIDAYS_KEY = 'cfg_feriados_v1';
 
 function safeParseJSON(raw, fallback) {
   try {
@@ -24,16 +25,46 @@ function safeParseJSON(raw, fallback) {
   }
 }
 
+function parseN(raw) {
+  if (typeof raw === 'number') return Number.isFinite(raw) ? raw : 0;
+  const s = String(raw ?? '').trim();
+  if (!s) return 0;
+  const normalized = s.includes(',')
+    ? s.replace(/\./g, '').replace(',', '.')
+    : s;
+  const n = Number(normalized);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function normalizeConfigVerba(v) {
+  return {
+    ...v,
+    compoeHE: !!v.compoeHE,
+    compoeIRRF: typeof v.compoeIRRF === 'boolean' ? v.compoeIRRF : v.tipo !== 'desc',
+    compoeINSS: typeof v.compoeINSS === 'boolean' ? v.compoeINSS : v.tipo !== 'desc',
+    compoeFGTS: typeof v.compoeFGTS === 'boolean' ? v.compoeFGTS : v.tipo !== 'desc',
+  };
+}
+
 let configVerbas = safeParseJSON(localStorage.getItem('cfg_verbas'), null);
 if (!Array.isArray(configVerbas) || !configVerbas.length) {
-  configVerbas = DEFAULT_CONFIG_VERBAS.map(v => ({ ...v }));
+  configVerbas = DEFAULT_CONFIG_VERBAS.map(v => normalizeConfigVerba({ ...v }));
+} else {
+  configVerbas = configVerbas.map(v => normalizeConfigVerba(v));
 }
-configVerbas = configVerbas.map(v => ({ ...v, compoeHE: !!v.compoeHE }));
 
 let configParams = safeParseJSON(localStorage.getItem('cfg_params'), null);
 if (!configParams || typeof configParams !== 'object') {
   configParams = { horasMes:220, he50Mult:1.5, he100Mult:2.0, fgtsAliq:8 };
 }
+
+let feriadosConfig = safeParseJSON(localStorage.getItem(HOLIDAYS_KEY), null);
+if (!feriadosConfig || typeof feriadosConfig !== 'object') {
+  feriadosConfig = { global: [], byCity: {}, byEmpresa: {} };
+}
+feriadosConfig.global = Array.isArray(feriadosConfig.global) ? feriadosConfig.global : [];
+feriadosConfig.byCity = feriadosConfig.byCity && typeof feriadosConfig.byCity === 'object' ? feriadosConfig.byCity : {};
+feriadosConfig.byEmpresa = feriadosConfig.byEmpresa && typeof feriadosConfig.byEmpresa === 'object' ? feriadosConfig.byEmpresa : {};
 
 // ── STATE ──
 let verbas = [];
@@ -100,6 +131,7 @@ async function fazerLogout() {
   currentUser = null;
   document.getElementById('pg-login').style.display = 'flex';
   document.getElementById('pg-main').style.display = 'none';
+  document.getElementById('pg-feriados').style.display = 'none';
   document.getElementById('user-badge').style.display = 'none';
   document.getElementById('btn-logout').style.display = 'none';
   document.getElementById('btn-empresas').style.display = 'none';
@@ -160,6 +192,9 @@ async function carregarEmpresas() {
       empresasList = await sbFetch('empresas?grupo_id=eq.' + grupoId + '&order=nome.asc') || [];
     }
     renderEmpresasSelect();
+    if (document.getElementById('pg-feriados')?.style.display === 'block') {
+      renderFeriadosPage();
+    }
   } catch(e) {
     console.error('Erro ao carregar empresas:', e);
     empresasList = [];
@@ -190,6 +225,7 @@ function selecionarEmpresa(id) {
 
   if (emp.verbas_padrao && emp.verbas_padrao.length) {
     emp.verbas_padrao.forEach(v => {
+      const cfg = configVerbas.find(c => c.id === v.autoType);
       verbas.push({
         id: Date.now() + Math.random(),
         cod: v.cod,
@@ -197,6 +233,15 @@ function selecionarEmpresa(id) {
         ref: '',
         venc: 0,
         desc2: 0,
+        incideIRRF: typeof v.incideIRRF === 'boolean'
+          ? v.incideIRRF
+          : (cfg && typeof cfg.compoeIRRF === 'boolean' ? cfg.compoeIRRF : v.tipo !== 'desc'),
+        incideINSS: typeof v.incideINSS === 'boolean'
+          ? v.incideINSS
+          : (cfg && typeof cfg.compoeINSS === 'boolean' ? cfg.compoeINSS : v.tipo !== 'desc'),
+        incideFGTS: typeof v.incideFGTS === 'boolean'
+          ? v.incideFGTS
+          : (cfg && typeof cfg.compoeFGTS === 'boolean' ? cfg.compoeFGTS : v.tipo !== 'desc'),
         auto: !!v.autoType,
         autoType: v.autoType,
         tipo: v.tipo
@@ -218,6 +263,9 @@ if (!verbas.find(v => v.autoType === 'dsrhe')) {
     ref: '',
     venc: 0,
     desc2: 0,
+    incideIRRF: true,
+    incideINSS: true,
+    incideFGTS: true,
     auto: true,
     autoType: 'dsrhe',
     tipo: 'venc'
@@ -230,6 +278,7 @@ async function showEmpresas() {
   document.getElementById('pg-main').style.display = 'none';
   document.getElementById('pg-hist').style.display = 'none';
   document.getElementById('pg-config').style.display = 'none';
+  document.getElementById('pg-feriados').style.display = 'none';
   document.getElementById('pg-empresas').style.display = 'block';
   renderEmpresasList();
 }
@@ -331,7 +380,7 @@ async function salvarEmpresa() {
         body: JSON.stringify({
           grupo_id: grupoId,
           nome, cnpj, cidade,
-          verbas_padrao: [{ cod:'8781', desc:'DIAS NORMAIS', autoType:'diasnormais', tipo:'venc' }]
+          verbas_padrao: [{ cod:'8781', desc:'DIAS NORMAIS', autoType:'diasnormais', tipo:'venc', incideIRRF:true, incideINSS:true, incideFGTS:true }]
         })
       });
 
@@ -395,7 +444,7 @@ window.configVerbasEmpresa = function(id) {
   el.innerHTML = verbasPadraoTemp.map((v,i) => `
     <div style="
       display:grid;
-      grid-template-columns:70px 1fr 90px 30px;
+      grid-template-columns:70px 1fr 90px 80px 30px;
       gap:.5rem;
       margin-bottom:.4rem;
       align-items:center;
@@ -407,6 +456,11 @@ window.configVerbasEmpresa = function(id) {
         <option value="venc" ${v.tipo==='venc'?'selected':''}>Venc</option>
         <option value="desc" ${v.tipo==='desc'?'selected':''}>Desc</option>
       </select>
+      <label style="font-size:.72rem;display:flex;align-items:center;gap:.25rem;justify-content:center">
+        <input type="checkbox" ${typeof v.incideIRRF === 'boolean' ? (v.incideIRRF ? 'checked' : '') : (v.tipo !== 'desc' ? 'checked' : '')}
+          onchange="updVP(${i},'incideIRRF',this.checked)">
+        IRRF
+      </label>
 
       <button class="btn-rm" onclick="delVP(${i})">×</button>
     </div>
@@ -447,7 +501,10 @@ function addVerbaPadrao() {
     cod: cfg.cod,
     desc: cfg.desc,
     tipo: cfg.tipo,
-    autoType: cfg.id
+    autoType: cfg.id,
+    incideIRRF: typeof cfg.compoeIRRF === 'boolean' ? cfg.compoeIRRF : cfg.tipo !== 'desc',
+    incideINSS: typeof cfg.compoeINSS === 'boolean' ? cfg.compoeINSS : cfg.tipo !== 'desc',
+    incideFGTS: typeof cfg.compoeFGTS === 'boolean' ? cfg.compoeFGTS : cfg.tipo !== 'desc'
   });
 
   renderVerbasPadrao();
@@ -488,8 +545,7 @@ window.onload = async () => {
   const dias = new Date(y, now.getMonth()+1, 0).getDate();
   document.getElementById('f-diasmes').value = dias;
   document.getElementById('f-dias').value = dias;
-  document.getElementById('f-diasuteis').value = Math.max(dias - 6, 0);
-  document.getElementById('f-diasdsr').value = Math.min(6, dias);
+  applyAutoDiasHE();
 
   // verifica se já tem sessão salva
   const token = localStorage.getItem('sb_token');
@@ -517,6 +573,20 @@ function renderQuickAddButtons() {
 }
 
 function ensureFixedVerbas() {
+  const dedupeByAutoType = (autoType) => {
+    const itens = verbas.filter(v => v.autoType === autoType);
+    if (itens.length <= 1) return;
+    let first = true;
+    verbas = verbas.filter(v => {
+      if (v.autoType !== autoType) return true;
+      if (first) { first = false; return true; }
+      return false;
+    });
+  };
+
+  dedupeByAutoType('diasnormais');
+  dedupeByAutoType('dsrhe');
+
   if (!verbas.find(v => v.autoType === 'diasnormais')) {
     addVerbaDiasNormais();
   }
@@ -529,6 +599,9 @@ function ensureFixedVerbas() {
       ref: '',
       venc: 0,
       desc2: 0,
+      incideIRRF: true,
+      incideINSS: true,
+      incideFGTS: true,
       auto: true,
       autoType: 'dsrhe',
       tipo: 'venc'
@@ -546,6 +619,159 @@ function toggleEnc(key) {
   calc();
 }
 
+function roundFiscal(v) {
+  return Math.round((Number(v) || 0) * 100) / 100;
+}
+
+function verbaIncideIRRF(v) {
+  if (!v || v.tipo === 'desc') return false;
+  if (typeof v.incideIRRF === 'boolean') return v.incideIRRF;
+  const cfg = configVerbas.find(c => c.id === v.autoType);
+  if (cfg && typeof cfg.compoeIRRF === 'boolean') return cfg.compoeIRRF;
+  return true;
+}
+
+function verbaIncideINSS(v) {
+  if (!v || v.tipo === 'desc') return false;
+  if (typeof v.incideINSS === 'boolean') return v.incideINSS;
+  const cfg = configVerbas.find(c => c.id === v.autoType);
+  if (cfg && typeof cfg.compoeINSS === 'boolean') return cfg.compoeINSS;
+  return true;
+}
+
+function verbaIncideFGTS(v) {
+  if (!v || v.tipo === 'desc') return false;
+  if (typeof v.incideFGTS === 'boolean') return v.incideFGTS;
+  const cfg = configVerbas.find(c => c.id === v.autoType);
+  if (cfg && typeof cfg.compoeFGTS === 'boolean') return cfg.compoeFGTS;
+  return true;
+}
+
+function calcBaseIRRFAutomatica(deducaoBaseIRRF) {
+  const baseComVerbas = verbas.reduce((s, v) => s + (verbaIncideIRRF(v) ? (parseFloat(v.venc) || 0) : 0), 0);
+  return roundFiscal(baseComVerbas - (deducaoBaseIRRF || 0));
+}
+
+function calcBaseIRRFBruta() {
+  return roundFiscal(verbas.reduce((s, v) => s + (verbaIncideIRRF(v) ? (parseFloat(v.venc) || 0) : 0), 0));
+}
+
+function calcBaseINSSAutomatica() {
+  return roundFiscal(verbas.reduce((s, v) => s + (verbaIncideINSS(v) ? (parseFloat(v.venc) || 0) : 0), 0));
+}
+
+function calcBaseFGTSAutomatica() {
+  return roundFiscal(verbas.reduce((s, v) => s + (verbaIncideFGTS(v) ? (parseFloat(v.venc) || 0) : 0), 0));
+}
+
+function calcDeducaoBaseIRRF(inssVal) {
+  const dependentes = parseInt(document.getElementById('f-irrf-dependentes')?.value, 10) || 0;
+  const deducaoDependentes = roundFiscal(dependentes * 189.59);
+  const deducaoLegal = roundFiscal((inssVal || 0) + deducaoDependentes);
+  return roundFiscal(Math.max(607.20, deducaoLegal));
+}
+
+function calcINSSProgressivo(base) {
+  const baseCalc = Math.max(parseN(base), 0);
+  const teto = 8475.55;
+
+  if (baseCalc === 0) return { aliq: 0, deducao: 0, valor: 0 };
+
+  const baseLimitada = Math.min(baseCalc, teto);
+
+  // Cálculo progressivo por faixa (sem arredondamento intermediário)
+  let inss = 0;
+  let faixaAnterior = 0;
+
+  // Faixa 1: até 1.621,00 → 7,5%
+  if (baseLimitada > 0) {
+    const limiteF1 = Math.min(baseLimitada, 1621.00);
+    inss += (limiteF1 - faixaAnterior) * 0.075;
+    faixaAnterior = 1621.00;
+  }
+
+  // Faixa 2: 1.621,01 até 2.902,84 → 9%
+  if (baseLimitada > 1621.00) {
+    const limiteF2 = Math.min(baseLimitada, 2902.84);
+    inss += (limiteF2 - faixaAnterior) * 0.09;
+    faixaAnterior = 2902.84;
+  }
+
+  // Faixa 3: 2.902,85 até 4.354,27 → 12%
+  if (baseLimitada > 2902.84) {
+    const limiteF3 = Math.min(baseLimitada, 4354.27);
+    inss += (limiteF3 - faixaAnterior) * 0.12;
+    faixaAnterior = 4354.27;
+  }
+
+  // Faixa 4: 4.354,28 até 8.475,55 → 14%
+  if (baseLimitada > 4354.27) {
+    inss += (baseLimitada - faixaAnterior) * 0.14;
+  }
+
+  // arredonda apenas no final
+  const valor = roundFiscal(Math.max(inss, 0));
+  const aliq = baseLimitada > 0 ? roundFiscal((valor / baseLimitada) * 100) : 0;
+
+  return { aliq, deducao: 0, valor };
+}
+
+function saveFeriadosConfig() {
+  localStorage.setItem(HOLIDAYS_KEY, JSON.stringify(feriadosConfig));
+}
+
+function normalizeCityKey(city) {
+  return String(city || '').trim().toLowerCase();
+}
+
+function uniqueSortedDates(arr) {
+  return [...new Set((arr || []).filter(Boolean))].sort();
+}
+
+function getFeriadosDoContexto() {
+  const empresaId = document.getElementById('f-emp-select')?.value || '';
+  const cityKey = normalizeCityKey(document.getElementById('f-cidade')?.value || '');
+  const globalDates = feriadosConfig.global || [];
+  const cityDates = cityKey ? (feriadosConfig.byCity[cityKey] || []) : [];
+  const empresaDates = empresaId ? (feriadosConfig.byEmpresa[empresaId] || []) : [];
+  return uniqueSortedDates([...globalDates, ...cityDates, ...empresaDates]);
+}
+
+function calcDiasUteisEDSR(y, m) {
+  const diasMes = new Date(y, m, 0).getDate();
+  const feriadosSet = new Set(getFeriadosDoContexto().filter(d => d.startsWith(`${y}-${String(m).padStart(2,'0')}-`)));
+  let domingos = 0;
+  let feriadosEmDiaUtil = 0;
+
+  for (let dia = 1; dia <= diasMes; dia++) {
+    const data = new Date(y, m - 1, dia);
+    const iso = `${y}-${String(m).padStart(2,'0')}-${String(dia).padStart(2,'0')}`;
+    const dow = data.getDay();
+    if (dow === 0) {
+      domingos++;
+      continue;
+    }
+    if (feriadosSet.has(iso)) {
+      feriadosEmDiaUtil++;
+    }
+  }
+
+  const diasDSR = domingos + feriadosEmDiaUtil;
+  const diasUteis = Math.max(diasMes - diasDSR, 0);
+  return { diasMes, diasUteis, diasDSR };
+}
+
+function applyAutoDiasHE() {
+  const comp = document.getElementById('f-comp')?.value;
+  if (!comp) return;
+  const [y, m] = comp.split('-').map(Number);
+  if (!y || !m) return;
+  const { diasMes, diasUteis, diasDSR } = calcDiasUteisEDSR(y, m);
+  document.getElementById('f-diasmes').value = diasMes;
+  document.getElementById('f-diasuteis').value = diasUteis;
+  document.getElementById('f-diasdsr').value = diasDSR;
+}
+
 // ── CALC ──
 function calc() {
   ensureFixedVerbas();
@@ -554,17 +780,16 @@ function calc() {
   const dias = parseFloat(document.getElementById('f-dias').value) || 0;
 
   // auto diasmes from month
-  const comp = document.getElementById('f-comp').value;
-  if (comp) {
-    const [y,m] = comp.split('-').map(Number);
-    const diasMes = new Date(y, m, 0).getDate();
-    document.getElementById('f-diasmes').value = diasMes;
-  }
+  applyAutoDiasHE();
   const diasMes = parseFloat(document.getElementById('f-diasmes').value) || 30;
+  const diasLimitados = Math.max(0, Math.min(dias, diasMes));
+  if (dias !== diasLimitados) {
+    document.getElementById('f-dias').value = diasLimitados;
+  }
 
   const salDia = diasMes > 0 ? sal / diasMes : 0;
   const salHora = sal / 220;
-  const valDias = salDia * dias;
+  const valDias = salDia * diasLimitados;
 
   document.getElementById('f-saldia').value = fmtN(salDia);
   document.getElementById('f-salhora').value = fmtN(salHora);
@@ -574,16 +799,16 @@ function calc() {
   verbas.forEach(v => {
     if (v.auto && v.autoType !== 'dsrhe') {
       const r = calcVerba(v, sal, salDia, salHora, valDias);
-      v.venc = r.venc;
-      v.desc2 = r.desc || 0;
+      v.venc = roundFiscal(r.venc);
+      v.desc2 = roundFiscal(r.desc || 0);
     }
   });
   
   verbas.forEach(v => {
     if (v.auto && v.autoType === 'dsrhe') {
       const r = calcVerba(v, sal, salDia, salHora, valDias);
-      v.venc = r.venc;
-      v.desc2 = r.desc || 0;
+      v.venc = roundFiscal(r.venc);
+      v.desc2 = roundFiscal(r.desc || 0);
     }
   });
 
@@ -592,35 +817,51 @@ function calc() {
   let totDesc = verbas.reduce((s,v) => s + (v.desc2||0), 0);
 
   // INSS
+  const inssBase = calcBaseINSSAutomatica();
   let inssVal = 0;
   if (encs.inss) {
-    const aliq = parseFloat(document.getElementById('f-inss-aliq').value) || 0;
-    inssVal = totVenc * aliq / 100;
+    const inssManual = parseFloat(document.getElementById('f-inss-manual').value);
+    if (!isNaN(inssManual)) {
+      inssVal = roundFiscal(inssManual);
+      const inssAuto = calcINSSProgressivo(inssBase);
+      document.getElementById('f-inss-aliq').value = fmtN(inssAuto.aliq);
+    } else {
+      const inssAuto = calcINSSProgressivo(inssBase);
+      inssVal = inssAuto.valor;
+      document.getElementById('f-inss-aliq').value = fmtN(inssAuto.aliq);
+    }
     document.getElementById('f-inss-val').value = fmtN(inssVal);
     totDesc += inssVal;
+  } else {
+    document.getElementById('f-inss-aliq').value = '';
   }
 
   // FGTS
-  let fgtsBase = totVenc;
+  let fgtsBase = calcBaseFGTSAutomatica();
   let fgtsVal = 0;
   if (encs.fgts) {
     const fb = parseFloat(document.getElementById('f-fgts-base').value);
-    fgtsBase = isNaN(fb) ? totVenc : fb;
-    fgtsVal = fgtsBase * 0.08;
+    fgtsBase = isNaN(fb) ? calcBaseFGTSAutomatica() : fb;
+    fgtsVal = roundFiscal(fgtsBase * 0.08);
     document.getElementById('f-fgts-val').value = fmtN(fgtsVal);
   }
 
   // IRRF
-  let irrfBase = totVenc - inssVal;
+  const deducaoBaseIRRF = calcDeducaoBaseIRRF(inssVal);
+  let irrfBase = calcBaseIRRFAutomatica(deducaoBaseIRRF);
+  const irrfBaseReducao = calcBaseIRRFBruta();
   let irrfVal = 0, irrfFaixa = 0;
   if (encs.irrf) {
     const ib = parseFloat(document.getElementById('f-irrf-base').value);
     irrfBase = isNaN(ib) ? irrfBase : ib;
-    const r = calcIRRF(irrfBase);
+    const r = calcIRRF(irrfBase, irrfBaseReducao);
     irrfVal = r.val; irrfFaixa = r.aliq;
     document.getElementById('f-irrf-faixa').value = irrfFaixa + '%';
     document.getElementById('f-irrf-val').value = fmtN(irrfVal);
+    document.getElementById('f-irrf-deducao').value = fmtN(deducaoBaseIRRF);
     totDesc += irrfVal;
+  } else {
+    document.getElementById('f-irrf-deducao').value = fmtN(deducaoBaseIRRF);
   }
 
   const liq = totVenc - totDesc;
@@ -629,7 +870,7 @@ function calc() {
   document.getElementById('t-desc').textContent = fmtBRL(totDesc);
   document.getElementById('t-liq').textContent = fmtBRL(liq);
   document.getElementById('t-salbase').textContent = fmtBRL(sal);
-  document.getElementById('t-salinss').textContent = fmtBRL(totVenc);
+  document.getElementById('t-salinss').textContent = fmtBRL(inssBase);
   document.getElementById('t-basefgts').textContent = fmtBRL(encs.fgts ? fgtsBase : totVenc);
   document.getElementById('t-fgts').textContent = fmtBRL(fgtsVal);
   document.getElementById('t-baseirrf').textContent = fmtBRL(irrfBase);
@@ -641,12 +882,38 @@ function calc() {
   renderPreview();
 }
 
-function calcIRRF(base) {
-  if (base <= 2259.20) return { aliq: 0, val: 0 };
-  if (base <= 2826.65) return { aliq: 7.5, val: base*0.075 - 169.44 };
-  if (base <= 3751.05) return { aliq: 15, val: base*0.15 - 381.44 };
-  if (base <= 4664.68) return { aliq: 22.5, val: base*0.225 - 662.77 };
-  return { aliq: 27.5, val: base*0.275 - 896.00 };
+function calcIRRF(base, baseReducao = base) {
+  const baseCalc = Math.max(roundFiscal(base), 0);
+  const baseReducaoCalc = Math.max(roundFiscal(baseReducao), 0);
+  let aliq = 0;
+  let valBase = 0;
+
+  if (baseCalc <= 2428.80) {
+    aliq = 0;
+    valBase = 0;
+  } else if (baseCalc <= 2826.65) {
+    aliq = 7.5;
+    valBase = (baseCalc * 0.075) - 182.16;
+  } else if (baseCalc <= 3751.05) {
+    aliq = 15;
+    valBase = (baseCalc * 0.15) - 394.16;
+  } else if (baseCalc <= 4664.68) {
+    aliq = 22.5;
+    valBase = (baseCalc * 0.225) - 675.49;
+  } else {
+    aliq = 27.5;
+    valBase = (baseCalc * 0.275) - 908.73;
+  }
+
+  valBase = Math.max(roundFiscal(valBase), 0);
+
+  // Regras 2026: isenção até R$ 5.000 e redução para R$ 5.000,01 até R$ 7.350,00.
+  if (baseReducaoCalc <= 5000) return { aliq, valBase, reducao: valBase, val: 0 };
+  if (baseReducaoCalc > 7350) return { aliq, valBase, reducao: 0, val: valBase };
+
+  const reducao = Math.max(roundFiscal(978.62 - (0.133145 * baseReducaoCalc)), 0);
+  const valorFinal = Math.max(roundFiscal(valBase - reducao), 0);
+  return { aliq, valBase, reducao, val: valorFinal };
 }
 
 // ── VERBAS ──
@@ -654,7 +921,7 @@ function addVerbaDiasNormais() {
   const dias = parseFloat(document.getElementById('f-dias').value) || 28;
   verbas.push({
     id: Date.now(), cod:'8781', desc:'DIAS NORMAIS', ref: String(dias),
-    venc: 0, desc2: 0, auto: true, autoType:'diasnormais', tipo:'venc'
+    venc: 0, desc2: 0, auto: true, autoType:'diasnormais', tipo:'venc', incideIRRF: true, incideINSS:true, incideFGTS:true
   });
   renderVerbasList();
 }
@@ -662,7 +929,7 @@ function addVerbaDiasNormais() {
 function quickAdd(type) {
   const sal = parseFloat(document.getElementById('f-sal').value) || 0;
   const salHora = sal / 220;
-  let v = { id: Date.now(), auto: false, tipo:'venc', venc:0, desc2:0, ref:'' };
+  let v = { id: Date.now(), auto: false, tipo:'venc', venc:0, desc2:0, ref:'', incideIRRF:true, incideINSS:true, incideFGTS:true };
   switch(type) {
     case 'he50':
       v = {...v, cod:'150', desc:'HORAS EXTRAS - 50%', ref:'', auto:true, autoType:'he50', tipo:'venc'};
@@ -677,7 +944,7 @@ function quickAdd(type) {
       v = {...v, cod:'583', desc:'AJUDA DE CUSTO', ref:'', tipo:'venc'};
       break;
     case 'adiant':
-      v = {...v, cod:'231', desc:'DESC. ADIANT. SALARIAL', ref:'', auto:true, autoType:'adiant', tipo:'desc'};
+      v = {...v, cod:'231', desc:'DESC. ADIANT. SALARIAL', ref:'', auto:true, autoType:'adiant', tipo:'desc', incideIRRF:false, incideINSS:false, incideFGTS:false};
       break;
     case 'pernoite':
       v = {...v, cod:'256', desc:'PERNOITE', ref:'', tipo:'venc'};
@@ -689,12 +956,20 @@ function quickAdd(type) {
       v = {...v, cod:'448', desc:'ALMOÇO MOTORISTA', ref:'', tipo:'venc'};
       break;
   }
+  const cfgTipo = configVerbas.find(c => c.id === type || c.id === v.autoType);
+  if (cfgTipo && typeof cfgTipo.compoeIRRF === 'boolean') {
+    v.incideIRRF = cfgTipo.compoeIRRF;
+  } else if (v.tipo === 'desc') v.incideIRRF = false;
+  if (cfgTipo && typeof cfgTipo.compoeINSS === 'boolean') v.incideINSS = cfgTipo.compoeINSS;
+  else if (v.tipo === 'desc') v.incideINSS = false;
+  if (cfgTipo && typeof cfgTipo.compoeFGTS === 'boolean') v.incideFGTS = cfgTipo.compoeFGTS;
+  else if (v.tipo === 'desc') v.incideFGTS = false;
   verbas.push(v);
   calc();
 }
 
 function addVerba(tipo) {
-  verbas.push({ id: Date.now(), cod:'', desc:'', ref:'', venc:0, desc2:0, auto:false, tipo });
+  verbas.push({ id: Date.now(), cod:'', desc:'', ref:'', venc:0, desc2:0, auto:false, tipo, incideIRRF: tipo !== 'desc', incideINSS: tipo !== 'desc', incideFGTS: tipo !== 'desc' });
   renderVerbasList();
 }
 
@@ -710,13 +985,13 @@ function updateVerba(id, field, val) {
   if (field === 'desc2' && v.tipo === 'venc') return;
 
   if (field === 'venc') {
-    v.venc = parseFloat(val) || 0;
+    v.venc = parseN(val);
     v.auto = false;
     calcTotaisOnly();
     renderPreview();
 
   } else if (field === 'desc2') {
-    v.desc2 = parseFloat(val) || 0;
+    v.desc2 = parseN(val);
     v.auto = false;
     calcTotaisOnly();
     renderPreview();
@@ -736,8 +1011,8 @@ function updateVerba(id, field, val) {
       const valDias = salDia * dias;
 
       const r = calcVerba(v, sal, salDia, salHora, valDias);
-      v.venc = r.venc;
-      v.desc2 = r.desc || 0;
+      v.venc = roundFiscal(r.venc);
+      v.desc2 = roundFiscal(r.desc || 0);
 
       // atualiza só os inputs de valor sem re-renderizar
       const row = document.querySelector(`.verba-row[data-id="${id}"]`);
@@ -754,8 +1029,8 @@ function updateVerba(id, field, val) {
       verbas.forEach(dsrV => {
         if (!dsrV.auto || dsrV.autoType !== 'dsrhe') return;
         const dr = calcVerba(dsrV, sal, salDia, salHora, valDias);
-        dsrV.venc = dr.venc;
-        dsrV.desc2 = dr.desc || 0;
+        dsrV.venc = roundFiscal(dr.venc);
+        dsrV.desc2 = roundFiscal(dr.desc || 0);
         const dsrRow = document.querySelector(`.verba-row[data-id="${dsrV.id}"]`);
         if (!dsrRow) return;
         const dsrVencInp = dsrRow.querySelector('[data-field="venc"]');
@@ -771,6 +1046,10 @@ function updateVerba(id, field, val) {
     } else {
       renderPreview();
     }
+  } else if (field === 'incideIRRF') {
+    v.incideIRRF = !!val;
+    calcTotaisOnly();
+    renderPreview();
 
   } else {
     v[field] = val;
@@ -787,19 +1066,29 @@ function calcTotaisOnly() {
   let totVenc = verbas.reduce((s,v)=>s+(v.venc||0),0);
   let totDesc = verbas.reduce((s,v)=>s+(v.desc2||0),0);
 
+  const inssBase = calcBaseINSSAutomatica();
   let inssVal=0;
-  if(encs.inss){const a=parseFloat(document.getElementById('f-inss-aliq').value)||0;inssVal=totVenc*a/100;totDesc+=inssVal;}
-  let fgtsBase=totVenc, fgtsVal=0;
-  if(encs.fgts){const fb=parseFloat(document.getElementById('f-fgts-base').value);fgtsBase=isNaN(fb)?totVenc:fb;fgtsVal=fgtsBase*0.08;}
-  let irrfBase=totVenc-inssVal, irrfVal=0, irrfFaixa=0;
-  if(encs.irrf){const ib=parseFloat(document.getElementById('f-irrf-base').value);irrfBase=isNaN(ib)?irrfBase:ib;const r=calcIRRF(irrfBase);irrfVal=r.val;irrfFaixa=r.aliq;totDesc+=irrfVal;}
+  if(encs.inss){
+    const manual=parseFloat(document.getElementById('f-inss-manual').value);
+    if(!isNaN(manual)) inssVal=roundFiscal(manual);
+    else inssVal=calcINSSProgressivo(inssBase).valor;
+    totDesc+=inssVal;
+  }
+  let fgtsBase=calcBaseFGTSAutomatica(), fgtsVal=0;
+  if(encs.fgts){const fb=parseFloat(document.getElementById('f-fgts-base').value);fgtsBase=isNaN(fb)?calcBaseFGTSAutomatica():fb;fgtsVal=roundFiscal(fgtsBase*0.08);}
+  const deducaoBaseIRRF=calcDeducaoBaseIRRF(inssVal);
+  if (document.getElementById('f-irrf-deducao')) {
+    document.getElementById('f-irrf-deducao').value = fmtN(deducaoBaseIRRF);
+  }
+  let irrfBase=calcBaseIRRFAutomatica(deducaoBaseIRRF), irrfVal=0, irrfFaixa=0;
+  if(encs.irrf){const ib=parseFloat(document.getElementById('f-irrf-base').value);irrfBase=isNaN(ib)?irrfBase:ib;const r=calcIRRF(irrfBase, calcBaseIRRFBruta());irrfVal=r.val;irrfFaixa=r.aliq;totDesc+=irrfVal;}
 
   const liq = totVenc - totDesc;
   document.getElementById('t-venc').textContent = fmtBRL(totVenc);
   document.getElementById('t-desc').textContent = fmtBRL(totDesc);
   document.getElementById('t-liq').textContent = fmtBRL(liq);
   document.getElementById('t-salbase').textContent = fmtBRL(sal);
-  document.getElementById('t-salinss').textContent = fmtBRL(totVenc);
+  document.getElementById('t-salinss').textContent = fmtBRL(inssBase);
   document.getElementById('t-basefgts').textContent = fmtBRL(encs.fgts?fgtsBase:totVenc);
   document.getElementById('t-fgts').textContent = fmtBRL(fgtsVal);
   document.getElementById('t-baseirrf').textContent = fmtBRL(irrfBase);
@@ -821,12 +1110,14 @@ function renderVerbasList() {
     const refLabel = v.autoType==='he50'||v.autoType==='he100' ? 'horas' :
                      v.autoType==='adicfunc'||v.autoType==='premiotempo' ? '%' :
                      cfgV ? cfgV.refLabel : '';
+    const incideIRRF = verbaIncideIRRF(v);
     return `<div class="verba-row" data-id="${v.id}">
       <input value="${escHtml(v.cod||'')}" placeholder="Cód" style="text-align:left" oninput="updateVerba(${v.id},'cod',this.value)">
       <input value="${escHtml(v.desc||'')}" placeholder="Descrição do lançamento" class="desc-input" style="text-align:left;font-size:.82rem" oninput="updateVerba(${v.id},'desc',this.value)">
       <input value="${escHtml(v.ref||'')}" placeholder="${refLabel||'ref'}" oninput="updateVerba(${v.id},'ref',this.value)">
       <input value="${v.venc > 0 ? fmtN(v.venc) : ''}" placeholder="0,00" class="${vencCls}" ${lockVenc ? 'readonly' : ''} oninput="updateVerba(${v.id},'venc',this.value)" data-field="venc">
-      <input value="${v.desc2 > 0 ? fmtN(v.desc2) : v.tipo==='desc'&&v.ref ? fmtN(parseFloat(v.ref)||0) : ''}" placeholder="0,00" class="${descCls}" ${lockDesc ? 'readonly' : ''} oninput="updateVerba(${v.id},'desc2',this.value)" data-field="desc2">
+      <input value="${v.desc2 > 0 ? fmtN(v.desc2) : v.tipo==='desc'&&v.ref ? fmtN(parseN(v.ref)||0) : ''}" placeholder="0,00" class="${descCls}" ${lockDesc ? 'readonly' : ''} oninput="updateVerba(${v.id},'desc2',this.value)" data-field="desc2">
+      <label class="irrf-flag"><input type="checkbox" ${incideIRRF ? 'checked' : ''} ${v.tipo === 'desc' ? 'disabled' : ''} onchange="updateVerba(${v.id},'incideIRRF',this.checked)"></label>
       <button class="btn-rm" onclick="removeVerba(${v.id})">×</button>
     </div>`;
   }).join('');
@@ -844,12 +1135,19 @@ function getData() {
   const salDia = sal/diasMes, salHora = sal/220, valDias = salDia*dias;
 
   let totVenc = verbas.reduce((s,v)=>s+(v.venc||0),0);
-  let totDesc = verbas.reduce((s,v)=>s+(v.desc2||0)+(v.tipo==='desc'&&v.auto?parseFloat(v.ref)||0:0),0);
+  let totDesc = verbas.reduce((s,v)=>s+(v.desc2||0)+(v.tipo==='desc'&&v.auto?parseN(v.ref)||0:0),0);
 
-  let inssVal=0, fgtsBase=totVenc, fgtsVal=0, irrfBase=totVenc, irrfVal=0, irrfFaixa=0;
-  if(encs.inss){const a=parseFloat(document.getElementById('f-inss-aliq').value)||0;inssVal=totVenc*a/100;totDesc+=inssVal;}
-  if(encs.fgts){const fb=parseFloat(document.getElementById('f-fgts-base').value);fgtsBase=isNaN(fb)?totVenc:fb;fgtsVal=fgtsBase*0.08;}
-  if(encs.irrf){const ib=parseFloat(document.getElementById('f-irrf-base').value);irrfBase=isNaN(ib)?totVenc-inssVal:ib;const r=calcIRRF(irrfBase);irrfVal=r.val;irrfFaixa=r.aliq;totDesc+=irrfVal;}
+  const inssBase = calcBaseINSSAutomatica();
+  let inssVal=0, fgtsBase=calcBaseFGTSAutomatica(), fgtsVal=0, irrfBase=0, irrfVal=0, irrfFaixa=0;
+  if(encs.inss){
+    const manual=parseFloat(document.getElementById('f-inss-manual').value);
+    if(!isNaN(manual)) inssVal=roundFiscal(manual);
+    else inssVal=calcINSSProgressivo(inssBase).valor;
+    totDesc+=inssVal;
+  }
+  if(encs.fgts){const fb=parseFloat(document.getElementById('f-fgts-base').value);fgtsBase=isNaN(fb)?calcBaseFGTSAutomatica():fb;fgtsVal=roundFiscal(fgtsBase*0.08);}
+  const deducaoBaseIRRF=calcDeducaoBaseIRRF(inssVal);
+  if(encs.irrf){const ib=parseFloat(document.getElementById('f-irrf-base').value);irrfBase=isNaN(ib)?calcBaseIRRFAutomatica(deducaoBaseIRRF):ib;const r=calcIRRF(irrfBase, calcBaseIRRFBruta());irrfVal=r.val;irrfFaixa=r.aliq;totDesc+=irrfVal;}
 
   const comp = document.getElementById('f-comp').value;
   const compFmt = comp ? (() => { const [y,m]=comp.split('-'); const meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro']; return meses[parseInt(m)-1]+' de '+y; })() : '';
@@ -870,7 +1168,7 @@ function getData() {
     sal, dias, diasMes, diasUteis, diasDSR, salDia, salHora, valDias,
     verbas: verbas.map(v=>({...v})),
     totVenc, totDesc, liq: totVenc-totDesc,
-    inssVal, fgtsBase, fgtsVal, irrfBase, irrfVal, irrfFaixa,
+    inssBase, inssVal, fgtsBase, fgtsVal, irrfBase, irrfVal, irrfFaixa,
     encs: {...encs},
     savedAt: new Date().toISOString()
   };
@@ -918,7 +1216,7 @@ d.verbas
   .filter(v => v.autoType !== 'diasnormais' && v.autoType !== 'dsrhe')
   .forEach(v=>{
     const vencVal = v.venc > 0 ? fmtN2(v.venc) : '';
-    const dv = v.desc2 > 0 ? v.desc2 : (v.tipo==='desc'&&v.ref ? parseFloat(v.ref)||0 : 0);
+    const dv = v.desc2 > 0 ? v.desc2 : (v.tipo==='desc'&&v.ref ? parseN(v.ref)||0 : 0);
     const descVal = dv > 0 ? fmtN2(dv) : '';
     rowsData.push({
       cod:v.cod||'',
@@ -928,6 +1226,37 @@ d.verbas
       descv:descVal
     });
   });
+
+// 🔥 ENCARGOS COMO LINHAS DE DESCONTO/INFORMATIVO NO RECIBO
+if (d.encs.inss && d.inssVal > 0) {
+  rowsData.push({
+    cod:'9981',
+    desc:'DESCONTO INSS',
+    ref:'',
+    venc:'',
+    descv:fmtN2(d.inssVal)
+  });
+}
+
+if (d.encs.irrf && d.irrfVal > 0) {
+  rowsData.push({
+    cod:'9982',
+    desc:'DESCONTO IRRF',
+    ref:d.irrfFaixa ? `${String(d.irrfFaixa).replace('.',',')}%` : '',
+    venc:'',
+    descv:fmtN2(d.irrfVal)
+  });
+}
+
+if (d.encs.fgts && d.fgtsVal > 0) {
+  rowsData.push({
+    cod:'9983',
+    desc:'FGTS (INFORMATIVO)',
+    ref:`R$ ${fmtN2(d.fgtsVal)}`,
+    venc:'',
+    descv:''
+  });
+}
 
 // 🔥 DSR FIXO
 const dsr = d.verbas.find(v=>v.autoType==='dsrhe');
@@ -1009,7 +1338,7 @@ if(dsr) rowsData.push({
           ${(d.encs.inss || d.encs.fgts || d.encs.irrf) ? `
           <div class="rec-tot-row">
             <div class="rtc"><span class="rtc-lbl">Salário Base</span><span class="rtc-val" style="text-align:left">R$ ${fmtN2(d.sal)}</span></div>
-            ${d.encs.inss ? `<div class="rtc"><span class="rtc-lbl">Sal. Contr. INSS</span><span class="rtc-val" style="text-align:left">R$ ${fmtN2(d.totVenc)}</span></div>` : '<div class="rtc"></div>'}
+            ${d.encs.inss ? `<div class="rtc"><span class="rtc-lbl">Sal. Contr. INSS</span><span class="rtc-val" style="text-align:left">R$ ${fmtN2(d.inssBase || 0)}</span></div>` : '<div class="rtc"></div>'}
             ${d.encs.fgts ? `<div class="rtc"><span class="rtc-lbl">Base Cálc. FGTS</span><span class="rtc-val" style="text-align:left">R$ ${fmtN2(d.fgtsBase)}</span></div>` : '<div class="rtc"></div>'}
             ${d.encs.fgts ? `<div class="rtc"><span class="rtc-lbl">F.G.T.S do Mês</span><span class="rtc-val">R$ ${fmtN2(d.fgtsVal)}</span></div>` : '<div class="rtc"></div>'}
             ${d.encs.irrf ? `<div class="rtc"><span class="rtc-lbl">Base Cálc. IRRF</span><span class="rtc-val">R$ ${fmtN2(d.irrfBase)}</span></div>` : '<div class="rtc"></div>'}
@@ -1180,6 +1509,7 @@ async function showHist() {
   document.getElementById('pg-hist').style.display='block';
   document.getElementById('pg-config').style.display='none';
   document.getElementById('pg-empresas').style.display='none';
+  document.getElementById('pg-feriados').style.display='none';
 
   document.getElementById('hist-grid').innerHTML =
     '<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--ink3)">Carregando...</div>';
@@ -1216,13 +1546,113 @@ function showMain() {
   document.getElementById('pg-hist').style.display='none';
   document.getElementById('pg-config').style.display='none';
   document.getElementById('pg-empresas').style.display='none';
+  document.getElementById('pg-feriados').style.display='none';
   document.getElementById('pg-admin').style.display='none';
   syncQuickAddButtons();
 }
 
 function showHist_wrapper() {
   document.getElementById('pg-empresas').style.display='none';
+  document.getElementById('pg-feriados').style.display='none';
   showHist();
+}
+
+function getFeriadosScope() {
+  const scope = document.getElementById('fer-scope')?.value || 'global';
+  if (scope === 'empresa') {
+    const empresaId = document.getElementById('fer-empresa')?.value || '';
+    return { scope, key: empresaId, label: 'Empresa' };
+  }
+  if (scope === 'cidade') {
+    const cityKey = normalizeCityKey(document.getElementById('fer-cidade')?.value || '');
+    return { scope, key: cityKey, label: 'Cidade' };
+  }
+  return { scope: 'global', key: 'global', label: 'Geral' };
+}
+
+function getFeriadosArrayByScope(scope, key) {
+  if (scope === 'empresa') return feriadosConfig.byEmpresa[key] || [];
+  if (scope === 'cidade') return feriadosConfig.byCity[key] || [];
+  return feriadosConfig.global || [];
+}
+
+function setFeriadosArrayByScope(scope, key, arr) {
+  const clean = uniqueSortedDates(arr);
+  if (scope === 'empresa') {
+    if (!key) return;
+    feriadosConfig.byEmpresa[key] = clean;
+    return;
+  }
+  if (scope === 'cidade') {
+    if (!key) return;
+    feriadosConfig.byCity[key] = clean;
+    return;
+  }
+  feriadosConfig.global = clean;
+}
+
+function renderFeriadosPage() {
+  const empresaSel = document.getElementById('fer-empresa');
+  if (empresaSel) {
+    empresaSel.innerHTML = '<option value="">Selecione a empresa</option>' + empresasList.map(e => `<option value="${e.id}">${e.nome}${e.cnpj ? ' — '+e.cnpj : ''}</option>`).join('');
+  }
+
+  const { scope, key, label } = getFeriadosScope();
+  const cityWrap = document.getElementById('fer-cidade-wrap');
+  const empWrap = document.getElementById('fer-empresa-wrap');
+  if (cityWrap) cityWrap.style.display = scope === 'cidade' ? 'block' : 'none';
+  if (empWrap) empWrap.style.display = scope === 'empresa' ? 'block' : 'none';
+
+  const list = document.getElementById('feriados-list');
+  if (!list) return;
+  if ((scope === 'cidade' || scope === 'empresa') && !key) {
+    list.innerHTML = '<div style="color:var(--ink3)">Selecione o contexto para listar os feriados.</div>';
+    return;
+  }
+  const datas = getFeriadosArrayByScope(scope, key);
+  if (!datas.length) {
+    list.innerHTML = '<div style="color:var(--ink3)">Nenhum feriado cadastrado neste contexto.</div>';
+    return;
+  }
+  list.innerHTML = datas.map(d => `<div style="display:flex;justify-content:space-between;align-items:center;padding:.4rem .5rem;border:1px solid var(--border);border-radius:6px;background:#fff">
+    <span style="font-family:'Inconsolata',monospace">${d}</span>
+    <button class="btn-rm" onclick="removerFeriado('${d}')">×</button>
+  </div>`).join('');
+  const ctx = document.getElementById('fer-context-label');
+  if (ctx) ctx.textContent = `${label}${key ? `: ${key}` : ''}`;
+}
+
+function addFeriado() {
+  const data = document.getElementById('fer-data')?.value;
+  if (!data) return toast('Selecione a data do feriado.', 'err');
+  const { scope, key } = getFeriadosScope();
+  if ((scope === 'cidade' || scope === 'empresa') && !key) {
+    return toast('Selecione cidade/empresa para cadastrar o feriado.', 'err');
+  }
+  const arr = getFeriadosArrayByScope(scope, key);
+  setFeriadosArrayByScope(scope, key, [...arr, data]);
+  saveFeriadosConfig();
+  renderFeriadosPage();
+  calc();
+}
+
+function removerFeriado(data) {
+  const { scope, key } = getFeriadosScope();
+  const arr = getFeriadosArrayByScope(scope, key).filter(d => d !== data);
+  setFeriadosArrayByScope(scope, key, arr);
+  saveFeriadosConfig();
+  renderFeriadosPage();
+  calc();
+}
+
+function showFeriados() {
+  document.getElementById('pg-main').style.display='none';
+  document.getElementById('pg-hist').style.display='none';
+  document.getElementById('pg-config').style.display='none';
+  document.getElementById('pg-empresas').style.display='none';
+  document.getElementById('pg-admin').style.display='none';
+  document.getElementById('pg-feriados').style.display='block';
+  renderFeriadosPage();
 }
 
 function renderHist() {
@@ -1254,14 +1684,6 @@ function loadRec(id) {
   setV('f-sal',h.sal); setV('f-dias',h.dias); setV('f-diasmes',h.diasMes);
   setV('f-diasuteis',h.diasUteis);
   setV('f-diasdsr',h.diasDSR);
-  if (!document.getElementById('f-diasuteis').value) {
-    const dm = parseFloat(h.diasMes) || 30;
-    document.getElementById('f-diasuteis').value = Math.max(dm - 6, 0);
-  }
-  if (!document.getElementById('f-diasdsr').value) {
-    const dm = parseFloat(h.diasMes) || 30;
-    document.getElementById('f-diasdsr').value = Math.min(6, dm);
-  }
 
   if(h.comp) {
     const meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -1310,7 +1732,7 @@ async function delRec(id){
 
 function novoRecibo() {
   editId=null;
-  ['f-emp','f-cnpj','f-func','f-cargo','f-sal','f-dias','f-admissao'].forEach(id=>{
+  ['f-emp','f-cnpj','f-func','f-cargo','f-sal','f-dias','f-admissao','f-inss-aliq','f-inss-manual','f-inss-val','f-fgts-base','f-fgts-val','f-irrf-base','f-irrf-faixa','f-irrf-val','f-irrf-dependentes','f-irrf-deducao'].forEach(id=>{
     const e=document.getElementById(id); if(e) e.value='';
   });
   const now=new Date();
@@ -1319,8 +1741,7 @@ function novoRecibo() {
   const dias=new Date(y,now.getMonth()+1,0).getDate();
   document.getElementById('f-diasmes').value=dias;
   document.getElementById('f-dias').value=dias;
-  document.getElementById('f-diasuteis').value=Math.max(dias-6,0);
-  document.getElementById('f-diasdsr').value=Math.min(6,dias);
+  applyAutoDiasHE();
   verbas=[];
   encs={inss:false,fgts:false,irrf:false};
   ['inss','fgts','irrf'].forEach(k=>{
@@ -1362,6 +1783,7 @@ function showConfig() {
   document.getElementById('pg-hist').style.display='none';
   document.getElementById('pg-config').style.display='block';
   document.getElementById('pg-empresas').style.display='none';
+  document.getElementById('pg-feriados').style.display='none';
   renderConfigVerbas();
   renderQuickList();
   document.getElementById('cfg-horas-mes').value = configParams.horasMes;
@@ -1375,6 +1797,7 @@ function showMain_config() {
   document.getElementById('pg-hist').style.display='none';
   document.getElementById('pg-config').style.display='none';
   document.getElementById('pg-empresas').style.display='none';
+  document.getElementById('pg-feriados').style.display='none';
   // sync quickAdd buttons com configVerbas
   syncQuickAddButtons();
 }
@@ -1393,6 +1816,9 @@ function renderConfigVerbas() {
       </td>
       <td><input value="${v.refLabel}" oninput="updateConfigVerba(${i},'refLabel',this.value)" placeholder="ex: horas"></td>
       <td style="text-align:center"><input type="checkbox" ${v.compoeHE ? 'checked' : ''} onchange="updateConfigVerba(${i},'compoeHE',this.checked)"></td>
+      <td style="text-align:center"><input type="checkbox" ${v.compoeIRRF ? 'checked' : ''} onchange="updateConfigVerba(${i},'compoeIRRF',this.checked)"></td>
+      <td style="text-align:center"><input type="checkbox" ${v.compoeINSS ? 'checked' : ''} onchange="updateConfigVerba(${i},'compoeINSS',this.checked)"></td>
+      <td style="text-align:center"><input type="checkbox" ${v.compoeFGTS ? 'checked' : ''} onchange="updateConfigVerba(${i},'compoeFGTS',this.checked)"></td>
       <td><input value="${v.formulaVenc}" oninput="updateConfigVerba(${i},'formulaVenc',this.value)" placeholder="ex: ref * salHora * 1.5" style="font-family:'Inconsolata',monospace;font-size:.78rem"></td>
       <td><input value="${v.formulaDesc}" oninput="updateConfigVerba(${i},'formulaDesc',this.value)" placeholder="ex: ref" style="font-family:'Inconsolata',monospace;font-size:.78rem"></td>
       <td><button class="btn-del-config" onclick="delConfigVerba(${i})">×</button></td>
@@ -1413,13 +1839,18 @@ function renderQuickList() {
 
 function updateConfigVerba(i, field, val) {
   configVerbas[i][field] = val;
+  if (field === 'tipo' && val === 'desc') {
+    configVerbas[i].compoeIRRF = false;
+    configVerbas[i].compoeINSS = false;
+    configVerbas[i].compoeFGTS = false;
+  }
   localStorage.setItem('cfg_verbas', JSON.stringify(configVerbas));
 }
 
 function addConfigVerba() {
   configVerbas.push({
     id: 'custom_'+Date.now(), cod:'', desc:'Nova Verba',
-    tipo:'venc', refLabel:'valor', formulaVenc:'ref', formulaDesc:'', compoeHE:false
+    tipo:'venc', refLabel:'valor', formulaVenc:'ref', formulaDesc:'', compoeHE:false, compoeIRRF:true, compoeINSS:true, compoeFGTS:true
   });
   localStorage.setItem('cfg_verbas', JSON.stringify(configVerbas));
   renderConfigVerbas();
@@ -1449,6 +1880,9 @@ function quickAddConfig(id) {
     ref:'', venc:0, desc2:0,
     auto: !!(cfg.formulaVenc||cfg.formulaDesc),
     autoType: cfg.id, tipo: cfg.tipo,
+    incideIRRF: typeof cfg.compoeIRRF === 'boolean' ? cfg.compoeIRRF : cfg.tipo !== 'desc',
+    incideINSS: typeof cfg.compoeINSS === 'boolean' ? cfg.compoeINSS : cfg.tipo !== 'desc',
+    incideFGTS: typeof cfg.compoeFGTS === 'boolean' ? cfg.compoeFGTS : cfg.tipo !== 'desc',
     formulaVenc: cfg.formulaVenc, formulaDesc: cfg.formulaDesc,
     refLabel: cfg.refLabel
   });
@@ -1458,7 +1892,7 @@ function quickAddConfig(id) {
 // sobrescreve calcVerba para usar fórmulas configuráveis
 function calcVerba(v, sal, salDia, salHora, valDias) {
   let venc = 0, desc = 0;
-  const ref = parseFloat(v.ref)||0;
+  const ref = parseN(v.ref)||0;
   const horasMes = configParams.horasMes||220;
   const salHoraCalc = sal / horasMes;
   const diasTrab = parseFloat(document.getElementById('f-dias').value) || 0;
@@ -1474,7 +1908,7 @@ function calcVerba(v, sal, salDia, salHora, valDias) {
     .reduce((sum, h) => {
       const valorVenc = parseFloat(h.venc) || 0;
       if (valorVenc > 0) return sum + valorVenc;
-      const refHE = parseFloat(h.ref) || 0;
+      const refHE = parseN(h.ref) || 0;
       if (h.autoType === 'he50') return sum + (refHE * salHoraCalc * (configParams.he50Mult || 1.5));
       if (h.autoType === 'he100') return sum + (refHE * salHoraCalc * (configParams.he100Mult || 2));
       return sum;
@@ -1484,13 +1918,13 @@ function calcVerba(v, sal, salDia, salHora, valDias) {
   switch(v.autoType) {
 
     case 'diasnormais':
-      return { venc: valDias, desc: 0 };
+      return { venc: roundFiscal(valDias), desc: 0 };
 
     case 'he50':
-      return { venc: ref * salHoraCalc * (configParams.he50Mult||1.5), desc: 0 };
+      return { venc: roundFiscal(ref * salHoraCalc * (configParams.he50Mult||1.5)), desc: 0 };
 
     case 'he100':
-      return { venc: ref * salHoraCalc * (configParams.he100Mult||2.0), desc: 0 };
+      return { venc: roundFiscal(ref * salHoraCalc * (configParams.he100Mult||2.0)), desc: 0 };
 
     case 'dsrhe':
       // mantém fórmula padrão se a verba DSR estiver sem fórmula configurada
@@ -1499,7 +1933,7 @@ function calcVerba(v, sal, salDia, salHora, valDias) {
           return { venc: 0, desc: 0 };
         }
         const dsr = (totalHE / diasTrab) * (diasMes - diasTrab);
-        return { venc: dsr, desc: 0 };
+        return { venc: roundFiscal(dsr), desc: 0 };
       }
       break;
   }
@@ -1525,25 +1959,25 @@ function calcVerba(v, sal, salDia, salHora, valDias) {
 
     venc = runFormula(cfg.formulaVenc);
     desc = runFormula(cfg.formulaDesc);
-    return { venc, desc };
+    return { venc: roundFiscal(venc), desc: roundFiscal(desc) };
   }
 
   // legado
   switch(v.autoType) {
     case 'adicfunc':
-      venc = sal*(parseFloat(v.ref)||0)/100;
+      venc = sal*(parseN(v.ref)||0)/100;
       break;
 
     case 'premiotempo':
-      venc = sal*(parseFloat(v.ref)||0)/100;
+      venc = sal*(parseN(v.ref)||0)/100;
       break;
 
     case 'adiant':
-      desc = parseFloat(v.ref)||0;
+      desc = parseN(v.ref)||0;
       break;
   }
 
-  return { venc, desc };
+  return { venc: roundFiscal(venc), desc: roundFiscal(desc) };
 }
 
   
@@ -1565,7 +1999,7 @@ let adminData = { recibos: [], grupos: [], empresas: [] };
 
 async function showAdmin() {
   if (!currentUser?.isAdmin) return;
-  ['pg-main','pg-hist','pg-config','pg-empresas'].forEach(id => {
+  ['pg-main','pg-hist','pg-config','pg-empresas','pg-feriados'].forEach(id => {
     document.getElementById(id).style.display = 'none';
   });
   document.getElementById('pg-admin').style.display = 'block';
