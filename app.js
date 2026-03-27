@@ -549,6 +549,20 @@ function renderQuickAddButtons() {
 }
 
 function ensureFixedVerbas() {
+  const dedupeByAutoType = (autoType) => {
+    const itens = verbas.filter(v => v.autoType === autoType);
+    if (itens.length <= 1) return;
+    let first = true;
+    verbas = verbas.filter(v => {
+      if (v.autoType !== autoType) return true;
+      if (first) { first = false; return true; }
+      return false;
+    });
+  };
+
+  dedupeByAutoType('diasnormais');
+  dedupeByAutoType('dsrhe');
+
   if (!verbas.find(v => v.autoType === 'diasnormais')) {
     addVerbaDiasNormais();
   }
@@ -673,10 +687,14 @@ function calc() {
     document.getElementById('f-diasmes').value = diasMes;
   }
   const diasMes = parseFloat(document.getElementById('f-diasmes').value) || 30;
+  const diasLimitados = Math.max(0, Math.min(dias, diasMes));
+  if (dias !== diasLimitados) {
+    document.getElementById('f-dias').value = diasLimitados;
+  }
 
   const salDia = diasMes > 0 ? sal / diasMes : 0;
   const salHora = sal / 220;
-  const valDias = salDia * dias;
+  const valDias = salDia * diasLimitados;
 
   document.getElementById('f-saldia').value = fmtN(salDia);
   document.getElementById('f-salhora').value = fmtN(salHora);
@@ -686,16 +704,16 @@ function calc() {
   verbas.forEach(v => {
     if (v.auto && v.autoType !== 'dsrhe') {
       const r = calcVerba(v, sal, salDia, salHora, valDias);
-      v.venc = r.venc;
-      v.desc2 = r.desc || 0;
+      v.venc = roundFiscal(r.venc);
+      v.desc2 = roundFiscal(r.desc || 0);
     }
   });
   
   verbas.forEach(v => {
     if (v.auto && v.autoType === 'dsrhe') {
       const r = calcVerba(v, sal, salDia, salHora, valDias);
-      v.venc = r.venc;
-      v.desc2 = r.desc || 0;
+      v.venc = roundFiscal(r.venc);
+      v.desc2 = roundFiscal(r.desc || 0);
     }
   });
 
@@ -898,8 +916,8 @@ function updateVerba(id, field, val) {
       const valDias = salDia * dias;
 
       const r = calcVerba(v, sal, salDia, salHora, valDias);
-      v.venc = r.venc;
-      v.desc2 = r.desc || 0;
+      v.venc = roundFiscal(r.venc);
+      v.desc2 = roundFiscal(r.desc || 0);
 
       // atualiza só os inputs de valor sem re-renderizar
       const row = document.querySelector(`.verba-row[data-id="${id}"]`);
@@ -916,8 +934,8 @@ function updateVerba(id, field, val) {
       verbas.forEach(dsrV => {
         if (!dsrV.auto || dsrV.autoType !== 'dsrhe') return;
         const dr = calcVerba(dsrV, sal, salDia, salHora, valDias);
-        dsrV.venc = dr.venc;
-        dsrV.desc2 = dr.desc || 0;
+        dsrV.venc = roundFiscal(dr.venc);
+        dsrV.desc2 = roundFiscal(dr.desc || 0);
         const dsrRow = document.querySelector(`.verba-row[data-id="${dsrV.id}"]`);
         if (!dsrRow) return;
         const dsrVencInp = dsrRow.querySelector('[data-field="venc"]');
@@ -1711,13 +1729,13 @@ function calcVerba(v, sal, salDia, salHora, valDias) {
   switch(v.autoType) {
 
     case 'diasnormais':
-      return { venc: valDias, desc: 0 };
+      return { venc: roundFiscal(valDias), desc: 0 };
 
     case 'he50':
-      return { venc: ref * salHoraCalc * (configParams.he50Mult||1.5), desc: 0 };
+      return { venc: roundFiscal(ref * salHoraCalc * (configParams.he50Mult||1.5)), desc: 0 };
 
     case 'he100':
-      return { venc: ref * salHoraCalc * (configParams.he100Mult||2.0), desc: 0 };
+      return { venc: roundFiscal(ref * salHoraCalc * (configParams.he100Mult||2.0)), desc: 0 };
 
     case 'dsrhe':
       // mantém fórmula padrão se a verba DSR estiver sem fórmula configurada
@@ -1726,7 +1744,7 @@ function calcVerba(v, sal, salDia, salHora, valDias) {
           return { venc: 0, desc: 0 };
         }
         const dsr = (totalHE / diasTrab) * (diasMes - diasTrab);
-        return { venc: dsr, desc: 0 };
+        return { venc: roundFiscal(dsr), desc: 0 };
       }
       break;
   }
@@ -1752,7 +1770,7 @@ function calcVerba(v, sal, salDia, salHora, valDias) {
 
     venc = runFormula(cfg.formulaVenc);
     desc = runFormula(cfg.formulaDesc);
-    return { venc, desc };
+    return { venc: roundFiscal(venc), desc: roundFiscal(desc) };
   }
 
   // legado
@@ -1770,7 +1788,7 @@ function calcVerba(v, sal, salDia, salHora, valDias) {
       break;
   }
 
-  return { venc, desc };
+  return { venc: roundFiscal(venc), desc: roundFiscal(desc) };
 }
 
   
