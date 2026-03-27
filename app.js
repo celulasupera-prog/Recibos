@@ -246,9 +246,7 @@ function renderEmpresasList() {
 
         <button class="hcbtn" onclick="editarEmpresa('${e.id}')">✏ Editar</button>
 
-        ${!currentUser.isAdmin 
-          ? `<button class="hcbtn d" onclick="deletarEmpresa('${e.id}')">✕ Remover</button>` 
-          : ''}
+        <button class="hcbtn d" onclick="deletarEmpresa('${e.id}')">🗑 Excluir</button>
       </div>
 
     </div>
@@ -328,7 +326,7 @@ async function salvarEmpresa() {
 }
 
 async function deletarEmpresa(id) {
-  if (!confirm('Remover esta empresa?')) return;
+  if (!confirm('Tem certeza que quer excluir?')) return;
   try {
     await sbFetch('empresas?id=eq.' + id, { method: 'DELETE' });
     empresasList = empresasList.filter(e => e.id !== id);
