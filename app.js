@@ -698,12 +698,11 @@ function calcIRRF(base) {
 
   valBase = Math.max(roundFiscal(valBase), 0);
 
-  // Regras 2026: isenção até R$ 5.000 e redução linear de R$ 5.000,01 até R$ 7.350,00.
+  // Regras 2026: isenção até R$ 5.000 e redução para R$ 5.000,01 até R$ 7.350,00.
   if (baseCalc <= 5000) return { aliq, valBase, reducao: valBase, val: 0 };
   if (baseCalc > 7350) return { aliq, valBase, reducao: 0, val: valBase };
 
-  const fatorReducao = (7350 - baseCalc) / (7350 - 5000);
-  const reducao = roundFiscal(valBase * fatorReducao);
+  const reducao = roundFiscal(978.62 - (0.133145 * baseCalc));
   const valorFinal = Math.max(roundFiscal(valBase - reducao), 0);
   return { aliq, valBase, reducao, val: valorFinal };
 }
