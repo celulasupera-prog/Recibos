@@ -24,18 +24,22 @@ function safeParseJSON(raw, fallback) {
   }
 }
 
+function normalizeConfigVerba(v) {
+  return {
+    ...v,
+    compoeHE: !!v.compoeHE,
+    compoeIRRF: typeof v.compoeIRRF === 'boolean' ? v.compoeIRRF : v.tipo !== 'desc',
+    compoeINSS: typeof v.compoeINSS === 'boolean' ? v.compoeINSS : v.tipo !== 'desc',
+    compoeFGTS: typeof v.compoeFGTS === 'boolean' ? v.compoeFGTS : v.tipo !== 'desc',
+  };
+}
+
 let configVerbas = safeParseJSON(localStorage.getItem('cfg_verbas'), null);
 if (!Array.isArray(configVerbas) || !configVerbas.length) {
-  configVerbas = DEFAULT_CONFIG_VERBAS.map(v => ({ ...v }));
+  configVerbas = DEFAULT_CONFIG_VERBAS.map(v => normalizeConfigVerba({ ...v }));
+} else {
+  configVerbas = configVerbas.map(v => normalizeConfigVerba(v));
 }
-configVerbas = configVerbas.map(v => ({
-  ...v,
-  compoeHE: !!v.compoeHE,
-  compoeIRRF: typeof v.compoeIRRF === 'boolean' ? v.compoeIRRF : v.tipo !== 'desc',
-  compoeINSS: typeof v.compoeINSS === 'boolean' ? v.compoeINSS : v.tipo !== 'desc',
-  compoeFGTS: typeof v.compoeFGTS === 'boolean' ? v.compoeFGTS : v.tipo !== 'desc'
-  compoeIRRF: typeof v.compoeIRRF === 'boolean' ? v.compoeIRRF : v.tipo !== 'desc'
-}));
 
 let configParams = safeParseJSON(localStorage.getItem('cfg_params'), null);
 if (!configParams || typeof configParams !== 'object') {
