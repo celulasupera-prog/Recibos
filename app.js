@@ -614,6 +614,10 @@ function calcBaseIRRFAutomatica(deducaoBaseIRRF) {
   return roundFiscal(baseComVerbas - (deducaoBaseIRRF || 0));
 }
 
+function calcBaseIRRFBruta() {
+  return roundFiscal(verbas.reduce((s, v) => s + (verbaIncideIRRF(v) ? (parseFloat(v.venc) || 0) : 0), 0));
+}
+
 function calcBaseINSSAutomatica() {
   return roundFiscal(verbas.reduce((s, v) => s + (verbaIncideINSS(v) ? (parseFloat(v.venc) || 0) : 0), 0));
 }
@@ -732,11 +736,12 @@ function calc() {
   // IRRF
   const deducaoBaseIRRF = calcDeducaoBaseIRRF(inssVal);
   let irrfBase = calcBaseIRRFAutomatica(deducaoBaseIRRF);
+  const irrfBaseReducao = calcBaseIRRFBruta();
   let irrfVal = 0, irrfFaixa = 0;
   if (encs.irrf) {
     const ib = parseFloat(document.getElementById('f-irrf-base').value);
     irrfBase = isNaN(ib) ? irrfBase : ib;
-    const r = calcIRRF(irrfBase);
+    const r = calcIRRF(irrfBase, irrfBaseReducao);
     irrfVal = r.val; irrfFaixa = r.aliq;
     document.getElementById('f-irrf-faixa').value = irrfFaixa + '%';
     document.getElementById('f-irrf-val').value = fmtN(irrfVal);
@@ -764,8 +769,9 @@ function calc() {
   renderPreview();
 }
 
-function calcIRRF(base) {
+function calcIRRF(base, baseReducao = base) {
   const baseCalc = Math.max(roundFiscal(base), 0);
+  const baseReducaoCalc = Math.max(roundFiscal(baseReducao), 0);
   let aliq = 0;
   let valBase = 0;
 
@@ -789,10 +795,10 @@ function calcIRRF(base) {
   valBase = Math.max(roundFiscal(valBase), 0);
 
   // Regras 2026: isenção até R$ 5.000 e redução para R$ 5.000,01 até R$ 7.350,00.
-  if (baseCalc <= 5000) return { aliq, valBase, reducao: valBase, val: 0 };
-  if (baseCalc > 7350) return { aliq, valBase, reducao: 0, val: valBase };
+  if (baseReducaoCalc <= 5000) return { aliq, valBase, reducao: valBase, val: 0 };
+  if (baseReducaoCalc > 7350) return { aliq, valBase, reducao: 0, val: valBase };
 
-  const reducao = Math.max(roundFiscal(978.62 - (0.133145 * baseCalc)), 0);
+  const reducao = Math.max(roundFiscal(978.62 - (0.133145 * baseReducaoCalc)), 0);
   const valorFinal = Math.max(roundFiscal(valBase - reducao), 0);
   return { aliq, valBase, reducao, val: valorFinal };
 }
@@ -962,7 +968,7 @@ function calcTotaisOnly() {
     document.getElementById('f-irrf-deducao').value = fmtN(deducaoBaseIRRF);
   }
   let irrfBase=calcBaseIRRFAutomatica(deducaoBaseIRRF), irrfVal=0, irrfFaixa=0;
-  if(encs.irrf){const ib=parseFloat(document.getElementById('f-irrf-base').value);irrfBase=isNaN(ib)?irrfBase:ib;const r=calcIRRF(irrfBase);irrfVal=r.val;irrfFaixa=r.aliq;totDesc+=irrfVal;}
+  if(encs.irrf){const ib=parseFloat(document.getElementById('f-irrf-base').value);irrfBase=isNaN(ib)?irrfBase:ib;const r=calcIRRF(irrfBase, calcBaseIRRFBruta());irrfVal=r.val;irrfFaixa=r.aliq;totDesc+=irrfVal;}
 
   const liq = totVenc - totDesc;
   document.getElementById('t-venc').textContent = fmtBRL(totVenc);
@@ -1028,7 +1034,7 @@ function getData() {
   }
   if(encs.fgts){const fb=parseFloat(document.getElementById('f-fgts-base').value);fgtsBase=isNaN(fb)?calcBaseFGTSAutomatica():fb;fgtsVal=roundFiscal(fgtsBase*0.08);}
   const deducaoBaseIRRF=calcDeducaoBaseIRRF(inssVal);
-  if(encs.irrf){const ib=parseFloat(document.getElementById('f-irrf-base').value);irrfBase=isNaN(ib)?calcBaseIRRFAutomatica(deducaoBaseIRRF):ib;const r=calcIRRF(irrfBase);irrfVal=r.val;irrfFaixa=r.aliq;totDesc+=irrfVal;}
+  if(encs.irrf){const ib=parseFloat(document.getElementById('f-irrf-base').value);irrfBase=isNaN(ib)?calcBaseIRRFAutomatica(deducaoBaseIRRF):ib;const r=calcIRRF(irrfBase, calcBaseIRRFBruta());irrfVal=r.val;irrfFaixa=r.aliq;totDesc+=irrfVal;}
 
   const comp = document.getElementById('f-comp').value;
   const compFmt = comp ? (() => { const [y,m]=comp.split('-'); const meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro']; return meses[parseInt(m)-1]+' de '+y; })() : '';

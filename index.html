@@ -285,7 +285,7 @@
         <span class="toggle-badge off" id="badge-inss">Desativado</span>
       </div>
       <div class="toggle-content" id="tc-inss">
-        <div class="fg fg3" style="margin-top:.5rem">
+        <div class="fg" style="margin-top:.5rem;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.75rem">
           <div class="field">
             <label>Alíquota INSS (%)</label>
             <input type="text" id="f-inss-aliq" class="calc" placeholder="Auto" readonly>
@@ -307,7 +307,7 @@
         <span class="toggle-badge off" id="badge-fgts">Desativado</span>
       </div>
       <div class="toggle-content" id="tc-fgts">
-        <div class="fg fg2" style="margin-top:.5rem">
+        <div class="fg" style="margin-top:.5rem;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.75rem">
           <div class="field">
             <label>Base FGTS (R$)</label>
             <input type="number" id="f-fgts-base" placeholder="Auto" step="0.01" oninput="calc()">
@@ -337,7 +337,7 @@
             <input type="text" id="f-irrf-faixa" class="calc" readonly>
           </div>
         </div>
-        <div class="fg fg3" style="margin-top:.5rem">
+        <div class="fg" style="margin-top:.5rem;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.75rem">
           <div class="field">
             <label>Dependentes (IRRF)</label>
             <input type="number" id="f-irrf-dependentes" min="0" step="1" placeholder="0" oninput="calc()">
