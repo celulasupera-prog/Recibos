@@ -428,7 +428,7 @@
     <button class="hbtn solid" onclick="showMain()">← Voltar</button>
   </div>
   <div class="card">
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:.6rem;align-items:end;">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:.6rem;align-items:end;">
       <div class="field">
         <label>Contexto</label>
         <select id="fer-scope" onchange="renderFeriadosPage()">
@@ -448,6 +448,10 @@
       <div class="field">
         <label>Data</label>
         <input type="date" id="fer-data">
+      </div>
+      <div class="field">
+        <label>Descrição</label>
+        <input id="fer-desc" placeholder="Ex: Carnaval / Padroeiro / Municipal">
       </div>
       <button class="abtn primary" onclick="addFeriado()">+ Adicionar</button>
     </div>

@@ -62,9 +62,29 @@ let feriadosConfig = safeParseJSON(localStorage.getItem(HOLIDAYS_KEY), null);
 if (!feriadosConfig || typeof feriadosConfig !== 'object') {
   feriadosConfig = { global: [], byCity: {}, byEmpresa: {} };
 }
-feriadosConfig.global = Array.isArray(feriadosConfig.global) ? feriadosConfig.global : [];
+function normalizeHolidayEntry(entry) {
+  if (!entry) return null;
+  if (typeof entry === 'string') return { date: entry, desc: '' };
+  if (typeof entry === 'object' && entry.date) return { date: String(entry.date), desc: String(entry.desc || '') };
+  return null;
+}
+
+function normalizeHolidayArray(arr) {
+  if (!Array.isArray(arr)) return [];
+  const map = new Map();
+  arr.forEach(item => {
+    const h = normalizeHolidayEntry(item);
+    if (!h || !h.date) return;
+    map.set(h.date, h);
+  });
+  return [...map.values()].sort((a, b) => a.date.localeCompare(b.date));
+}
+
+feriadosConfig.global = normalizeHolidayArray(feriadosConfig.global);
 feriadosConfig.byCity = feriadosConfig.byCity && typeof feriadosConfig.byCity === 'object' ? feriadosConfig.byCity : {};
 feriadosConfig.byEmpresa = feriadosConfig.byEmpresa && typeof feriadosConfig.byEmpresa === 'object' ? feriadosConfig.byEmpresa : {};
+Object.keys(feriadosConfig.byCity).forEach(k => feriadosConfig.byCity[k] = normalizeHolidayArray(feriadosConfig.byCity[k]));
+Object.keys(feriadosConfig.byEmpresa).forEach(k => feriadosConfig.byEmpresa[k] = normalizeHolidayArray(feriadosConfig.byEmpresa[k]));
 
 // ── STATE ──
 let verbas = [];
@@ -724,17 +744,17 @@ function normalizeCityKey(city) {
   return String(city || '').trim().toLowerCase();
 }
 
-function uniqueSortedDates(arr) {
-  return [...new Set((arr || []).filter(Boolean))].sort();
+function uniqueSortedHolidays(arr) {
+  return normalizeHolidayArray(arr);
 }
 
 function getFeriadosDoContexto() {
   const empresaId = document.getElementById('f-emp-select')?.value || '';
   const cityKey = normalizeCityKey(document.getElementById('f-cidade')?.value || '');
-  const globalDates = feriadosConfig.global || [];
-  const cityDates = cityKey ? (feriadosConfig.byCity[cityKey] || []) : [];
-  const empresaDates = empresaId ? (feriadosConfig.byEmpresa[empresaId] || []) : [];
-  return uniqueSortedDates([...globalDates, ...cityDates, ...empresaDates]);
+  const globalDates = (feriadosConfig.global || []).map(h => h.date);
+  const cityDates = cityKey ? (feriadosConfig.byCity[cityKey] || []).map(h => h.date) : [];
+  const empresaDates = empresaId ? (feriadosConfig.byEmpresa[empresaId] || []).map(h => h.date) : [];
+  return [...new Set([...globalDates, ...cityDates, ...empresaDates])].sort();
 }
 
 function calcDiasUteisEDSR(y, m) {
@@ -1577,7 +1597,7 @@ function getFeriadosArrayByScope(scope, key) {
 }
 
 function setFeriadosArrayByScope(scope, key, arr) {
-  const clean = uniqueSortedDates(arr);
+  const clean = uniqueSortedHolidays(arr);
   if (scope === 'empresa') {
     if (!key) return;
     feriadosConfig.byEmpresa[key] = clean;
@@ -1614,9 +1634,12 @@ function renderFeriadosPage() {
     list.innerHTML = '<div style="color:var(--ink3)">Nenhum feriado cadastrado neste contexto.</div>';
     return;
   }
-  list.innerHTML = datas.map(d => `<div style="display:flex;justify-content:space-between;align-items:center;padding:.4rem .5rem;border:1px solid var(--border);border-radius:6px;background:#fff">
-    <span style="font-family:'Inconsolata',monospace">${d}</span>
-    <button class="btn-rm" onclick="removerFeriado('${d}')">×</button>
+  list.innerHTML = datas.map(h => `<div style="display:flex;justify-content:space-between;align-items:center;padding:.4rem .5rem;border:1px solid var(--border);border-radius:6px;background:#fff;gap:.5rem">
+    <div style="display:flex;flex-direction:column;gap:.1rem">
+      <span style="font-family:'Inconsolata',monospace">${h.date}</span>
+      <span style="font-size:.74rem;color:var(--ink2)">${h.desc || 'Sem descrição'}</span>
+    </div>
+    <button class="btn-rm" onclick="removerFeriado('${h.date}')">×</button>
   </div>`).join('');
   const ctx = document.getElementById('fer-context-label');
   if (ctx) ctx.textContent = `${label}${key ? `: ${key}` : ''}`;
@@ -1624,21 +1647,23 @@ function renderFeriadosPage() {
 
 function addFeriado() {
   const data = document.getElementById('fer-data')?.value;
+  const desc = (document.getElementById('fer-desc')?.value || '').trim();
   if (!data) return toast('Selecione a data do feriado.', 'err');
   const { scope, key } = getFeriadosScope();
   if ((scope === 'cidade' || scope === 'empresa') && !key) {
     return toast('Selecione cidade/empresa para cadastrar o feriado.', 'err');
   }
   const arr = getFeriadosArrayByScope(scope, key);
-  setFeriadosArrayByScope(scope, key, [...arr, data]);
+  setFeriadosArrayByScope(scope, key, [...arr, { date: data, desc }]);
   saveFeriadosConfig();
+  if (document.getElementById('fer-desc')) document.getElementById('fer-desc').value = '';
   renderFeriadosPage();
   calc();
 }
 
 function removerFeriado(data) {
   const { scope, key } = getFeriadosScope();
-  const arr = getFeriadosArrayByScope(scope, key).filter(d => d !== data);
+  const arr = getFeriadosArrayByScope(scope, key).filter(h => h.date !== data);
   setFeriadosArrayByScope(scope, key, arr);
   saveFeriadosConfig();
   renderFeriadosPage();
