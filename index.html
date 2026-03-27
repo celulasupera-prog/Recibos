@@ -257,7 +257,7 @@
     <div class="card">
       <div class="verbas-header">
         <span>Código</span><span>Descrição</span><span>Referência</span>
-        <span>Vencimentos</span><span>Descontos</span><span></span>
+        <span>Vencimentos</span><span>Descontos</span><span>IRRF</span><span></span>
       </div>
       <div id="verbas-list"></div>
 
@@ -434,7 +434,7 @@
       <div class="formula-hint" style="line-height:1.5;background:#f3f6ff;border:1px solid #dbe7ff;padding:.45rem .55rem;border-radius:6px">
         <b style="color:var(--accent)">Variáveis de fórmula:</b>
         <code>sal</code>, <code>salHora</code>, <code>salDia</code>, <code>ref</code>, <code>diasTrab</code>, <code>diasMes</code>, <code>diasUteis</code>, <code>diasDSR</code>, <code>totalHE</code>.
-        <div style="margin-top:.2rem">Para incluir uma nova rubrica (ex.: HE 60%) no DSR, marque <b>Compõe HE/DSR</b> na linha dela.</div>
+        <div style="margin-top:.2rem">Para incluir uma nova rubrica (ex.: HE 60%) no DSR, marque <b>Compõe HE/DSR</b>. Use <b>Compõe IRRF</b> para controlar a base do imposto.</div>
       </div>
       <table class="config-table" style="margin-top:.75rem">
         <thead><tr>
@@ -443,6 +443,7 @@
           <th style="width:80px">Tipo</th>
           <th style="width:80px">Ref.</th>
           <th style="width:95px">Compõe HE/DSR</th>
+          <th style="width:85px">Compõe IRRF</th>
           <th>Fórmula (Vencimento)</th>
           <th>Fórmula (Desconto)</th>
           <th style="width:30px"></th>
@@ -490,9 +491,9 @@
       <div class="formula-hint" style="margin-top:.5rem">Teto do INSS 2026: R$ 8.475,55 · Máximo: R$ 988,09 · Mínimo: R$ 121,58</div>
     </div>
 
-    <!-- TABELA IRRF 2025 -->
+    <!-- TABELA IRRF 2026 -->
     <div class="config-card">
-      <div class="config-card-title">Tabela IRRF 2025 <span class="config-formula">progressiva</span></div>
+      <div class="config-card-title">Tabela IRRF 2026 <span class="config-formula">progressiva</span></div>
       <table class="config-table">
         <thead><tr>
           <th>Base de Cálculo</th>
@@ -500,14 +501,22 @@
           <th style="width:100px;text-align:right">Dedução</th>
         </tr></thead>
         <tbody>
-          <tr><td>Até R$ 2.259,20</td><td style="text-align:right"><span class="config-badge venc">Isento</span></td><td style="text-align:right;font-family:'Inconsolata',monospace">—</td></tr>
-          <tr><td>De R$ 2.259,21 até R$ 2.826,65</td><td style="text-align:right"><span class="config-badge venc">7,5%</span></td><td style="text-align:right;font-family:'Inconsolata',monospace">R$ 169,44</td></tr>
-          <tr><td>De R$ 2.826,66 até R$ 3.751,05</td><td style="text-align:right"><span class="config-badge venc">15%</span></td><td style="text-align:right;font-family:'Inconsolata',monospace">R$ 381,44</td></tr>
-          <tr><td>De R$ 3.751,06 até R$ 4.664,68</td><td style="text-align:right"><span class="config-badge venc">22,5%</span></td><td style="text-align:right;font-family:'Inconsolata',monospace">R$ 662,77</td></tr>
-          <tr><td>Acima de R$ 4.664,68</td><td style="text-align:right"><span class="config-badge desc">27,5%</span></td><td style="text-align:right;font-family:'Inconsolata',monospace">R$ 896,00</td></tr>
+          <tr><td>Até R$ 2.428,80</td><td style="text-align:right"><span class="config-badge venc">Isento</span></td><td style="text-align:right;font-family:'Inconsolata',monospace">—</td></tr>
+          <tr><td>De R$ 2.428,81 até R$ 2.826,65</td><td style="text-align:right"><span class="config-badge venc">7,5%</span></td><td style="text-align:right;font-family:'Inconsolata',monospace">R$ 182,16</td></tr>
+          <tr><td>De R$ 2.826,66 até R$ 3.751,05</td><td style="text-align:right"><span class="config-badge venc">15%</span></td><td style="text-align:right;font-family:'Inconsolata',monospace">R$ 394,16</td></tr>
+          <tr><td>De R$ 3.751,06 até R$ 4.664,68</td><td style="text-align:right"><span class="config-badge venc">22,5%</span></td><td style="text-align:right;font-family:'Inconsolata',monospace">R$ 675,49</td></tr>
+          <tr><td>Acima de R$ 4.664,68</td><td style="text-align:right"><span class="config-badge desc">27,5%</span></td><td style="text-align:right;font-family:'Inconsolata',monospace">R$ 908,73</td></tr>
         </tbody>
       </table>
-      <div class="formula-hint" style="margin-top:.5rem">Dedução por dependente: R$ 189,59 · Dedução INSS integral</div>
+      <div class="formula-hint" style="margin-top:.5rem">
+        Rendimentos tributáveis até R$ 5.000,00 possuem redução para zerar o imposto (limite de redução: R$ 312,89). De R$ 5.000,01 até R$ 7.350,00, a redução é decrescente linear até zerar.
+        <div style="margin-top:.2rem">
+          <b>Fórmula usada na redução:</b>
+          <code>redução = 978,62 - (0,133145 × base IRRF)</code> ·
+          <code>IRRF_final = IRRF_base - redução</code>.
+        </div>
+        <div style="margin-top:.2rem">Dedução por dependente: R$ 189,59 · Limite mensal do desconto simplificado: R$ 607,20 · Rendimentos previdenciários isentos (65+): R$ 1.903,98.</div>
+      </div>
     </div>
 
   </div>
