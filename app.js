@@ -27,13 +27,21 @@ function safeParseJSON(raw, fallback) {
 
 function parseN(raw) {
   if (typeof raw === 'number') return Number.isFinite(raw) ? raw : 0;
-  const s = String(raw ?? '').trim();
+  const s = String(raw ?? '').trim().replace(/[^\d,.-]/g, '');
   if (!s) return 0;
   const normalized = s.includes(',')
     ? s.replace(/\./g, '').replace(',', '.')
     : s;
   const n = Number(normalized);
   return Number.isFinite(n) ? n : 0;
+}
+
+function formatCurrencyField(input) {
+  if (!input) return;
+  const value = parseN(input.value);
+  input.value = value
+    ? value.toLocaleString('pt-BR', { style:'currency', currency:'BRL' })
+    : '';
 }
 
 function normalizeConfigVerba(v) {
@@ -926,7 +934,7 @@ function applyAutoDiasHE() {
 function calc() {
   ensureFixedVerbas();
   
-  const sal = parseFloat(document.getElementById('f-sal').value) || 0;
+  const sal = parseN(document.getElementById('f-sal').value) || 0;
   const dias = parseFloat(document.getElementById('f-dias').value) || 0;
 
   // auto diasmes from month
@@ -1077,7 +1085,7 @@ function addVerbaDiasNormais() {
 }
 
 function quickAdd(type) {
-  const sal = parseFloat(document.getElementById('f-sal').value) || 0;
+  const sal = parseN(document.getElementById('f-sal').value) || 0;
   const salHora = sal / 220;
   let v = { id: Date.now(), auto: false, tipo:'venc', venc:0, desc2:0, ref:'', incideIRRF:true, incideINSS:true, incideFGTS:true };
   switch(type) {
@@ -1152,7 +1160,7 @@ function updateVerba(id, field, val) {
     if (v.auto) {
       
       // recalcula sem re-renderizar a lista — só atualiza o input de valor
-      const sal = parseFloat(document.getElementById('f-sal').value) || 0;
+      const sal = parseN(document.getElementById('f-sal').value) || 0;
       const diasMes = parseFloat(document.getElementById('f-diasmes').value) || 30;
       const dias = parseFloat(document.getElementById('f-dias').value) || 0;
 
@@ -1208,7 +1216,7 @@ function updateVerba(id, field, val) {
 }
 
 function calcTotaisOnly() {
-  const sal = parseFloat(document.getElementById('f-sal').value)||0;
+  const sal = parseN(document.getElementById('f-sal').value)||0;
   const diasMes = parseFloat(document.getElementById('f-diasmes').value)||30;
   const dias = parseFloat(document.getElementById('f-dias').value)||0;
   const salDia = sal/diasMes, salHora = sal/220;
@@ -1275,7 +1283,7 @@ function escHtml(s){ return (s||'').replace(/"/g,'&quot;'); }
 
 // ── DATA ──
 function getData() {
-  const sal = parseFloat(document.getElementById('f-sal').value)||0;
+  const sal = parseN(document.getElementById('f-sal').value)||0;
   const diasMes = parseFloat(document.getElementById('f-diasmes').value)||30;
   const dias = parseFloat(document.getElementById('f-dias').value)||0;
   const diasUteis = parseFloat(document.getElementById('f-diasuteis').value)||0;
@@ -1966,6 +1974,7 @@ function loadRec(id) {
   setV('f-emp',h.emp); setV('f-cnpj',h.cnpj);
   setV('f-func',h.func); setV('f-cargo',h.cargo);
   setV('f-sal',h.sal); setV('f-dias',h.dias); setV('f-diasmes',h.diasMes);
+  formatCurrencyField(document.getElementById('f-sal'));
   setV('f-diasuteis',h.diasUteis);
   setV('f-diasdsr',h.diasDSR);
   document.getElementById('f-periodo-parcial').checked = !!h.periodoParcial;
