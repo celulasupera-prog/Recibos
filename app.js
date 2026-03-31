@@ -445,7 +445,7 @@ function renderEmpresasList() {
       </div>
 
       <div style="display:flex;gap:.4rem;">
-        <button class="hcbtn" onclick="configVerbasEmpresa('${e.id}')">Verbas</button>
+        ${currentUser.isAdmin ? `<button class="hcbtn" onclick="configVerbasEmpresa('${e.id}')">Verbas</button>` : ''}
 
         <button class="hcbtn" onclick="editarEmpresa('${e.id}')">Editar</button>
 
@@ -556,6 +556,10 @@ async function deletarEmpresa(id) {
 }
 
 window.configVerbasEmpresa = function(id) {
+  if (!currentUser?.isAdmin) {
+    toast('Apenas admin pode configurar verbas padrão.', 'err');
+    return;
+  }
   console.log('CLICOU VERBAS', id);
 
   const emp = empresasList.find(e => e.id == id);
@@ -2345,6 +2349,12 @@ function calcVerba(v, sal, salDia, salHora, valDias) {
 
   // verbas configuráveis
   if(cfg) {
+    const normalizeFormulaNumbers = (formula) => String(formula || '')
+      // remove separador de milhar (ex: 1.234,56 -> 1234,56)
+      .replace(/(\d)\.(\d{3})(?=[^\d]|$)/g, '$1$2')
+      // converte decimal com vírgula para ponto (ex: 1,5 -> 1.5)
+      .replace(/(\d),(\d)/g, '$1.$2');
+
     const sanitizeFormula = (raw) => String(raw || '')
       .trim()
       .replace(/^return\s+/i, '')
@@ -2352,7 +2362,7 @@ function calcVerba(v, sal, salDia, salHora, valDias) {
       .trim();
 
     const runFormula = (formula) => {
-      const exp = sanitizeFormula(formula);
+      const exp = sanitizeFormula(normalizeFormulaNumbers(formula));
       if (!exp) return 0;
       try {
         const fn = Function('sal','salHora','salDia','ref','valDias','diasTrab','diasMes','diasUteis','diasDSR','totalHE', `return (${exp});`);
