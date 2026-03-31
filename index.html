@@ -244,7 +244,7 @@
       <div class="fg fg3">
         <div class="field">
           <label>Salário Base (R$)</label>
-          <input type="text" id="f-sal" placeholder="R$ 3.100,00" inputmode="decimal" oninput="formatCurrencyField(this);calc()">
+          <input type="text" id="f-sal" placeholder="R$ 3.100,00" inputmode="decimal" onfocus="prepareCurrencyField(this)" oninput="calc()" onblur="formatCurrencyField(this);calc()">
         </div>
         <div class="field">
           <label>Dias Trabalhados</label>

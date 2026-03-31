@@ -44,6 +44,12 @@ function formatCurrencyField(input) {
     : '';
 }
 
+function prepareCurrencyField(input) {
+  if (!input) return;
+  const value = parseN(input.value);
+  input.value = value ? String(value).replace('.', ',') : '';
+}
+
 function normalizeConfigVerba(v) {
   return {
     ...v,
@@ -1472,7 +1478,7 @@ if(dsr) rowsData.push({
         <div class="rec-row2">
           <div class="rc grow"><span class="rc-lbl">Cargo / Função</span><span class="rc-val">${d.cargo||'—'}</span></div>
           <div class="rc"><span class="rc-lbl">Admissão</span><span class="rc-val">${d.admissao||'—'}</span></div>
-          <div class="rc" style="border-right:none;min-width:90px"><span class="rc-lbl">Salário Base</span><span class="rc-val">R$ ${fmtN2(d.sal)}</span></div>
+          <div class="rc" style="border-right:none;min-width:122px"><span class="rc-lbl">Salário Base</span><span class="rc-val">R$ ${fmtN2(d.sal)}</span></div>
         </div>
 
         <!-- TABELA DE VERBAS -->
