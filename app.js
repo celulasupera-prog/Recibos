@@ -2076,6 +2076,13 @@ function toast(msg, type='') {
   setTimeout(()=>t.classList.remove('show'),2800);
 }
 
+function toggleSection(btnEl) {
+  const section = btnEl?.closest('.form-section');
+  if (!section) return;
+  section.classList.toggle('collapsed');
+  btnEl.textContent = section.classList.contains('collapsed') ? 'Expandir' : 'Recolher';
+}
+
 
 function saveConfig() {
   configParams.horasMes  = parseFloat(document.getElementById('cfg-horas-mes').value)||220;

@@ -60,23 +60,40 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .sec-title::after{content:'';flex:1;height:1px;background:var(--border);}
 .form-section{
   position:relative;
-  border:1px solid #e6e9f0;
+  border:1px solid #dde3ee;
   border-radius:14px;
   padding:.8rem;
-  background:linear-gradient(180deg, rgba(255,255,255,.7), rgba(255,255,255,.35));
+  background:#f8fafd;
 }
-.form-section .sec-title{margin-bottom:.6rem;}
+.form-section .sec-title{
+  margin-bottom:.6rem;
+  justify-content:space-between;
+}
+.form-section .sec-title::after{display:none;}
+.sec-collapse-btn{
+  border:1px solid #d1d9e7;
+  background:#fff;
+  color:#4a5565;
+  border-radius:999px;
+  padding:.2rem .6rem;
+  font-size:.64rem;
+  font-family:'Syne',sans-serif;
+  cursor:pointer;
+}
+.sec-collapse-btn:hover{background:#eef3fb;}
 .form-section .card{
   border-width:1.5px;
-  border-left-width:4px;
+  border-top-width:4px;
 }
-.section-empresa .card{border-left-color:#4f8df4;background:#f9fbff;}
-.section-funcionario .card{border-left-color:#00a5a7;background:#f7fcfc;}
-.section-competencia .card{border-left-color:#8b6bf1;background:#faf8ff;}
-.section-base .card{border-left-color:#f59e0b;background:#fffaf3;}
-.section-verbas .card{border-left-color:#ef4444;background:#fff8f8;}
-.section-encargos .card{border-left-color:#14b8a6;background:#f6fbfb;}
-.section-totais .card{border-left-color:#334155;background:#f8fafc;}
+.section-empresa .card{border-top-color:#5d86db;}
+.section-funcionario .card{border-top-color:#4d9e96;}
+.section-competencia .card{border-top-color:#8b73d9;}
+.section-base .card{border-top-color:#d9a15c;}
+.section-verbas .card{border-top-color:#dd7f7f;}
+.section-encargos .card{border-top-color:#64a89f;}
+.section-totais .card{border-top-color:#64748b;}
+.form-section.collapsed .card{display:none;}
+.form-section.collapsed{padding-bottom:.35rem;}
 
 .card{background:#fbfcff;border:1px solid var(--border);border-radius:12px;padding:1rem 1.1rem;box-shadow:0 3px 10px rgba(22,27,36,.04);}
 
