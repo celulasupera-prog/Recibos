@@ -1894,7 +1894,19 @@ function addFeriado() {
     return toast('Selecione cidade/empresa para cadastrar o feriado.', 'err');
   }
   const arr = getFeriadosArrayByScope(scope, key);
-  setFeriadosArrayByScope(scope, key, [...arr, { date: data, desc }]);
+  let atualizado = [...arr, { date: data, desc }];
+
+  if (feriadoEditando) {
+    if (feriadoEditando.scope !== scope || feriadoEditando.key !== key) {
+      return toast('Finalize a edição no mesmo contexto do feriado.', 'err');
+    }
+    atualizado = arr
+      .filter(h => h.date !== feriadoEditando.date)
+      .concat({ date: data, desc });
+    feriadoEditando = null;
+  }
+
+  setFeriadosArrayByScope(scope, key, atualizado);
   saveFeriadosConfig();
   if (document.getElementById('fer-desc')) document.getElementById('fer-desc').value = '';
   if (document.getElementById('fer-data')) document.getElementById('fer-data').value = '';
@@ -1976,6 +1988,10 @@ function loadRec(id) {
   formatCurrencyField(document.getElementById('f-sal'));
   setV('f-diasuteis',h.diasUteis);
   setV('f-diasdsr',h.diasDSR);
+  document.getElementById('f-periodo-parcial').checked = !!h.periodoParcial;
+  setV('f-periodo-inicio', h.periodoInicio || 1);
+  setV('f-periodo-fim', h.periodoFim || h.diasMes || 31);
+  togglePeriodoParcial();
 
   if(h.comp) {
     const meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
