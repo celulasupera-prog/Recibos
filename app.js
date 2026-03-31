@@ -310,9 +310,7 @@ function renderEmpresasSelect() {
   const sel = document.getElementById('f-emp-select');
   sel.innerHTML = '<option value="">— Selecione ou preencha abaixo —</option>';
   empresasList.forEach(e => {
-    const label = currentUser.isAdmin
-      ? `${e.nome}${e.cnpj?' — '+e.cnpj:''} (${e._grupoEmail||''})`
-      : `${e.nome}${e.cnpj?' — '+e.cnpj:''}`;
+    const label = `${e.nome}${e.cnpj?' — '+e.cnpj:''}`;
     sel.innerHTML += `<option value="${e.id}" data-nome="${e.nome}" data-cnpj="${e.cnpj||''}">${label}</option>`;
   });
 }
