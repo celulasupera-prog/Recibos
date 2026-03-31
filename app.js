@@ -229,6 +229,7 @@ async function fazerLogout() {
   document.getElementById('pg-feriados').style.display = 'none';
   document.getElementById('user-badge').style.display = 'none';
   document.getElementById('btn-logout').style.display = 'none';
+  document.getElementById('btn-change-pass').style.display = 'none';
   document.getElementById('btn-empresas').style.display = 'none';
   document.getElementById('btn-formulas').style.display = 'none';
 }
@@ -239,6 +240,7 @@ async function initApp() {
   document.getElementById('user-badge').style.display = 'flex';
   document.getElementById('user-email-badge').textContent = currentUser.email;
   document.getElementById('btn-logout').style.display = 'block';
+  document.getElementById('btn-change-pass').style.display = 'block';
   document.getElementById('btn-empresas').style.display = 'block';
 
   // verifica se é admin
@@ -382,6 +384,7 @@ async function showEmpresas() {
   document.getElementById('pg-hist').style.display = 'none';
   document.getElementById('pg-config').style.display = 'none';
   document.getElementById('pg-feriados').style.display = 'none';
+  document.getElementById('pg-senha').style.display = 'none';
   document.getElementById('pg-empresas').style.display = 'block';
   renderEmpresasList();
 }
@@ -1675,8 +1678,10 @@ async function sbFetch(path, options={}) {
       document.getElementById('pg-hist').style.display = 'none';
       document.getElementById('pg-config').style.display = 'none';
       document.getElementById('pg-empresas').style.display = 'none';
+      document.getElementById('pg-senha').style.display = 'none';
       document.getElementById('user-badge').style.display = 'none';
       document.getElementById('btn-logout').style.display = 'none';
+      document.getElementById('btn-change-pass').style.display = 'none';
       document.getElementById('btn-empresas').style.display = 'none';
       currentUser = null;
       return null;
@@ -1727,6 +1732,7 @@ async function showHist() {
   document.getElementById('pg-config').style.display='none';
   document.getElementById('pg-empresas').style.display='none';
   document.getElementById('pg-feriados').style.display='none';
+  document.getElementById('pg-senha').style.display='none';
 
   document.getElementById('hist-grid').innerHTML =
     '<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--ink3)">Carregando...</div>';
@@ -1764,6 +1770,7 @@ function showMain() {
   document.getElementById('pg-config').style.display='none';
   document.getElementById('pg-empresas').style.display='none';
   document.getElementById('pg-feriados').style.display='none';
+  document.getElementById('pg-senha').style.display='none';
   document.getElementById('pg-admin').style.display='none';
   syncQuickAddButtons();
 }
@@ -1771,6 +1778,7 @@ function showMain() {
 function showHist_wrapper() {
   document.getElementById('pg-empresas').style.display='none';
   document.getElementById('pg-feriados').style.display='none';
+  document.getElementById('pg-senha').style.display='none';
   showHist();
 }
 
@@ -2001,6 +2009,7 @@ function showFeriados() {
   document.getElementById('pg-config').style.display='none';
   document.getElementById('pg-empresas').style.display='none';
   document.getElementById('pg-admin').style.display='none';
+  document.getElementById('pg-senha').style.display='none';
   document.getElementById('pg-feriados').style.display='block';
   renderFeriadosPage();
 }
@@ -2174,6 +2183,7 @@ function showConfig() {
   document.getElementById('pg-config').style.display='block';
   document.getElementById('pg-empresas').style.display='none';
   document.getElementById('pg-feriados').style.display='none';
+  document.getElementById('pg-senha').style.display='none';
   renderConfigVerbas();
   renderQuickList();
   document.getElementById('cfg-horas-mes').value = configParams.horasMes;
@@ -2188,6 +2198,7 @@ function showMain_config() {
   document.getElementById('pg-config').style.display='none';
   document.getElementById('pg-empresas').style.display='none';
   document.getElementById('pg-feriados').style.display='none';
+  document.getElementById('pg-senha').style.display='none';
   // sync quickAdd buttons com configVerbas
   syncQuickAddButtons();
 }
@@ -2377,16 +2388,32 @@ function calcVerba(v, sal, salDia, salHora, valDias) {
 }
 
   
-function alterarSenha() {
+function showSenhaTab() {
+  document.getElementById('pg-main').style.display='none';
+  document.getElementById('pg-hist').style.display='none';
+  document.getElementById('pg-config').style.display='none';
+  document.getElementById('pg-empresas').style.display='none';
+  document.getElementById('pg-feriados').style.display='none';
+  document.getElementById('pg-admin').style.display='none';
+  document.getElementById('pg-senha').style.display='block';
+  document.getElementById('senha-atual').value = '';
+  document.getElementById('senha-nova').value = '';
+  document.getElementById('senha-confirma').value = '';
+  document.getElementById('senha-atual').focus();
+}
+
+function salvarNovaSenha() {
   const atual = localStorage.getItem('cfg_senha') || '1234';
-  const confirmAtual = prompt('Digite a senha atual:');
-  if (confirmAtual === null) return;
+  const confirmAtual = document.getElementById('senha-atual').value;
+  const nova = document.getElementById('senha-nova').value;
+  const confirma = document.getElementById('senha-confirma').value;
   if (confirmAtual !== atual) { toast('Senha atual incorreta!', 'err'); return; }
-  const nova = prompt('Digite a nova senha:');
   if (!nova || nova.trim() === '') { toast('Senha não pode ser vazia!', 'err'); return; }
-  const confirma = prompt('Confirme a nova senha:');
   if (nova !== confirma) { toast('Senhas não conferem!', 'err'); return; }
   localStorage.setItem('cfg_senha', nova);
+  document.getElementById('senha-atual').value = '';
+  document.getElementById('senha-nova').value = '';
+  document.getElementById('senha-confirma').value = '';
   toast('Senha alterada com sucesso!');
 }
 
@@ -2395,7 +2422,7 @@ let adminData = { recibos: [], grupos: [], empresas: [] };
 
 async function showAdmin() {
   if (!currentUser?.isAdmin) return;
-  ['pg-main','pg-hist','pg-config','pg-empresas','pg-feriados'].forEach(id => {
+  ['pg-main','pg-hist','pg-config','pg-empresas','pg-feriados','pg-senha'].forEach(id => {
     document.getElementById(id).style.display = 'none';
   });
   document.getElementById('pg-admin').style.display = 'block';

@@ -38,6 +38,7 @@
       <button class="hbtn ghost" onclick="showHist()">Histórico</button>
       <button class="hbtn solid" onclick="novoRecibo()"><svg class="ico"><use href="#i-plus"/></svg> Novo</button>
       <button class="hbtn ghost" onclick="showAdmin()" id="btn-admin" style="display:none;background:#b45309;color:#fff;border-color:#b45309"><svg class="ico"><use href="#i-shield"/></svg> Admin</button>
+      <button class="hbtn ghost" onclick="showSenhaTab()" id="btn-change-pass" style="display:none"><svg class="ico"><use href="#i-lock"/></svg> Alterar Senha</button>
       <button class="hbtn ghost" onclick="fazerLogout()" id="btn-logout" style="display:none"><svg class="ico"><use href="#i-logout"/></svg> Sair</button>
     </div>
   </div>
@@ -547,7 +548,7 @@
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
     <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800"><svg class="ico"><use href="#i-gear"/></svg> Configuração de Fórmulas</div>
     <div style="display:flex;gap:.5rem">
-      <button class="hbtn ghost" style="background:var(--ink);color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.2)" onclick="alterarSenha()"><svg class="ico"><use href="#i-lock"/></svg> Alterar Senha</button>
+      <button class="hbtn ghost" style="background:var(--ink);color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.2)" onclick="showSenhaTab()"><svg class="ico"><use href="#i-lock"/></svg> Alterar Senha</button>
       <button class="hbtn solid" onclick="showMain_config()"><svg class="ico"><use href="#i-back"/></svg> Voltar</button>
     </div>
   </div>
@@ -652,6 +653,34 @@
       </div>
     </div>
 
+  </div>
+</div>
+
+<!-- ALTERAR SENHA PAGE -->
+<div id="pg-senha" style="display:none;padding:1.5rem;max-width:680px;margin:0 auto;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+    <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800"><svg class="ico"><use href="#i-lock"/></svg> Alterar Senha</div>
+    <button class="hbtn solid" onclick="showMain()"><svg class="ico"><use href="#i-back"/></svg> Voltar</button>
+  </div>
+  <div class="card" style="padding:1rem">
+    <div class="fg" style="display:grid;gap:.75rem">
+      <div class="field">
+        <label>Senha atual</label>
+        <input type="password" id="senha-atual" placeholder="Digite a senha atual">
+      </div>
+      <div class="field">
+        <label>Nova senha</label>
+        <input type="password" id="senha-nova" placeholder="Digite a nova senha">
+      </div>
+      <div class="field">
+        <label>Confirmar nova senha</label>
+        <input type="password" id="senha-confirma" placeholder="Confirme a nova senha">
+      </div>
+      <div style="display:flex;gap:.5rem;margin-top:.25rem">
+        <button class="abtn primary" onclick="salvarNovaSenha()">Salvar senha</button>
+        <button class="abtn outline" onclick="showMain()">Cancelar</button>
+      </div>
+    </div>
   </div>
 </div>
 
