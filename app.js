@@ -564,6 +564,10 @@ window.onload = async () => {
   const y = now.getFullYear(), m = String(now.getMonth()+1).padStart(2,'0');
   document.getElementById('f-comp').value = `${y}-${m}`;
   const dias = new Date(y, now.getMonth()+1, 0).getDate();
+  document.getElementById('f-periodo-parcial').checked = false;
+  document.getElementById('f-periodo-inicio').value = '1';
+  document.getElementById('f-periodo-fim').value = String(dias);
+  togglePeriodoParcial();
   document.getElementById('f-diasmes').value = dias;
   document.getElementById('f-dias').value = dias;
   applyAutoDiasHE();
@@ -760,11 +764,14 @@ function getFeriadosDoContexto() {
 
 function calcDiasUteisEDSR(y, m) {
   const diasMes = new Date(y, m, 0).getDate();
+  const { inicio, fim } = getPeriodoCompetencia(diasMes);
   const feriadosSet = new Set(getFeriadosDoContexto().filter(d => d.startsWith(`${y}-${String(m).padStart(2,'0')}-`)));
   let domingos = 0;
   let feriadosEmDiaUtil = 0;
+  let diasPeriodo = 0;
 
-  for (let dia = 1; dia <= diasMes; dia++) {
+  for (let dia = inicio; dia <= fim; dia++) {
+    diasPeriodo++;
     const data = new Date(y, m - 1, dia);
     const iso = `${y}-${String(m).padStart(2,'0')}-${String(dia).padStart(2,'0')}`;
     const dow = data.getDay();
@@ -778,8 +785,36 @@ function calcDiasUteisEDSR(y, m) {
   }
 
   const diasDSR = domingos + feriadosEmDiaUtil;
-  const diasUteis = Math.max(diasMes - diasDSR, 0);
-  return { diasMes, diasUteis, diasDSR };
+  const diasUteis = Math.max(diasPeriodo - diasDSR, 0);
+  return { diasMes, diasUteis, diasDSR, diasPeriodo };
+}
+
+function getPeriodoCompetencia(diasMes) {
+  const parcial = !!document.getElementById('f-periodo-parcial')?.checked;
+  const inicioEl = document.getElementById('f-periodo-inicio');
+  const fimEl = document.getElementById('f-periodo-fim');
+  if (inicioEl) inicioEl.max = String(diasMes);
+  if (fimEl) fimEl.max = String(diasMes);
+
+  if (!parcial) {
+    if (inicioEl) inicioEl.value = '1';
+    if (fimEl) fimEl.value = String(diasMes);
+    return { inicio: 1, fim: diasMes };
+  }
+
+  let inicio = Math.max(1, Math.min(parseInt(inicioEl?.value || '1', 10), diasMes));
+  let fim = Math.max(1, Math.min(parseInt(fimEl?.value || String(diasMes), 10), diasMes));
+  if (fim < inicio) fim = inicio;
+  if (inicioEl) inicioEl.value = String(inicio);
+  if (fimEl) fimEl.value = String(fim);
+  return { inicio, fim };
+}
+
+function togglePeriodoParcial() {
+  const wrap = document.getElementById('f-periodo-parcial-wrap');
+  const ativo = !!document.getElementById('f-periodo-parcial')?.checked;
+  if (wrap) wrap.style.display = ativo ? 'grid' : 'none';
+  calc();
 }
 
 function applyAutoDiasHE() {
@@ -787,10 +822,13 @@ function applyAutoDiasHE() {
   if (!comp) return;
   const [y, m] = comp.split('-').map(Number);
   if (!y || !m) return;
-  const { diasMes, diasUteis, diasDSR } = calcDiasUteisEDSR(y, m);
+  const { diasMes, diasUteis, diasDSR, diasPeriodo } = calcDiasUteisEDSR(y, m);
   document.getElementById('f-diasmes').value = diasMes;
   document.getElementById('f-diasuteis').value = diasUteis;
   document.getElementById('f-diasdsr').value = diasDSR;
+  if (document.getElementById('f-periodo-parcial')?.checked) {
+    document.getElementById('f-dias').value = diasPeriodo;
+  }
 }
 
 // ── CALC ──
@@ -1184,6 +1222,9 @@ function getData() {
     cargo: document.getElementById('f-cargo').value,
     tipo: document.getElementById('f-tipo').value,
     folha: document.getElementById('f-folha').value,
+    periodoParcial: !!document.getElementById('f-periodo-parcial')?.checked,
+    periodoInicio: parseInt(document.getElementById('f-periodo-inicio')?.value || '1', 10),
+    periodoFim: parseInt(document.getElementById('f-periodo-fim')?.value || String(diasMes), 10),
     comp: compFmt,
     admissao: admFmt,
     sal, dias, diasMes, diasUteis, diasDSR, salDia, salHora, valDias,
@@ -1795,6 +1836,10 @@ function loadRec(id) {
   setV('f-sal',h.sal); setV('f-dias',h.dias); setV('f-diasmes',h.diasMes);
   setV('f-diasuteis',h.diasUteis);
   setV('f-diasdsr',h.diasDSR);
+  document.getElementById('f-periodo-parcial').checked = !!h.periodoParcial;
+  setV('f-periodo-inicio', h.periodoInicio || 1);
+  setV('f-periodo-fim', h.periodoFim || h.diasMes || 31);
+  togglePeriodoParcial();
 
   if(h.comp) {
     const meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -1843,7 +1888,7 @@ async function delRec(id){
 
 function novoRecibo() {
   editId=null;
-  ['f-emp','f-cnpj','f-func','f-cargo','f-sal','f-dias','f-admissao','f-inss-aliq','f-inss-manual','f-inss-val','f-fgts-base','f-fgts-val','f-irrf-base','f-irrf-faixa','f-irrf-val','f-irrf-dependentes','f-irrf-deducao'].forEach(id=>{
+  ['f-emp','f-cnpj','f-func','f-cargo','f-sal','f-dias','f-admissao','f-inss-aliq','f-inss-manual','f-inss-val','f-fgts-base','f-fgts-val','f-irrf-base','f-irrf-faixa','f-irrf-val','f-irrf-dependentes','f-irrf-deducao','f-periodo-inicio','f-periodo-fim'].forEach(id=>{
     const e=document.getElementById(id); if(e) e.value='';
   });
   const now=new Date();
@@ -1852,6 +1897,10 @@ function novoRecibo() {
   const dias=new Date(y,now.getMonth()+1,0).getDate();
   document.getElementById('f-diasmes').value=dias;
   document.getElementById('f-dias').value=dias;
+  document.getElementById('f-periodo-parcial').checked = false;
+  document.getElementById('f-periodo-inicio').value = '1';
+  document.getElementById('f-periodo-fim').value = String(dias);
+  togglePeriodoParcial();
   applyAutoDiasHE();
   verbas=[];
   encs={inss:false,fgts:false,irrf:false};
