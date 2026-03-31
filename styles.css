@@ -650,11 +650,35 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   top:0;left:0;right:0;bottom:0;z-index:500;
   overflow:hidden;
 }
-#login-galaxy{
+#sky{
   position:absolute;
   inset:0;
   width:100%;
   height:100%;
+  background-color:#000029;
+}
+#stars{
+  position:relative;
+  width:100%;
+  height:100%;
+}
+.star{
+  position:absolute;
+  border-radius:50%;
+  box-shadow:0 0 2px 1px rgba(255,255,255,.22);
+  animation-name:login-twinkle, login-drift;
+  animation-iteration-count:infinite, infinite;
+  animation-timing-function:ease-in-out, linear;
+  will-change:opacity, transform;
+}
+@keyframes login-twinkle{
+  0%,100%{opacity:.25}
+  50%{opacity:1}
+}
+@keyframes login-drift{
+  0%{transform:translate3d(0,0,0)}
+  50%{transform:translate3d(var(--dx), var(--dy), 0)}
+  100%{transform:translate3d(0,0,0)}
 }
 .login-overlay{
   position:absolute;

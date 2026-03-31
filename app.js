@@ -100,92 +100,54 @@ let feriadoEditando = null;
 let loginGalaxy = null;
 
 function initLoginGalaxy() {
-  const canvas = document.getElementById('login-galaxy');
+  const starsWrap = document.getElementById('stars');
   const host = document.getElementById('pg-login');
-  if (!canvas || !host) return;
+  if (!starsWrap || !host) return;
   if (loginGalaxy?.destroy) loginGalaxy.destroy();
 
-  const ctx = canvas.getContext('2d', { alpha: true });
-  if (!ctx) return;
-  let stars = [];
-  let raf = null;
-  let w = 0;
-  let h = 0;
-  let t0 = performance.now();
-
   const palette = [
-    'rgba(255,110,110,0.85)',
-    'rgba(226,62,62,0.72)',
-    'rgba(196,42,42,0.68)',
-    'rgba(255,145,120,0.68)',
-    'rgba(255,190,170,0.55)',
-    'rgba(210,220,255,0.35)',
+    '#ff8f8f',
+    '#f06565',
+    '#d64545',
+    '#ffb08c',
+    '#ffcbc3',
+    '#ffe5dc',
+    '#c7d5ff'
   ];
+  let stars = [];
 
-  const resize = () => {
-    w = host.clientWidth || window.innerWidth;
-    h = host.clientHeight || window.innerHeight;
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.8);
-    canvas.width = Math.floor(w * dpr);
-    canvas.height = Math.floor(h * dpr);
-    canvas.style.width = `${w}px`;
-    canvas.style.height = `${h}px`;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  function createStar() {
+    const star = document.createElement('i');
+    star.className = 'star';
+    const size = Math.random() < 0.1 ? (1.8 + Math.random() * 1.8) : (0.6 + Math.random() * 1.2);
+    star.style.width = `${size}px`;
+    star.style.height = `${size}px`;
+    star.style.top = `${Math.random() * 100}%`;
+    star.style.left = `${Math.random() * 100}%`;
+    star.style.backgroundColor = palette[Math.floor(Math.random() * palette.length)];
+    star.style.opacity = (0.35 + Math.random() * 0.65).toFixed(2);
+    star.style.animationDuration = `${4 + Math.random() * 8}s, ${14 + Math.random() * 28}s`;
+    star.style.animationDelay = `${Math.random() * 6}s, ${Math.random() * 10}s`;
+    star.style.setProperty('--dx', `${(-8 + Math.random() * 16).toFixed(1)}px`);
+    star.style.setProperty('--dy', `${(-6 + Math.random() * 12).toFixed(1)}px`);
+    return star;
+  }
 
+  const drawStars = () => {
+    const w = host.clientWidth || window.innerWidth;
+    const h = host.clientHeight || window.innerHeight;
     const density = Math.min(Math.max((w * h) / 14000, 70), 210);
-    stars = Array.from({ length: Math.round(density) }).map(() => ({
-      x: Math.random() * w,
-      y: Math.random() * h,
-      r: Math.random() < 0.12 ? (1.4 + Math.random() * 1.4) : (0.4 + Math.random() * 1.1),
-      c: palette[Math.floor(Math.random() * palette.length)],
-      vx: (Math.random() - 0.5) * 0.05,
-      vy: (Math.random() - 0.5) * 0.07,
-      tw: Math.random() * Math.PI * 2,
-      tws: 0.5 + Math.random() * 1.4,
-    }));
+    starsWrap.innerHTML = '';
+    stars = Array.from({ length: Math.round(density) }).map(() => createStar());
+    stars.forEach(star => starsWrap.appendChild(star));
   };
 
-  const draw = (time) => {
-    const dt = Math.min((time - t0) / 16.666, 2);
-    t0 = time;
-    ctx.clearRect(0, 0, w, h);
-
-    stars.forEach(s => {
-      s.x += s.vx * dt;
-      s.y += s.vy * dt;
-      if (s.x < -2) s.x = w + 2;
-      if (s.x > w + 2) s.x = -2;
-      if (s.y < -2) s.y = h + 2;
-      if (s.y > h + 2) s.y = -2;
-      s.tw += 0.012 * s.tws * dt;
-
-      const alpha = 0.45 + ((Math.sin(s.tw) + 1) / 2) * 0.55;
-      ctx.globalAlpha = alpha;
-      ctx.fillStyle = s.c;
-      ctx.beginPath();
-      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.globalAlpha = alpha * 0.35;
-      ctx.shadowColor = s.c;
-      ctx.shadowBlur = s.r * 7;
-      ctx.beginPath();
-      ctx.arc(s.x, s.y, s.r * 1.1, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.shadowBlur = 0;
-    });
-
-    ctx.globalAlpha = 1;
-    raf = requestAnimationFrame(draw);
-  };
-
-  resize();
-  raf = requestAnimationFrame(draw);
-  window.addEventListener('resize', resize);
+  drawStars();
+  window.addEventListener('resize', drawStars);
   loginGalaxy = {
     destroy() {
-      cancelAnimationFrame(raf);
-      window.removeEventListener('resize', resize);
+      window.removeEventListener('resize', drawStars);
+      starsWrap.innerHTML = '';
     }
   };
 }
