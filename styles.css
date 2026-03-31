@@ -723,12 +723,27 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .star{
   position:absolute;
   border-radius:50%;
-  box-shadow:0 0 2px 1px rgba(255,255,255,.22);
+  box-shadow:0 0 3px 1px rgba(255,170,170,.35);
   animation-name:login-twinkle, login-drift;
   animation-iteration-count:infinite, infinite;
   animation-timing-function:ease-in-out, linear;
   will-change:opacity, transform;
 }
+.star.sparkle{
+  box-shadow:0 0 7px 2px rgba(255,120,120,.58), 0 0 14px 5px rgba(220,70,70,.3);
+}
+.star.sparkle::before,
+.star.sparkle::after{
+  content:'';
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  background:rgba(255,170,170,.7);
+  border-radius:999px;
+}
+.star.sparkle::before{ width:180%; height:1px; }
+.star.sparkle::after{ width:1px; height:180%; }
 @keyframes login-twinkle{
   0%,100%{opacity:.25}
   50%{opacity:1}

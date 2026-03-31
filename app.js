@@ -126,14 +126,20 @@ function initLoginGalaxy() {
   function createStar() {
     const star = document.createElement('i');
     star.className = 'star';
-    const size = Math.random() < 0.1 ? (1.8 + Math.random() * 1.8) : (0.6 + Math.random() * 1.2);
+    const isSparkle = Math.random() < 0.1;
+    if (isSparkle) star.classList.add('sparkle');
+    const size = isSparkle
+      ? (2.1 + Math.random() * 2.2)
+      : (Math.random() < 0.12 ? (1.7 + Math.random() * 1.5) : (0.6 + Math.random() * 1.2));
     star.style.width = `${size}px`;
     star.style.height = `${size}px`;
     star.style.top = `${Math.random() * 100}%`;
     star.style.left = `${Math.random() * 100}%`;
     star.style.backgroundColor = palette[Math.floor(Math.random() * palette.length)];
-    star.style.opacity = (0.35 + Math.random() * 0.65).toFixed(2);
-    star.style.animationDuration = `${4 + Math.random() * 8}s, ${14 + Math.random() * 28}s`;
+    star.style.opacity = (isSparkle ? 0.55 : 0.35 + Math.random() * 0.65).toFixed(2);
+    star.style.animationDuration = isSparkle
+      ? `${2.5 + Math.random() * 4}s, ${10 + Math.random() * 16}s`
+      : `${4 + Math.random() * 8}s, ${14 + Math.random() * 28}s`;
     star.style.animationDelay = `${Math.random() * 6}s, ${Math.random() * 10}s`;
     star.style.setProperty('--dx', `${(-8 + Math.random() * 16).toFixed(1)}px`);
     star.style.setProperty('--dy', `${(-6 + Math.random() * 12).toFixed(1)}px`);
