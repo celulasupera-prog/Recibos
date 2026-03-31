@@ -136,7 +136,7 @@ function initLoginGalaxy() {
   const drawStars = () => {
     const w = host.clientWidth || window.innerWidth;
     const h = host.clientHeight || window.innerHeight;
-    const density = Math.min(Math.max((w * h) / 14000, 70), 210);
+    const density = Math.min(Math.max((w * h) / 9000, 120), 380);
     starsWrap.innerHTML = '';
     stars = Array.from({ length: Math.round(density) }).map(() => createStar());
     stars.forEach(star => starsWrap.appendChild(star));
