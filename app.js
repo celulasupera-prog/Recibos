@@ -114,13 +114,12 @@ function initLoginGalaxy() {
   if (loginGalaxy?.destroy) loginGalaxy.destroy();
 
   const palette = [
-    '#ff8f8f',
-    '#f06565',
-    '#d64545',
-    '#ffb08c',
-    '#ffcbc3',
-    '#ffe5dc',
-    '#c7d5ff'
+    '#ff9a9a',
+    '#ff7a7a',
+    '#ef5757',
+    '#d94444',
+    '#ffb184',
+    '#ffc1a9'
   ];
   let stars = [];
 
@@ -144,7 +143,7 @@ function initLoginGalaxy() {
   const drawStars = () => {
     const w = host.clientWidth || window.innerWidth;
     const h = host.clientHeight || window.innerHeight;
-    const density = Math.min(Math.max((w * h) / 9000, 120), 380);
+    const density = Math.min(Math.max((w * h) / 7000, 180), 520);
     starsWrap.innerHTML = '';
     stars = Array.from({ length: Math.round(density) }).map(() => createStar());
     stars.forEach(star => starsWrap.appendChild(star));

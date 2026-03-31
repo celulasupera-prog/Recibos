@@ -597,8 +597,8 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   white-space:nowrap;
 }
 .rec-row1 .rc:last-child{ border-right:none; flex:1; }
-.rc-lbl{ font-size:6.5pt;font-weight:bold;color:#000;display:block;margin-bottom:1px; }
-.rc-val{ font-size:8pt;font-weight:bold;color:#000; }
+.rc-lbl{ font-size:6.2pt;font-weight:bold;color:#000;display:block;margin-bottom:1px;white-space:nowrap; }
+.rc-val{ font-size:7.6pt;font-weight:bold;color:#000;white-space:nowrap; }
 
 /* ── LINHA DO FUNCIONÁRIO — linha 2 (cargo, admissão, tipo, salário base) ── */
 .rec-row2{
@@ -658,10 +658,11 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .rtc{
   padding:1px 4px;
   border-right:1px solid #aaa;
+  min-width:0;
 }
 .rtc:last-child{ border-right:none; }
-.rtc-lbl{ font-size:6pt;font-weight:bold;color:#000;display:block; }
-.rtc-val{ font-size:7.5pt;font-weight:bold;color:#000;display:block; text-align:right; }
+.rtc-lbl{ font-size:5.7pt;font-weight:bold;color:#000;display:block;white-space:nowrap; }
+.rtc-val{ font-size:7.1pt;font-weight:bold;color:#000;display:block; text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
 .rtc.span-all{ grid-column: 1 / 4; }
 .rtc.venc{ text-align:right; }
 .rtc.desc{ text-align:right; }
@@ -740,8 +741,8 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .login-overlay{
   position:absolute;
   inset:0;
-  background:radial-gradient(circle at 30% 20%, rgba(180,40,40,.22), transparent 45%),
-             radial-gradient(circle at 70% 80%, rgba(120,22,22,.24), transparent 50%),
+  background:radial-gradient(circle at 30% 20%, rgba(180,40,40,.12), transparent 45%),
+             radial-gradient(circle at 70% 80%, rgba(120,22,22,.14), transparent 50%),
              rgba(5, 7, 12, .62);
 }
 .login-box{
