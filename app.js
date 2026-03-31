@@ -932,12 +932,15 @@ function applyAutoDiasHE() {
   if (!comp) return;
   const [y, m] = comp.split('-').map(Number);
   if (!y || !m) return;
+  const parcial = !!document.getElementById('f-periodo-parcial')?.checked;
   const { diasMes, diasUteis, diasDSR, diasPeriodo } = calcDiasUteisEDSR(y, m);
   document.getElementById('f-diasmes').value = diasMes;
   document.getElementById('f-diasuteis').value = diasUteis;
   document.getElementById('f-diasdsr').value = diasDSR;
-  if (document.getElementById('f-periodo-parcial')?.checked) {
+  if (parcial) {
     document.getElementById('f-dias').value = diasPeriodo;
+  } else {
+    document.getElementById('f-dias').value = diasMes;
   }
 }
 
@@ -1478,7 +1481,7 @@ if(dsr) rowsData.push({
         <div class="rec-row2">
           <div class="rc grow"><span class="rc-lbl">Cargo / Função</span><span class="rc-val">${d.cargo||'—'}</span></div>
           <div class="rc"><span class="rc-lbl">Admissão</span><span class="rc-val">${d.admissao||'—'}</span></div>
-          <div class="rc" style="border-right:none;min-width:122px"><span class="rc-lbl">Salário Base</span><span class="rc-val">R$ ${fmtN2(d.sal)}</span></div>
+          <div class="rc" style="border-right:none;min-width:170px"><span class="rc-lbl">Salário Base</span><span class="rc-val">R$ ${fmtN2(d.sal)}</span></div>
         </div>
 
         <!-- TABELA DE VERBAS -->

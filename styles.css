@@ -650,7 +650,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 }
 .rec-tot-row{
   display:grid;
-  grid-template-columns:52px 1fr 86px 102px 102px;
+  grid-template-columns:58px 1fr 120px 150px 150px;
   border-bottom:1px solid #000;
 }
 .rec-tot-row:last-child{ border-bottom:none; }
