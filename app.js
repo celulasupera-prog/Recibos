@@ -174,7 +174,7 @@ async function initApp() {
   const btnFormulas = document.getElementById('btn-formulas');
 
   if (currentUser.isAdmin) {
-    document.getElementById('user-email-badge').textContent = currentUser.email + ' 👑';
+    document.getElementById('user-email-badge').textContent = currentUser.email + ' (Admin)';
     if (btnAdmin) btnAdmin.style.display = 'block';
     if (btnFormulas) btnFormulas.style.display = 'block';
   } else {
@@ -338,16 +338,16 @@ function renderEmpresasList() {
         <div class="emp-card-nome">${e.nome}</div>
         <div class="emp-card-cnpj">
           ${e.cnpj ? 'CNPJ: '+e.cnpj : ''}${e.cidade ? ' · '+e.cidade : ''}
-          ${currentUser.isAdmin && e._grupoEmail ? ' <span style="color:var(--accent);font-size:.7rem">👤 '+e._grupoEmail+'</span>' : ''}
+          ${currentUser.isAdmin && e._grupoEmail ? ' <span style="color:var(--accent);font-size:.7rem">Usuário: '+e._grupoEmail+'</span>' : ''}
         </div>
       </div>
 
       <div style="display:flex;gap:.4rem;">
-        <button class="hcbtn" onclick="configVerbasEmpresa('${e.id}')">⚙ Verbas</button>
+        <button class="hcbtn" onclick="configVerbasEmpresa('${e.id}')">Verbas</button>
 
-        <button class="hcbtn" onclick="editarEmpresa('${e.id}')">✏ Editar</button>
+        <button class="hcbtn" onclick="editarEmpresa('${e.id}')">Editar</button>
 
-        <button class="hcbtn d" onclick="deletarEmpresa('${e.id}')">🗑 Excluir</button>
+        <button class="hcbtn d" onclick="deletarEmpresa('${e.id}')">Excluir</button>
       </div>
 
     </div>
@@ -387,7 +387,7 @@ async function salvarEmpresa() {
 
   try {
     if (empresaEditando) {
-      // ✏️ EDITAR
+      // EDITAR
       await sbFetch('empresas?id=eq.' + empresaEditando.id, {
         method: 'PATCH',
         body: JSON.stringify({ nome, cnpj, cidade })
@@ -1755,8 +1755,8 @@ function renderFeriadosPage() {
       </div>
     </div>
     <div class="fer-item-actions">
-      <button class="fer-icon-btn" onclick="editarFeriado('${h.date}')" title="Editar">✏</button>
-      <button class="fer-icon-btn" onclick="removerFeriado('${h.date}')" title="Excluir">✕</button>
+      <button class="fer-icon-btn" onclick="editarFeriado('${h.date}')" title="Editar">Ed</button>
+      <button class="fer-icon-btn" onclick="removerFeriado('${h.date}')" title="Excluir">Ex</button>
     </div>
   </div>`).join('');
   const ctx = document.getElementById('fer-context-label');
@@ -1897,9 +1897,9 @@ function renderHist() {
         <span style="font-size:.7rem;color:var(--ink3)">${fmtBRL(h.totVenc||0)} bruto</span>
       </div>
       <div class="hc-acts">
-        <button class="hcbtn" onclick="loadRec('${h.id}')">✏ Editar</button>
-        <button class="hcbtn" onclick="pdfRec('${h.id}')">⬇ PDF</button>
-        <button class="hcbtn d" onclick="delRec('${h.id}')">✕</button>
+        <button class="hcbtn" onclick="loadRec('${h.id}')">Editar</button>
+        <button class="hcbtn" onclick="pdfRec('${h.id}')">PDF</button>
+        <button class="hcbtn d" onclick="delRec('${h.id}')">Excluir</button>
       </div>
     </div>`).join('');
 }
@@ -2340,7 +2340,7 @@ function adminRenderRecibos(lista) {
     const grupo = adminData.grupos.find(g => g.user_id === r.user_id);
     return `
     <div class="hcard">
-      <div style="font-size:.65rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:.25rem">👤 ${grupo?.nome || r.user_id || '—'}</div>
+      <div style="font-size:.65rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:.25rem">Usuário: ${grupo?.nome || r.user_id || '—'}</div>
       <div class="hc-emp">${r.emp||'—'}</div>
       <div class="hc-func">${r.func||'—'} · ${r.cargo||'—'}</div>
       <div class="hc-comp">${r.comp||'—'} · ${r.folha||'—'}</div>
@@ -2349,7 +2349,7 @@ function adminRenderRecibos(lista) {
         <span style="font-size:.7rem;color:var(--ink3)">${fmtBRL(r.tot_venc||0)} bruto</span>
       </div>
       <div class="hc-acts">
-        <button class="hcbtn d" onclick="adminDelRec('${r.id}')">✕ Excluir</button>
+        <button class="hcbtn d" onclick="adminDelRec('${r.id}')">Excluir</button>
       </div>
     </div>`;
   }).join('');

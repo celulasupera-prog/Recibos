@@ -41,6 +41,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .hbtn.solid{background:var(--accent);color:#fff;box-shadow:0 6px 16px rgba(46,109,230,.35);}
 .hbtn.solid:hover{background:#245ece;transform:translateY(-1px);}
 .hbtns{display:flex;gap:.45rem;flex-wrap:wrap;justify-content:flex-end;}
+.ico{width:14px;height:14px;display:inline-block;vertical-align:-2px;flex:none;}
 
 /* LAYOUT */
 .workspace{display:grid;grid-template-columns:600px 1fr;min-height:calc(100vh - 56px);}
@@ -701,8 +702,8 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   cursor:pointer;
   transition:all .16s;
 }
-.cfg-flag-btn.on{background:#dbeafe;color:#1d4ed8;}
-.cfg-flag-btn.off{background:#efecec;color:#8a8f99;}
+.cfg-flag-btn.on{background:#e5f4ea;color:#2f7a4b;}
+.cfg-flag-btn.off{background:#f9e7e7;color:#a04545;}
 .cfg-flag-btn:hover{transform:translateY(-1px);}
 .btn-del-config{width:26px;height:26px;border:none;background:transparent;color:#ccc;cursor:pointer;border-radius:4px;font-size:.9rem;}
 .btn-del-config:hover{background:#fdecea;color:#c0392b;}
