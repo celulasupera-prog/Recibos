@@ -564,9 +564,11 @@ window.onload = async () => {
   const y = now.getFullYear(), m = String(now.getMonth()+1).padStart(2,'0');
   document.getElementById('f-comp').value = `${y}-${m}`;
   const dias = new Date(y, now.getMonth()+1, 0).getDate();
+  const inicioMes = `${y}-${m}-01`;
+  const fimMes = `${y}-${m}-${String(dias).padStart(2,'0')}`;
   document.getElementById('f-periodo-parcial').checked = false;
-  document.getElementById('f-periodo-inicio').value = '1';
-  document.getElementById('f-periodo-fim').value = String(dias);
+  document.getElementById('f-periodo-inicio').value = inicioMes;
+  document.getElementById('f-periodo-fim').value = fimMes;
   togglePeriodoParcial();
   document.getElementById('f-diasmes').value = dias;
   document.getElementById('f-dias').value = dias;
@@ -764,7 +766,7 @@ function getFeriadosDoContexto() {
 
 function calcDiasUteisEDSR(y, m) {
   const diasMes = new Date(y, m, 0).getDate();
-  const { inicio, fim } = getPeriodoCompetencia(diasMes);
+  const { inicio, fim } = getPeriodoCompetencia(y, m, diasMes);
   const feriadosSet = new Set(getFeriadosDoContexto().filter(d => d.startsWith(`${y}-${String(m).padStart(2,'0')}-`)));
   let domingos = 0;
   let feriadosEmDiaUtil = 0;
@@ -789,24 +791,52 @@ function calcDiasUteisEDSR(y, m) {
   return { diasMes, diasUteis, diasDSR, diasPeriodo };
 }
 
-function getPeriodoCompetencia(diasMes) {
+function getPeriodoCompetenciaSelecionada(diasMes) {
+  const comp = document.getElementById('f-comp')?.value || '';
+  const [compY, compM] = comp.split('-').map(Number);
+  const y = compY || new Date().getFullYear();
+  const m = compM || (new Date().getMonth() + 1);
+  return getPeriodoCompetencia(y, m, diasMes);
+}
+
+function getPeriodoCompetencia(y, m, diasMes = new Date(y, m, 0).getDate()) {
   const parcial = !!document.getElementById('f-periodo-parcial')?.checked;
   const inicioEl = document.getElementById('f-periodo-inicio');
   const fimEl = document.getElementById('f-periodo-fim');
-  if (inicioEl) inicioEl.max = String(diasMes);
-  if (fimEl) fimEl.max = String(diasMes);
+  const inicioMes = `${y}-${String(m).padStart(2,'0')}-01`;
+  const fimMes = `${y}-${String(m).padStart(2,'0')}-${String(diasMes).padStart(2,'0')}`;
+
+  if (inicioEl) {
+    inicioEl.min = inicioMes;
+    inicioEl.max = fimMes;
+  }
+  if (fimEl) {
+    fimEl.min = inicioMes;
+    fimEl.max = fimMes;
+  }
 
   if (!parcial) {
-    if (inicioEl) inicioEl.value = '1';
-    if (fimEl) fimEl.value = String(diasMes);
+    if (inicioEl) inicioEl.value = inicioMes;
+    if (fimEl) fimEl.value = fimMes;
     return { inicio: 1, fim: diasMes };
   }
 
-  let inicio = Math.max(1, Math.min(parseInt(inicioEl?.value || '1', 10), diasMes));
-  let fim = Math.max(1, Math.min(parseInt(fimEl?.value || String(diasMes), 10), diasMes));
+  const clampDate = (raw) => {
+    if (!raw) return null;
+    if (raw < inicioMes) return inicioMes;
+    if (raw > fimMes) return fimMes;
+    return raw;
+  };
+
+  let inicioDate = clampDate(inicioEl?.value) || inicioMes;
+  let fimDate = clampDate(fimEl?.value) || fimMes;
+  if (fimDate < inicioDate) fimDate = inicioDate;
+
+  let inicio = parseInt(inicioDate.split('-')[2], 10);
+  let fim = parseInt(fimDate.split('-')[2], 10);
   if (fim < inicio) fim = inicio;
-  if (inicioEl) inicioEl.value = String(inicio);
-  if (fimEl) fimEl.value = String(fim);
+  if (inicioEl) inicioEl.value = inicioDate;
+  if (fimEl) fimEl.value = fimDate;
   return { inicio, fim };
 }
 
@@ -814,6 +844,7 @@ function togglePeriodoParcial() {
   const wrap = document.getElementById('f-periodo-parcial-wrap');
   const ativo = !!document.getElementById('f-periodo-parcial')?.checked;
   if (wrap) wrap.style.display = ativo ? 'grid' : 'none';
+  getPeriodoCompetenciaSelecionada();
   calc();
 }
 
@@ -1223,8 +1254,8 @@ function getData() {
     tipo: document.getElementById('f-tipo').value,
     folha: document.getElementById('f-folha').value,
     periodoParcial: !!document.getElementById('f-periodo-parcial')?.checked,
-    periodoInicio: parseInt(document.getElementById('f-periodo-inicio')?.value || '1', 10),
-    periodoFim: parseInt(document.getElementById('f-periodo-fim')?.value || String(diasMes), 10),
+    periodoInicio: document.getElementById('f-periodo-inicio')?.value || '',
+    periodoFim: document.getElementById('f-periodo-fim')?.value || '',
     comp: compFmt,
     admissao: admFmt,
     sal, dias, diasMes, diasUteis, diasDSR, salDia, salHora, valDias,
@@ -1854,6 +1885,24 @@ function loadRec(id) {
     if(d2&&m2&&y2) document.getElementById('f-admissao').value=`${y2}-${m2}-${d2}`;
   }
 
+  const compAtual = document.getElementById('f-comp').value || '';
+  const [cy, cm] = compAtual.split('-').map(Number);
+  const diasMesAtual = (cy && cm) ? new Date(cy, cm, 0).getDate() : 31;
+  const inicioMes = (cy && cm) ? `${cy}-${String(cm).padStart(2,'0')}-01` : '';
+  const fimMes = (cy && cm) ? `${cy}-${String(cm).padStart(2,'0')}-${String(diasMesAtual).padStart(2,'0')}` : '';
+
+  const inicioCompat = typeof h.periodoInicio === 'string' && h.periodoInicio.includes('-')
+    ? h.periodoInicio
+    : (inicioMes ? `${cy}-${String(cm).padStart(2,'0')}-${String(h.periodoInicio || 1).padStart(2,'0')}` : '');
+  const fimCompat = typeof h.periodoFim === 'string' && h.periodoFim.includes('-')
+    ? h.periodoFim
+    : (fimMes ? `${cy}-${String(cm).padStart(2,'0')}-${String(h.periodoFim || diasMesAtual).padStart(2,'0')}` : '');
+
+  document.getElementById('f-periodo-parcial').checked = !!h.periodoParcial;
+  setV('f-periodo-inicio', inicioCompat || inicioMes);
+  setV('f-periodo-fim', fimCompat || fimMes);
+  togglePeriodoParcial();
+
   document.getElementById('f-tipo').value = h.tipo||'Mensalista';
   document.getElementById('f-folha').value = h.folha||'Folha Mensal';
 
@@ -1895,11 +1944,13 @@ function novoRecibo() {
   const y=now.getFullYear(),m=String(now.getMonth()+1).padStart(2,'0');
   document.getElementById('f-comp').value=`${y}-${m}`;
   const dias=new Date(y,now.getMonth()+1,0).getDate();
+  const inicioMes = `${y}-${m}-01`;
+  const fimMes = `${y}-${m}-${String(dias).padStart(2,'0')}`;
   document.getElementById('f-diasmes').value=dias;
   document.getElementById('f-dias').value=dias;
   document.getElementById('f-periodo-parcial').checked = false;
-  document.getElementById('f-periodo-inicio').value = '1';
-  document.getElementById('f-periodo-fim').value = String(dias);
+  document.getElementById('f-periodo-inicio').value = inicioMes;
+  document.getElementById('f-periodo-fim').value = fimMes;
   togglePeriodoParcial();
   applyAutoDiasHE();
   verbas=[];
