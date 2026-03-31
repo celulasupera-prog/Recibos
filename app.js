@@ -96,6 +96,61 @@ let empresasList = [];
 let grupoId = null;
 let empresaEditando = null;
 let verbasPadraoTemp = [];
+let feriadoEditando = null;
+let loginGalaxy = null;
+
+function initLoginGalaxy() {
+  const starsWrap = document.getElementById('stars');
+  const host = document.getElementById('pg-login');
+  if (!starsWrap || !host) return;
+  if (loginGalaxy?.destroy) loginGalaxy.destroy();
+
+  const palette = [
+    '#ff8f8f',
+    '#f06565',
+    '#d64545',
+    '#ffb08c',
+    '#ffcbc3',
+    '#ffe5dc',
+    '#c7d5ff'
+  ];
+  let stars = [];
+
+  function createStar() {
+    const star = document.createElement('i');
+    star.className = 'star';
+    const size = Math.random() < 0.1 ? (1.8 + Math.random() * 1.8) : (0.6 + Math.random() * 1.2);
+    star.style.width = `${size}px`;
+    star.style.height = `${size}px`;
+    star.style.top = `${Math.random() * 100}%`;
+    star.style.left = `${Math.random() * 100}%`;
+    star.style.backgroundColor = palette[Math.floor(Math.random() * palette.length)];
+    star.style.opacity = (0.35 + Math.random() * 0.65).toFixed(2);
+    star.style.animationDuration = `${4 + Math.random() * 8}s, ${14 + Math.random() * 28}s`;
+    star.style.animationDelay = `${Math.random() * 6}s, ${Math.random() * 10}s`;
+    star.style.setProperty('--dx', `${(-8 + Math.random() * 16).toFixed(1)}px`);
+    star.style.setProperty('--dy', `${(-6 + Math.random() * 12).toFixed(1)}px`);
+    return star;
+  }
+
+  const drawStars = () => {
+    const w = host.clientWidth || window.innerWidth;
+    const h = host.clientHeight || window.innerHeight;
+    const density = Math.min(Math.max((w * h) / 14000, 70), 210);
+    starsWrap.innerHTML = '';
+    stars = Array.from({ length: Math.round(density) }).map(() => createStar());
+    stars.forEach(star => starsWrap.appendChild(star));
+  };
+
+  drawStars();
+  window.addEventListener('resize', drawStars);
+  loginGalaxy = {
+    destroy() {
+      window.removeEventListener('resize', drawStars);
+      starsWrap.innerHTML = '';
+    }
+  };
+}
 
 // ── AUTH ──
 async function fazerLogin() {
@@ -155,6 +210,7 @@ async function fazerLogout() {
   document.getElementById('user-badge').style.display = 'none';
   document.getElementById('btn-logout').style.display = 'none';
   document.getElementById('btn-empresas').style.display = 'none';
+  document.getElementById('btn-formulas').style.display = 'none';
 }
 
 async function initApp() {
@@ -169,12 +225,16 @@ async function initApp() {
   currentUser.isAdmin = currentUser.email === 'gustavo@jaguarcontabilidade.com.br';
 
   const btnAdmin = document.getElementById('btn-admin');
+  const btnFormulas = document.getElementById('btn-formulas');
 
   if (currentUser.isAdmin) {
-    document.getElementById('user-email-badge').textContent = currentUser.email + ' 👑';
+    document.getElementById('user-email-badge').textContent = currentUser.email + ' (Admin)';
     if (btnAdmin) btnAdmin.style.display = 'block';
+    if (btnFormulas) btnFormulas.style.display = 'block';
   } else {
     if (btnAdmin) btnAdmin.style.display = 'none';
+    if (btnFormulas) btnFormulas.style.display = 'none';
+    document.getElementById('pg-config').style.display = 'none';
   }
 
   // 🔥 ESSENCIAL PRA FUNCIONAR TUDO
@@ -332,16 +392,16 @@ function renderEmpresasList() {
         <div class="emp-card-nome">${e.nome}</div>
         <div class="emp-card-cnpj">
           ${e.cnpj ? 'CNPJ: '+e.cnpj : ''}${e.cidade ? ' · '+e.cidade : ''}
-          ${currentUser.isAdmin && e._grupoEmail ? ' <span style="color:var(--accent);font-size:.7rem">👤 '+e._grupoEmail+'</span>' : ''}
+          ${currentUser.isAdmin && e._grupoEmail ? ' <span style="color:var(--accent);font-size:.7rem">Usuário: '+e._grupoEmail+'</span>' : ''}
         </div>
       </div>
 
       <div style="display:flex;gap:.4rem;">
-        <button class="hcbtn" onclick="configVerbasEmpresa('${e.id}')">⚙ Verbas</button>
+        <button class="hcbtn" onclick="configVerbasEmpresa('${e.id}')">Verbas</button>
 
-        <button class="hcbtn" onclick="editarEmpresa('${e.id}')">✏ Editar</button>
+        <button class="hcbtn" onclick="editarEmpresa('${e.id}')">Editar</button>
 
-        <button class="hcbtn d" onclick="deletarEmpresa('${e.id}')">🗑 Excluir</button>
+        <button class="hcbtn d" onclick="deletarEmpresa('${e.id}')">Excluir</button>
       </div>
 
     </div>
@@ -381,7 +441,7 @@ async function salvarEmpresa() {
 
   try {
     if (empresaEditando) {
-      // ✏️ EDITAR
+      // EDITAR
       await sbFetch('empresas?id=eq.' + empresaEditando.id, {
         method: 'PATCH',
         body: JSON.stringify({ nome, cnpj, cidade })
@@ -557,12 +617,19 @@ function addVerbaPadrao() {
 
 // ── INIT ──
 window.onload = async () => {
+  initLoginGalaxy();
   carregarLoginLembrado();
 
   const now = new Date();
   const y = now.getFullYear(), m = String(now.getMonth()+1).padStart(2,'0');
   document.getElementById('f-comp').value = `${y}-${m}`;
   const dias = new Date(y, now.getMonth()+1, 0).getDate();
+  const inicioMes = `${y}-${m}-01`;
+  const fimMes = `${y}-${m}-${String(dias).padStart(2,'0')}`;
+  document.getElementById('f-periodo-parcial').checked = false;
+  document.getElementById('f-periodo-inicio').value = inicioMes;
+  document.getElementById('f-periodo-fim').value = fimMes;
+  togglePeriodoParcial();
   document.getElementById('f-diasmes').value = dias;
   document.getElementById('f-dias').value = dias;
   applyAutoDiasHE();
@@ -759,11 +826,14 @@ function getFeriadosDoContexto() {
 
 function calcDiasUteisEDSR(y, m) {
   const diasMes = new Date(y, m, 0).getDate();
+  const { inicio, fim } = getPeriodoCompetencia(y, m, diasMes);
   const feriadosSet = new Set(getFeriadosDoContexto().filter(d => d.startsWith(`${y}-${String(m).padStart(2,'0')}-`)));
   let domingos = 0;
   let feriadosEmDiaUtil = 0;
+  let diasPeriodo = 0;
 
-  for (let dia = 1; dia <= diasMes; dia++) {
+  for (let dia = inicio; dia <= fim; dia++) {
+    diasPeriodo++;
     const data = new Date(y, m - 1, dia);
     const iso = `${y}-${String(m).padStart(2,'0')}-${String(dia).padStart(2,'0')}`;
     const dow = data.getDay();
@@ -777,8 +847,65 @@ function calcDiasUteisEDSR(y, m) {
   }
 
   const diasDSR = domingos + feriadosEmDiaUtil;
-  const diasUteis = Math.max(diasMes - diasDSR, 0);
-  return { diasMes, diasUteis, diasDSR };
+  const diasUteis = Math.max(diasPeriodo - diasDSR, 0);
+  return { diasMes, diasUteis, diasDSR, diasPeriodo };
+}
+
+function getPeriodoCompetenciaSelecionada(diasMes) {
+  const comp = document.getElementById('f-comp')?.value || '';
+  const [compY, compM] = comp.split('-').map(Number);
+  const y = compY || new Date().getFullYear();
+  const m = compM || (new Date().getMonth() + 1);
+  return getPeriodoCompetencia(y, m, diasMes);
+}
+
+function getPeriodoCompetencia(y, m, diasMes = new Date(y, m, 0).getDate()) {
+  const parcial = !!document.getElementById('f-periodo-parcial')?.checked;
+  const inicioEl = document.getElementById('f-periodo-inicio');
+  const fimEl = document.getElementById('f-periodo-fim');
+  const inicioMes = `${y}-${String(m).padStart(2,'0')}-01`;
+  const fimMes = `${y}-${String(m).padStart(2,'0')}-${String(diasMes).padStart(2,'0')}`;
+
+  if (inicioEl) {
+    inicioEl.min = inicioMes;
+    inicioEl.max = fimMes;
+  }
+  if (fimEl) {
+    fimEl.min = inicioMes;
+    fimEl.max = fimMes;
+  }
+
+  if (!parcial) {
+    if (inicioEl) inicioEl.value = inicioMes;
+    if (fimEl) fimEl.value = fimMes;
+    return { inicio: 1, fim: diasMes };
+  }
+
+  const clampDate = (raw) => {
+    if (!raw) return null;
+    if (raw < inicioMes) return inicioMes;
+    if (raw > fimMes) return fimMes;
+    return raw;
+  };
+
+  let inicioDate = clampDate(inicioEl?.value) || inicioMes;
+  let fimDate = clampDate(fimEl?.value) || fimMes;
+  if (fimDate < inicioDate) fimDate = inicioDate;
+
+  let inicio = parseInt(inicioDate.split('-')[2], 10);
+  let fim = parseInt(fimDate.split('-')[2], 10);
+  if (fim < inicio) fim = inicio;
+  if (inicioEl) inicioEl.value = inicioDate;
+  if (fimEl) fimEl.value = fimDate;
+  return { inicio, fim };
+}
+
+function togglePeriodoParcial() {
+  const wrap = document.getElementById('f-periodo-parcial-wrap');
+  const ativo = !!document.getElementById('f-periodo-parcial')?.checked;
+  if (wrap) wrap.style.display = ativo ? 'grid' : 'none';
+  getPeriodoCompetenciaSelecionada();
+  calc();
 }
 
 function applyAutoDiasHE() {
@@ -786,10 +913,13 @@ function applyAutoDiasHE() {
   if (!comp) return;
   const [y, m] = comp.split('-').map(Number);
   if (!y || !m) return;
-  const { diasMes, diasUteis, diasDSR } = calcDiasUteisEDSR(y, m);
+  const { diasMes, diasUteis, diasDSR, diasPeriodo } = calcDiasUteisEDSR(y, m);
   document.getElementById('f-diasmes').value = diasMes;
   document.getElementById('f-diasuteis').value = diasUteis;
   document.getElementById('f-diasdsr').value = diasDSR;
+  if (document.getElementById('f-periodo-parcial')?.checked) {
+    document.getElementById('f-dias').value = diasPeriodo;
+  }
 }
 
 // ── CALC ──
@@ -1130,14 +1260,12 @@ function renderVerbasList() {
     const refLabel = v.autoType==='he50'||v.autoType==='he100' ? 'horas' :
                      v.autoType==='adicfunc'||v.autoType==='premiotempo' ? '%' :
                      cfgV ? cfgV.refLabel : '';
-    const incideIRRF = verbaIncideIRRF(v);
     return `<div class="verba-row" data-id="${v.id}">
       <input value="${escHtml(v.cod||'')}" placeholder="Cód" style="text-align:left" oninput="updateVerba(${v.id},'cod',this.value)">
       <input value="${escHtml(v.desc||'')}" placeholder="Descrição do lançamento" class="desc-input" style="text-align:left;font-size:.82rem" oninput="updateVerba(${v.id},'desc',this.value)">
       <input value="${escHtml(v.ref||'')}" placeholder="${refLabel||'ref'}" oninput="updateVerba(${v.id},'ref',this.value)">
       <input value="${v.venc > 0 ? fmtN(v.venc) : ''}" placeholder="0,00" class="${vencCls}" ${lockVenc ? 'readonly' : ''} oninput="updateVerba(${v.id},'venc',this.value)" data-field="venc">
       <input value="${v.desc2 > 0 ? fmtN(v.desc2) : v.tipo==='desc'&&v.ref ? fmtN(parseN(v.ref)||0) : ''}" placeholder="0,00" class="${descCls}" ${lockDesc ? 'readonly' : ''} oninput="updateVerba(${v.id},'desc2',this.value)" data-field="desc2">
-      <label class="irrf-flag"><input type="checkbox" ${incideIRRF ? 'checked' : ''} ${v.tipo === 'desc' ? 'disabled' : ''} onchange="updateVerba(${v.id},'incideIRRF',this.checked)"></label>
       <button class="btn-rm" onclick="removeVerba(${v.id})">×</button>
     </div>`;
   }).join('');
@@ -1183,6 +1311,9 @@ function getData() {
     cargo: document.getElementById('f-cargo').value,
     tipo: document.getElementById('f-tipo').value,
     folha: document.getElementById('f-folha').value,
+    periodoParcial: !!document.getElementById('f-periodo-parcial')?.checked,
+    periodoInicio: document.getElementById('f-periodo-inicio')?.value || '',
+    periodoFim: document.getElementById('f-periodo-fim')?.value || '',
     comp: compFmt,
     admissao: admFmt,
     sal, dias, diasMes, diasUteis, diasDSR, salDia, salHora, valDias,
@@ -1580,14 +1711,31 @@ function showHist_wrapper() {
 function getFeriadosScope() {
   const scope = document.getElementById('fer-scope')?.value || 'global';
   if (scope === 'empresa') {
-    const empresaId = document.getElementById('fer-empresa')?.value || '';
-    return { scope, key: empresaId, label: 'Empresa' };
+    const empresaEl = document.getElementById('fer-empresa');
+    const empresaId = empresaEl?.value || '';
+    const empresaNome = empresaEl?.selectedOptions?.[0]?.textContent || empresaId;
+    return { scope, key: empresaId, label: empresaId ? `Empresa: ${empresaNome}` : 'Empresa' };
   }
   if (scope === 'cidade') {
-    const cityKey = normalizeCityKey(document.getElementById('fer-cidade')?.value || '');
-    return { scope, key: cityKey, label: 'Cidade' };
+    const cityEl = document.getElementById('fer-cidade');
+    const cityKey = normalizeCityKey(cityEl?.value || '');
+    const cityNome = cityEl?.selectedOptions?.[0]?.textContent || cityKey;
+    return { scope, key: cityKey, label: cityKey ? `Cidade: ${cityNome}` : 'Cidade' };
   }
   return { scope: 'global', key: 'global', label: 'Geral' };
+}
+
+function getCidadesCadastradas() {
+  const map = new Map();
+  (empresasList || []).forEach(emp => {
+    const cidade = String(emp?.cidade || '').trim();
+    if (!cidade) return;
+    const key = normalizeCityKey(cidade);
+    if (!map.has(key)) map.set(key, cidade);
+  });
+  return [...map.entries()]
+    .map(([key, nome]) => ({ key, nome }))
+    .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
 }
 
 function getFeriadosArrayByScope(scope, key) {
@@ -1614,7 +1762,19 @@ function setFeriadosArrayByScope(scope, key, arr) {
 function renderFeriadosPage() {
   const empresaSel = document.getElementById('fer-empresa');
   if (empresaSel) {
+    const selectedEmpresa = empresaSel.value;
     empresaSel.innerHTML = '<option value="">Selecione a empresa</option>' + empresasList.map(e => `<option value="${e.id}">${e.nome}${e.cnpj ? ' — '+e.cnpj : ''}</option>`).join('');
+    if (selectedEmpresa) empresaSel.value = selectedEmpresa;
+  }
+
+  const citySel = document.getElementById('fer-cidade');
+  if (citySel) {
+    const selectedCity = citySel.value;
+    const cidades = getCidadesCadastradas();
+    citySel.innerHTML = '<option value="">Selecione a cidade</option>' + cidades.map(c => `<option value="${c.key}">${c.nome}</option>`).join('');
+    if (selectedCity && cidades.some(c => c.key === selectedCity)) {
+      citySel.value = selectedCity;
+    }
   }
 
   const { scope, key, label } = getFeriadosScope();
@@ -1625,24 +1785,85 @@ function renderFeriadosPage() {
 
   const list = document.getElementById('feriados-list');
   if (!list) return;
+  const badge = document.getElementById('fer-count-badge');
   if ((scope === 'cidade' || scope === 'empresa') && !key) {
-    list.innerHTML = '<div style="color:var(--ink3)">Selecione o contexto para listar os feriados.</div>';
+    list.innerHTML = '<div style="color:#b8b8b8">Selecione o contexto para listar os feriados.</div>';
+    if (badge) badge.textContent = '0 feriados';
     return;
   }
   const datas = getFeriadosArrayByScope(scope, key);
   if (!datas.length) {
-    list.innerHTML = '<div style="color:var(--ink3)">Nenhum feriado cadastrado neste contexto.</div>';
+    list.innerHTML = '<div style="color:#b8b8b8">Nenhum feriado cadastrado neste contexto.</div>';
+    if (badge) badge.textContent = '0 feriados';
+    atualizarEstadoEdicaoFeriado();
     return;
   }
-  list.innerHTML = datas.map(h => `<div style="display:flex;justify-content:space-between;align-items:center;padding:.4rem .5rem;border:1px solid var(--border);border-radius:6px;background:#fff;gap:.5rem">
-    <div style="display:flex;flex-direction:column;gap:.1rem">
-      <span style="font-family:'Inconsolata',monospace">${h.date}</span>
-      <span style="font-size:.74rem;color:var(--ink2)">${h.desc || 'Sem descrição'}</span>
+  list.innerHTML = datas.map(h => `<div class="fer-item">
+    <div class="fer-item-left">
+      <div class="fer-daybox">
+        <small>${getWeekdayShort(h.date)}</small>
+        <b>${String(new Date(h.date + 'T00:00:00').getDate()).padStart(2,'0')}</b>
+      </div>
+      <div class="fer-text">
+        <strong>${h.desc || 'Sem descrição'}</strong>
+        <span>${formatDateLongBR(h.date)}</span>
+      </div>
     </div>
-    <button class="btn-rm" onclick="removerFeriado('${h.date}')">×</button>
+    <div class="fer-item-actions">
+      <button class="fer-icon-btn" onclick="editarFeriado('${h.date}')" title="Editar">Ed</button>
+      <button class="fer-icon-btn" onclick="removerFeriado('${h.date}')" title="Excluir">Ex</button>
+    </div>
   </div>`).join('');
   const ctx = document.getElementById('fer-context-label');
-  if (ctx) ctx.textContent = `${label}${key ? `: ${key}` : ''}`;
+  if (ctx) ctx.textContent = label;
+  if (badge) badge.textContent = `${datas.length} feriado${datas.length > 1 ? 's' : ''}`;
+  atualizarEstadoEdicaoFeriado();
+}
+
+function formatDateBR(isoDate) {
+  if (!isoDate || !isoDate.includes('-')) return isoDate || '';
+  const [y, m, d] = isoDate.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+function formatDateLongBR(isoDate) {
+  if (!isoDate || !isoDate.includes('-')) return isoDate || '';
+  const [y, m, d] = isoDate.split('-').map(Number);
+  const meses = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+  return `${String(d).padStart(2,'0')} ${meses[m-1]} ${y}`;
+}
+
+function getWeekdayShort(isoDate) {
+  const dt = new Date(isoDate + 'T00:00:00');
+  const dias = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  return dias[dt.getDay()] || '';
+}
+
+function atualizarEstadoEdicaoFeriado() {
+  const editModal = document.getElementById('fer-edit-modal');
+  if (editModal) editModal.style.display = feriadoEditando ? 'flex' : 'none';
+}
+
+function editarFeriado(data) {
+  const { scope, key } = getFeriadosScope();
+  const feriado = getFeriadosArrayByScope(scope, key).find(h => h.date === data);
+  if (!feriado) return;
+
+  feriadoEditando = { scope, key, date: data };
+  const dataEl = document.getElementById('fer-edit-data');
+  const descEl = document.getElementById('fer-edit-desc');
+  if (dataEl) dataEl.value = feriado.date;
+  if (descEl) descEl.value = feriado.desc || '';
+  atualizarEstadoEdicaoFeriado();
+}
+
+function cancelarEdicaoFeriado() {
+  feriadoEditando = null;
+  const dataEl = document.getElementById('fer-edit-data');
+  const descEl = document.getElementById('fer-edit-desc');
+  if (dataEl) dataEl.value = '';
+  if (descEl) descEl.value = '';
+  atualizarEstadoEdicaoFeriado();
 }
 
 function addFeriado() {
@@ -1657,6 +1878,29 @@ function addFeriado() {
   setFeriadosArrayByScope(scope, key, [...arr, { date: data, desc }]);
   saveFeriadosConfig();
   if (document.getElementById('fer-desc')) document.getElementById('fer-desc').value = '';
+  if (document.getElementById('fer-data')) document.getElementById('fer-data').value = '';
+  renderFeriadosPage();
+  calc();
+}
+
+function salvarEdicaoFeriado() {
+  if (!feriadoEditando) return;
+  const data = document.getElementById('fer-edit-data')?.value;
+  const desc = (document.getElementById('fer-edit-desc')?.value || '').trim();
+  if (!data) return toast('Selecione a data do feriado.', 'err');
+
+  const { scope, key } = getFeriadosScope();
+  if (scope !== feriadoEditando.scope || key !== feriadoEditando.key) {
+    return toast('Volte ao mesmo contexto para salvar a edição.', 'err');
+  }
+
+  const arr = getFeriadosArrayByScope(scope, key);
+  const atualizado = arr
+    .filter(h => h.date !== feriadoEditando.date)
+    .concat({ date: data, desc });
+  setFeriadosArrayByScope(scope, key, atualizado);
+  saveFeriadosConfig();
+  cancelarEdicaoFeriado();
   renderFeriadosPage();
   calc();
 }
@@ -1665,6 +1909,9 @@ function removerFeriado(data) {
   const { scope, key } = getFeriadosScope();
   const arr = getFeriadosArrayByScope(scope, key).filter(h => h.date !== data);
   setFeriadosArrayByScope(scope, key, arr);
+  if (feriadoEditando && feriadoEditando.scope === scope && feriadoEditando.key === key && feriadoEditando.date === data) {
+    cancelarEdicaoFeriado();
+  }
   saveFeriadosConfig();
   renderFeriadosPage();
   calc();
@@ -1693,9 +1940,9 @@ function renderHist() {
         <span style="font-size:.7rem;color:var(--ink3)">${fmtBRL(h.totVenc||0)} bruto</span>
       </div>
       <div class="hc-acts">
-        <button class="hcbtn" onclick="loadRec('${h.id}')">✏ Editar</button>
-        <button class="hcbtn" onclick="pdfRec('${h.id}')">⬇ PDF</button>
-        <button class="hcbtn d" onclick="delRec('${h.id}')">✕</button>
+        <button class="hcbtn" onclick="loadRec('${h.id}')">Editar</button>
+        <button class="hcbtn" onclick="pdfRec('${h.id}')">PDF</button>
+        <button class="hcbtn d" onclick="delRec('${h.id}')">Excluir</button>
       </div>
     </div>`).join('');
 }
@@ -1722,6 +1969,24 @@ function loadRec(id) {
     const [d2,m2,y2]=h.admissao.split('/');
     if(d2&&m2&&y2) document.getElementById('f-admissao').value=`${y2}-${m2}-${d2}`;
   }
+
+  const compAtual = document.getElementById('f-comp').value || '';
+  const [cy, cm] = compAtual.split('-').map(Number);
+  const diasMesAtual = (cy && cm) ? new Date(cy, cm, 0).getDate() : 31;
+  const inicioMes = (cy && cm) ? `${cy}-${String(cm).padStart(2,'0')}-01` : '';
+  const fimMes = (cy && cm) ? `${cy}-${String(cm).padStart(2,'0')}-${String(diasMesAtual).padStart(2,'0')}` : '';
+
+  const inicioCompat = typeof h.periodoInicio === 'string' && h.periodoInicio.includes('-')
+    ? h.periodoInicio
+    : (inicioMes ? `${cy}-${String(cm).padStart(2,'0')}-${String(h.periodoInicio || 1).padStart(2,'0')}` : '');
+  const fimCompat = typeof h.periodoFim === 'string' && h.periodoFim.includes('-')
+    ? h.periodoFim
+    : (fimMes ? `${cy}-${String(cm).padStart(2,'0')}-${String(h.periodoFim || diasMesAtual).padStart(2,'0')}` : '');
+
+  document.getElementById('f-periodo-parcial').checked = !!h.periodoParcial;
+  setV('f-periodo-inicio', inicioCompat || inicioMes);
+  setV('f-periodo-fim', fimCompat || fimMes);
+  togglePeriodoParcial();
 
   document.getElementById('f-tipo').value = h.tipo||'Mensalista';
   document.getElementById('f-folha').value = h.folha||'Folha Mensal';
@@ -1757,15 +2022,21 @@ async function delRec(id){
 
 function novoRecibo() {
   editId=null;
-  ['f-emp','f-cnpj','f-func','f-cargo','f-sal','f-dias','f-admissao','f-inss-aliq','f-inss-manual','f-inss-val','f-fgts-base','f-fgts-val','f-irrf-base','f-irrf-faixa','f-irrf-val','f-irrf-dependentes','f-irrf-deducao'].forEach(id=>{
+  ['f-emp','f-cnpj','f-func','f-cargo','f-sal','f-dias','f-admissao','f-inss-aliq','f-inss-manual','f-inss-val','f-fgts-base','f-fgts-val','f-irrf-base','f-irrf-faixa','f-irrf-val','f-irrf-dependentes','f-irrf-deducao','f-periodo-inicio','f-periodo-fim'].forEach(id=>{
     const e=document.getElementById(id); if(e) e.value='';
   });
   const now=new Date();
   const y=now.getFullYear(),m=String(now.getMonth()+1).padStart(2,'0');
   document.getElementById('f-comp').value=`${y}-${m}`;
   const dias=new Date(y,now.getMonth()+1,0).getDate();
+  const inicioMes = `${y}-${m}-01`;
+  const fimMes = `${y}-${m}-${String(dias).padStart(2,'0')}`;
   document.getElementById('f-diasmes').value=dias;
   document.getElementById('f-dias').value=dias;
+  document.getElementById('f-periodo-parcial').checked = false;
+  document.getElementById('f-periodo-inicio').value = inicioMes;
+  document.getElementById('f-periodo-fim').value = fimMes;
+  togglePeriodoParcial();
   applyAutoDiasHE();
   verbas=[];
   encs={inss:false,fgts:false,irrf:false};
@@ -1800,6 +2071,10 @@ function saveConfig() {
 }
 
 function showConfig() {
+  if (!currentUser?.isAdmin) {
+    toast('Acesso às fórmulas liberado apenas para admin.', 'err');
+    return;
+  }
   const CONFIG_PASS = localStorage.getItem('cfg_senha') || '1234';
   const input = prompt('Digite a senha para acessar as Fórmulas:');
   if (input === null) return;
@@ -1840,15 +2115,21 @@ function renderConfigVerbas() {
         </select>
       </td>
       <td><input value="${v.refLabel}" oninput="updateConfigVerba(${i},'refLabel',this.value)" placeholder="ex: horas"></td>
-      <td style="text-align:center"><input type="checkbox" ${v.compoeHE ? 'checked' : ''} onchange="updateConfigVerba(${i},'compoeHE',this.checked)"></td>
-      <td style="text-align:center"><input type="checkbox" ${v.compoeIRRF ? 'checked' : ''} onchange="updateConfigVerba(${i},'compoeIRRF',this.checked)"></td>
-      <td style="text-align:center"><input type="checkbox" ${v.compoeINSS ? 'checked' : ''} onchange="updateConfigVerba(${i},'compoeINSS',this.checked)"></td>
-      <td style="text-align:center"><input type="checkbox" ${v.compoeFGTS ? 'checked' : ''} onchange="updateConfigVerba(${i},'compoeFGTS',this.checked)"></td>
+      <td style="text-align:center"><button class="cfg-flag-btn ${v.compoeHE ? 'on' : 'off'}" onclick="toggleConfigFlag(${i},'compoeHE')">${v.compoeHE ? 'Sim' : 'Não'}</button></td>
+      <td style="text-align:center"><button class="cfg-flag-btn ${v.compoeIRRF ? 'on' : 'off'}" onclick="toggleConfigFlag(${i},'compoeIRRF')">${v.compoeIRRF ? 'Sim' : 'Não'}</button></td>
+      <td style="text-align:center"><button class="cfg-flag-btn ${v.compoeINSS ? 'on' : 'off'}" onclick="toggleConfigFlag(${i},'compoeINSS')">${v.compoeINSS ? 'Sim' : 'Não'}</button></td>
+      <td style="text-align:center"><button class="cfg-flag-btn ${v.compoeFGTS ? 'on' : 'off'}" onclick="toggleConfigFlag(${i},'compoeFGTS')">${v.compoeFGTS ? 'Sim' : 'Não'}</button></td>
       <td><input value="${v.formulaVenc}" oninput="updateConfigVerba(${i},'formulaVenc',this.value)" placeholder="ex: ref * salHora * 1.5" style="font-family:'Inconsolata',monospace;font-size:.78rem"></td>
       <td><input value="${v.formulaDesc}" oninput="updateConfigVerba(${i},'formulaDesc',this.value)" placeholder="ex: ref" style="font-family:'Inconsolata',monospace;font-size:.78rem"></td>
       <td><button class="btn-del-config" onclick="delConfigVerba(${i})">×</button></td>
     </tr>
   `).join('');
+}
+
+function toggleConfigFlag(i, field) {
+  configVerbas[i][field] = !configVerbas[i][field];
+  renderConfigVerbas();
+  saveConfigVerbas();
 }
 
 function renderQuickList() {
@@ -2098,7 +2379,7 @@ function adminRenderRecibos(lista) {
     const grupo = adminData.grupos.find(g => g.user_id === r.user_id);
     return `
     <div class="hcard">
-      <div style="font-size:.65rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:.25rem">👤 ${grupo?.nome || r.user_id || '—'}</div>
+      <div style="font-size:.65rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:.25rem">Usuário: ${grupo?.nome || r.user_id || '—'}</div>
       <div class="hc-emp">${r.emp||'—'}</div>
       <div class="hc-func">${r.func||'—'} · ${r.cargo||'—'}</div>
       <div class="hc-comp">${r.comp||'—'} · ${r.folha||'—'}</div>
@@ -2107,7 +2388,7 @@ function adminRenderRecibos(lista) {
         <span style="font-size:.7rem;color:var(--ink3)">${fmtBRL(r.tot_venc||0)} bruto</span>
       </div>
       <div class="hc-acts">
-        <button class="hcbtn d" onclick="adminDelRec('${r.id}')">✕ Excluir</button>
+        <button class="hcbtn d" onclick="adminDelRec('${r.id}')">Excluir</button>
       </div>
     </div>`;
   }).join('');
