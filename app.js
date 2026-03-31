@@ -1867,6 +1867,10 @@ function loadRec(id) {
   setV('f-sal',h.sal); setV('f-dias',h.dias); setV('f-diasmes',h.diasMes);
   setV('f-diasuteis',h.diasUteis);
   setV('f-diasdsr',h.diasDSR);
+  document.getElementById('f-periodo-parcial').checked = !!h.periodoParcial;
+  setV('f-periodo-inicio', h.periodoInicio || 1);
+  setV('f-periodo-fim', h.periodoFim || h.diasMes || 31);
+  togglePeriodoParcial();
 
   if(h.comp) {
     const meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
