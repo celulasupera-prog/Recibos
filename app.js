@@ -97,6 +97,98 @@ let grupoId = null;
 let empresaEditando = null;
 let verbasPadraoTemp = [];
 let feriadoEditando = null;
+let loginGalaxy = null;
+
+function initLoginGalaxy() {
+  const canvas = document.getElementById('login-galaxy');
+  const host = document.getElementById('pg-login');
+  if (!canvas || !host) return;
+  if (loginGalaxy?.destroy) loginGalaxy.destroy();
+
+  const ctx = canvas.getContext('2d', { alpha: true });
+  if (!ctx) return;
+  let stars = [];
+  let raf = null;
+  let w = 0;
+  let h = 0;
+  let t0 = performance.now();
+
+  const palette = [
+    'rgba(255,110,110,0.85)',
+    'rgba(226,62,62,0.72)',
+    'rgba(196,42,42,0.68)',
+    'rgba(255,145,120,0.68)',
+    'rgba(255,190,170,0.55)',
+    'rgba(210,220,255,0.35)',
+  ];
+
+  const resize = () => {
+    w = host.clientWidth || window.innerWidth;
+    h = host.clientHeight || window.innerHeight;
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.8);
+    canvas.width = Math.floor(w * dpr);
+    canvas.height = Math.floor(h * dpr);
+    canvas.style.width = `${w}px`;
+    canvas.style.height = `${h}px`;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const density = Math.min(Math.max((w * h) / 14000, 70), 210);
+    stars = Array.from({ length: Math.round(density) }).map(() => ({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      r: Math.random() < 0.12 ? (1.4 + Math.random() * 1.4) : (0.4 + Math.random() * 1.1),
+      c: palette[Math.floor(Math.random() * palette.length)],
+      vx: (Math.random() - 0.5) * 0.05,
+      vy: (Math.random() - 0.5) * 0.07,
+      tw: Math.random() * Math.PI * 2,
+      tws: 0.5 + Math.random() * 1.4,
+    }));
+  };
+
+  const draw = (time) => {
+    const dt = Math.min((time - t0) / 16.666, 2);
+    t0 = time;
+    ctx.clearRect(0, 0, w, h);
+
+    stars.forEach(s => {
+      s.x += s.vx * dt;
+      s.y += s.vy * dt;
+      if (s.x < -2) s.x = w + 2;
+      if (s.x > w + 2) s.x = -2;
+      if (s.y < -2) s.y = h + 2;
+      if (s.y > h + 2) s.y = -2;
+      s.tw += 0.012 * s.tws * dt;
+
+      const alpha = 0.45 + ((Math.sin(s.tw) + 1) / 2) * 0.55;
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = s.c;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.globalAlpha = alpha * 0.35;
+      ctx.shadowColor = s.c;
+      ctx.shadowBlur = s.r * 7;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r * 1.1, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    });
+
+    ctx.globalAlpha = 1;
+    raf = requestAnimationFrame(draw);
+  };
+
+  resize();
+  raf = requestAnimationFrame(draw);
+  window.addEventListener('resize', resize);
+  loginGalaxy = {
+    destroy() {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('resize', resize);
+    }
+  };
+}
 
 // ── AUTH ──
 async function fazerLogin() {
@@ -563,6 +655,7 @@ function addVerbaPadrao() {
 
 // ── INIT ──
 window.onload = async () => {
+  initLoginGalaxy();
   carregarLoginLembrado();
 
   const now = new Date();
