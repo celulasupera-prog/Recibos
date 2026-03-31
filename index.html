@@ -430,7 +430,11 @@
 <div class="preview-side">
   <div class="preview-toolbar">
     <span class="preview-label">Pré-visualização</span>
-    <button class="btn-pdf" onclick="gerarPDF()">⬇ Baixar PDF</button>
+    <div class="preview-actions">
+      <button class="btn-preview secondary" onclick="salvar()">💾 Salvar</button>
+      <button class="btn-preview ghost" onclick="novoRecibo()">🧹 Limpar</button>
+      <button class="btn-preview primary" onclick="gerarPDF()">⬇ Baixar PDF</button>
+    </div>
   </div>
   <div class="recibo-doc" id="recibo-doc"></div>
 </div>
