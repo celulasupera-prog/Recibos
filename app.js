@@ -96,6 +96,7 @@ let empresasList = [];
 let grupoId = null;
 let empresaEditando = null;
 let verbasPadraoTemp = [];
+let feriadoEditando = null;
 
 // ── AUTH ──
 async function fazerLogin() {
@@ -563,6 +564,12 @@ window.onload = async () => {
   const y = now.getFullYear(), m = String(now.getMonth()+1).padStart(2,'0');
   document.getElementById('f-comp').value = `${y}-${m}`;
   const dias = new Date(y, now.getMonth()+1, 0).getDate();
+  const inicioMes = `${y}-${m}-01`;
+  const fimMes = `${y}-${m}-${String(dias).padStart(2,'0')}`;
+  document.getElementById('f-periodo-parcial').checked = false;
+  document.getElementById('f-periodo-inicio').value = inicioMes;
+  document.getElementById('f-periodo-fim').value = fimMes;
+  togglePeriodoParcial();
   document.getElementById('f-diasmes').value = dias;
   document.getElementById('f-dias').value = dias;
   applyAutoDiasHE();
@@ -759,11 +766,14 @@ function getFeriadosDoContexto() {
 
 function calcDiasUteisEDSR(y, m) {
   const diasMes = new Date(y, m, 0).getDate();
+  const { inicio, fim } = getPeriodoCompetencia(y, m, diasMes);
   const feriadosSet = new Set(getFeriadosDoContexto().filter(d => d.startsWith(`${y}-${String(m).padStart(2,'0')}-`)));
   let domingos = 0;
   let feriadosEmDiaUtil = 0;
+  let diasPeriodo = 0;
 
-  for (let dia = 1; dia <= diasMes; dia++) {
+  for (let dia = inicio; dia <= fim; dia++) {
+    diasPeriodo++;
     const data = new Date(y, m - 1, dia);
     const iso = `${y}-${String(m).padStart(2,'0')}-${String(dia).padStart(2,'0')}`;
     const dow = data.getDay();
@@ -777,8 +787,65 @@ function calcDiasUteisEDSR(y, m) {
   }
 
   const diasDSR = domingos + feriadosEmDiaUtil;
-  const diasUteis = Math.max(diasMes - diasDSR, 0);
-  return { diasMes, diasUteis, diasDSR };
+  const diasUteis = Math.max(diasPeriodo - diasDSR, 0);
+  return { diasMes, diasUteis, diasDSR, diasPeriodo };
+}
+
+function getPeriodoCompetenciaSelecionada(diasMes) {
+  const comp = document.getElementById('f-comp')?.value || '';
+  const [compY, compM] = comp.split('-').map(Number);
+  const y = compY || new Date().getFullYear();
+  const m = compM || (new Date().getMonth() + 1);
+  return getPeriodoCompetencia(y, m, diasMes);
+}
+
+function getPeriodoCompetencia(y, m, diasMes = new Date(y, m, 0).getDate()) {
+  const parcial = !!document.getElementById('f-periodo-parcial')?.checked;
+  const inicioEl = document.getElementById('f-periodo-inicio');
+  const fimEl = document.getElementById('f-periodo-fim');
+  const inicioMes = `${y}-${String(m).padStart(2,'0')}-01`;
+  const fimMes = `${y}-${String(m).padStart(2,'0')}-${String(diasMes).padStart(2,'0')}`;
+
+  if (inicioEl) {
+    inicioEl.min = inicioMes;
+    inicioEl.max = fimMes;
+  }
+  if (fimEl) {
+    fimEl.min = inicioMes;
+    fimEl.max = fimMes;
+  }
+
+  if (!parcial) {
+    if (inicioEl) inicioEl.value = inicioMes;
+    if (fimEl) fimEl.value = fimMes;
+    return { inicio: 1, fim: diasMes };
+  }
+
+  const clampDate = (raw) => {
+    if (!raw) return null;
+    if (raw < inicioMes) return inicioMes;
+    if (raw > fimMes) return fimMes;
+    return raw;
+  };
+
+  let inicioDate = clampDate(inicioEl?.value) || inicioMes;
+  let fimDate = clampDate(fimEl?.value) || fimMes;
+  if (fimDate < inicioDate) fimDate = inicioDate;
+
+  let inicio = parseInt(inicioDate.split('-')[2], 10);
+  let fim = parseInt(fimDate.split('-')[2], 10);
+  if (fim < inicio) fim = inicio;
+  if (inicioEl) inicioEl.value = inicioDate;
+  if (fimEl) fimEl.value = fimDate;
+  return { inicio, fim };
+}
+
+function togglePeriodoParcial() {
+  const wrap = document.getElementById('f-periodo-parcial-wrap');
+  const ativo = !!document.getElementById('f-periodo-parcial')?.checked;
+  if (wrap) wrap.style.display = ativo ? 'grid' : 'none';
+  getPeriodoCompetenciaSelecionada();
+  calc();
 }
 
 function applyAutoDiasHE() {
@@ -786,10 +853,13 @@ function applyAutoDiasHE() {
   if (!comp) return;
   const [y, m] = comp.split('-').map(Number);
   if (!y || !m) return;
-  const { diasMes, diasUteis, diasDSR } = calcDiasUteisEDSR(y, m);
+  const { diasMes, diasUteis, diasDSR, diasPeriodo } = calcDiasUteisEDSR(y, m);
   document.getElementById('f-diasmes').value = diasMes;
   document.getElementById('f-diasuteis').value = diasUteis;
   document.getElementById('f-diasdsr').value = diasDSR;
+  if (document.getElementById('f-periodo-parcial')?.checked) {
+    document.getElementById('f-dias').value = diasPeriodo;
+  }
 }
 
 // ── CALC ──
@@ -1183,6 +1253,9 @@ function getData() {
     cargo: document.getElementById('f-cargo').value,
     tipo: document.getElementById('f-tipo').value,
     folha: document.getElementById('f-folha').value,
+    periodoParcial: !!document.getElementById('f-periodo-parcial')?.checked,
+    periodoInicio: document.getElementById('f-periodo-inicio')?.value || '',
+    periodoFim: document.getElementById('f-periodo-fim')?.value || '',
     comp: compFmt,
     admissao: admFmt,
     sal, dias, diasMes, diasUteis, diasDSR, salDia, salHora, valDias,
@@ -1580,14 +1653,31 @@ function showHist_wrapper() {
 function getFeriadosScope() {
   const scope = document.getElementById('fer-scope')?.value || 'global';
   if (scope === 'empresa') {
-    const empresaId = document.getElementById('fer-empresa')?.value || '';
-    return { scope, key: empresaId, label: 'Empresa' };
+    const empresaEl = document.getElementById('fer-empresa');
+    const empresaId = empresaEl?.value || '';
+    const empresaNome = empresaEl?.selectedOptions?.[0]?.textContent || empresaId;
+    return { scope, key: empresaId, label: empresaId ? `Empresa: ${empresaNome}` : 'Empresa' };
   }
   if (scope === 'cidade') {
-    const cityKey = normalizeCityKey(document.getElementById('fer-cidade')?.value || '');
-    return { scope, key: cityKey, label: 'Cidade' };
+    const cityEl = document.getElementById('fer-cidade');
+    const cityKey = normalizeCityKey(cityEl?.value || '');
+    const cityNome = cityEl?.selectedOptions?.[0]?.textContent || cityKey;
+    return { scope, key: cityKey, label: cityKey ? `Cidade: ${cityNome}` : 'Cidade' };
   }
   return { scope: 'global', key: 'global', label: 'Geral' };
+}
+
+function getCidadesCadastradas() {
+  const map = new Map();
+  (empresasList || []).forEach(emp => {
+    const cidade = String(emp?.cidade || '').trim();
+    if (!cidade) return;
+    const key = normalizeCityKey(cidade);
+    if (!map.has(key)) map.set(key, cidade);
+  });
+  return [...map.entries()]
+    .map(([key, nome]) => ({ key, nome }))
+    .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
 }
 
 function getFeriadosArrayByScope(scope, key) {
@@ -1614,7 +1704,19 @@ function setFeriadosArrayByScope(scope, key, arr) {
 function renderFeriadosPage() {
   const empresaSel = document.getElementById('fer-empresa');
   if (empresaSel) {
+    const selectedEmpresa = empresaSel.value;
     empresaSel.innerHTML = '<option value="">Selecione a empresa</option>' + empresasList.map(e => `<option value="${e.id}">${e.nome}${e.cnpj ? ' — '+e.cnpj : ''}</option>`).join('');
+    if (selectedEmpresa) empresaSel.value = selectedEmpresa;
+  }
+
+  const citySel = document.getElementById('fer-cidade');
+  if (citySel) {
+    const selectedCity = citySel.value;
+    const cidades = getCidadesCadastradas();
+    citySel.innerHTML = '<option value="">Selecione a cidade</option>' + cidades.map(c => `<option value="${c.key}">${c.nome}</option>`).join('');
+    if (selectedCity && cidades.some(c => c.key === selectedCity)) {
+      citySel.value = selectedCity;
+    }
   }
 
   const { scope, key, label } = getFeriadosScope();
@@ -1632,17 +1734,57 @@ function renderFeriadosPage() {
   const datas = getFeriadosArrayByScope(scope, key);
   if (!datas.length) {
     list.innerHTML = '<div style="color:var(--ink3)">Nenhum feriado cadastrado neste contexto.</div>';
+    atualizarEstadoEdicaoFeriado();
     return;
   }
-  list.innerHTML = datas.map(h => `<div style="display:flex;justify-content:space-between;align-items:center;padding:.4rem .5rem;border:1px solid var(--border);border-radius:6px;background:#fff;gap:.5rem">
-    <div style="display:flex;flex-direction:column;gap:.1rem">
-      <span style="font-family:'Inconsolata',monospace">${h.date}</span>
-      <span style="font-size:.74rem;color:var(--ink2)">${h.desc || 'Sem descrição'}</span>
+  list.innerHTML = datas.map(h => `<div class="feriado-item">
+    <div class="feriado-item-main">
+      <span class="feriado-date">${formatDateBR(h.date)}</span>
+      <span class="feriado-desc">${h.desc || 'Sem descrição'}</span>
     </div>
-    <button class="btn-rm" onclick="removerFeriado('${h.date}')">×</button>
+    <div class="feriado-actions">
+      <button class="feriado-btn feriado-btn-edit" onclick="editarFeriado('${h.date}')">Editar</button>
+      <button class="feriado-btn feriado-btn-remove" onclick="removerFeriado('${h.date}')">Excluir</button>
+    </div>
   </div>`).join('');
   const ctx = document.getElementById('fer-context-label');
-  if (ctx) ctx.textContent = `${label}${key ? `: ${key}` : ''}`;
+  if (ctx) ctx.textContent = label;
+  atualizarEstadoEdicaoFeriado();
+}
+
+function formatDateBR(isoDate) {
+  if (!isoDate || !isoDate.includes('-')) return isoDate || '';
+  const [y, m, d] = isoDate.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+function atualizarEstadoEdicaoFeriado() {
+  const btn = document.getElementById('fer-submit-btn');
+  const editActions = document.getElementById('fer-edit-actions');
+  if (btn) btn.textContent = feriadoEditando ? 'Salvar edição' : '+ Adicionar';
+  if (editActions) editActions.style.display = feriadoEditando ? 'block' : 'none';
+}
+
+function editarFeriado(data) {
+  const { scope, key } = getFeriadosScope();
+  const feriado = getFeriadosArrayByScope(scope, key).find(h => h.date === data);
+  if (!feriado) return;
+
+  feriadoEditando = { scope, key, date: data };
+  const dataEl = document.getElementById('fer-data');
+  const descEl = document.getElementById('fer-desc');
+  if (dataEl) dataEl.value = feriado.date;
+  if (descEl) descEl.value = feriado.desc || '';
+  atualizarEstadoEdicaoFeriado();
+}
+
+function cancelarEdicaoFeriado() {
+  feriadoEditando = null;
+  const dataEl = document.getElementById('fer-data');
+  const descEl = document.getElementById('fer-desc');
+  if (dataEl) dataEl.value = '';
+  if (descEl) descEl.value = '';
+  atualizarEstadoEdicaoFeriado();
 }
 
 function addFeriado() {
@@ -1654,9 +1796,22 @@ function addFeriado() {
     return toast('Selecione cidade/empresa para cadastrar o feriado.', 'err');
   }
   const arr = getFeriadosArrayByScope(scope, key);
-  setFeriadosArrayByScope(scope, key, [...arr, { date: data, desc }]);
+  let atualizado = [...arr, { date: data, desc }];
+
+  if (feriadoEditando) {
+    if (feriadoEditando.scope !== scope || feriadoEditando.key !== key) {
+      return toast('Finalize a edição no mesmo contexto do feriado.', 'err');
+    }
+    atualizado = arr
+      .filter(h => h.date !== feriadoEditando.date)
+      .concat({ date: data, desc });
+    feriadoEditando = null;
+  }
+
+  setFeriadosArrayByScope(scope, key, atualizado);
   saveFeriadosConfig();
   if (document.getElementById('fer-desc')) document.getElementById('fer-desc').value = '';
+  if (document.getElementById('fer-data')) document.getElementById('fer-data').value = '';
   renderFeriadosPage();
   calc();
 }
@@ -1665,6 +1820,9 @@ function removerFeriado(data) {
   const { scope, key } = getFeriadosScope();
   const arr = getFeriadosArrayByScope(scope, key).filter(h => h.date !== data);
   setFeriadosArrayByScope(scope, key, arr);
+  if (feriadoEditando && feriadoEditando.scope === scope && feriadoEditando.key === key && feriadoEditando.date === data) {
+    cancelarEdicaoFeriado();
+  }
   saveFeriadosConfig();
   renderFeriadosPage();
   calc();
@@ -1723,6 +1881,24 @@ function loadRec(id) {
     if(d2&&m2&&y2) document.getElementById('f-admissao').value=`${y2}-${m2}-${d2}`;
   }
 
+  const compAtual = document.getElementById('f-comp').value || '';
+  const [cy, cm] = compAtual.split('-').map(Number);
+  const diasMesAtual = (cy && cm) ? new Date(cy, cm, 0).getDate() : 31;
+  const inicioMes = (cy && cm) ? `${cy}-${String(cm).padStart(2,'0')}-01` : '';
+  const fimMes = (cy && cm) ? `${cy}-${String(cm).padStart(2,'0')}-${String(diasMesAtual).padStart(2,'0')}` : '';
+
+  const inicioCompat = typeof h.periodoInicio === 'string' && h.periodoInicio.includes('-')
+    ? h.periodoInicio
+    : (inicioMes ? `${cy}-${String(cm).padStart(2,'0')}-${String(h.periodoInicio || 1).padStart(2,'0')}` : '');
+  const fimCompat = typeof h.periodoFim === 'string' && h.periodoFim.includes('-')
+    ? h.periodoFim
+    : (fimMes ? `${cy}-${String(cm).padStart(2,'0')}-${String(h.periodoFim || diasMesAtual).padStart(2,'0')}` : '');
+
+  document.getElementById('f-periodo-parcial').checked = !!h.periodoParcial;
+  setV('f-periodo-inicio', inicioCompat || inicioMes);
+  setV('f-periodo-fim', fimCompat || fimMes);
+  togglePeriodoParcial();
+
   document.getElementById('f-tipo').value = h.tipo||'Mensalista';
   document.getElementById('f-folha').value = h.folha||'Folha Mensal';
 
@@ -1757,15 +1933,21 @@ async function delRec(id){
 
 function novoRecibo() {
   editId=null;
-  ['f-emp','f-cnpj','f-func','f-cargo','f-sal','f-dias','f-admissao','f-inss-aliq','f-inss-manual','f-inss-val','f-fgts-base','f-fgts-val','f-irrf-base','f-irrf-faixa','f-irrf-val','f-irrf-dependentes','f-irrf-deducao'].forEach(id=>{
+  ['f-emp','f-cnpj','f-func','f-cargo','f-sal','f-dias','f-admissao','f-inss-aliq','f-inss-manual','f-inss-val','f-fgts-base','f-fgts-val','f-irrf-base','f-irrf-faixa','f-irrf-val','f-irrf-dependentes','f-irrf-deducao','f-periodo-inicio','f-periodo-fim'].forEach(id=>{
     const e=document.getElementById(id); if(e) e.value='';
   });
   const now=new Date();
   const y=now.getFullYear(),m=String(now.getMonth()+1).padStart(2,'0');
   document.getElementById('f-comp').value=`${y}-${m}`;
   const dias=new Date(y,now.getMonth()+1,0).getDate();
+  const inicioMes = `${y}-${m}-01`;
+  const fimMes = `${y}-${m}-${String(dias).padStart(2,'0')}`;
   document.getElementById('f-diasmes').value=dias;
   document.getElementById('f-dias').value=dias;
+  document.getElementById('f-periodo-parcial').checked = false;
+  document.getElementById('f-periodo-inicio').value = inicioMes;
+  document.getElementById('f-periodo-fim').value = fimMes;
+  togglePeriodoParcial();
   applyAutoDiasHE();
   verbas=[];
   encs={inss:false,fgts:false,irrf:false};

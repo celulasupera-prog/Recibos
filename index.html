@@ -190,6 +190,7 @@
       <div class="field">
         <label>Mês / Ano</label>
         <input type="month" id="f-comp" oninput="calc()">
+        <div class="field-hint">Por padrão, considera o mês inteiro da competência.</div>
       </div>
       <div class="field">
         <label>Tipo de Folha</label>
@@ -200,6 +201,22 @@
           <option>Férias</option>
           <option>Rescisão</option>
         </select>
+      </div>
+      <div class="field" style="grid-column:1/-1">
+        <label style="display:flex;align-items:center;gap:.45rem;text-transform:none;font-size:.8rem;letter-spacing:0;color:var(--ink)">
+          <input type="checkbox" id="f-periodo-parcial" onchange="togglePeriodoParcial()">
+          Funcionário iniciou no meio do mês (calcular por intervalo de dias)
+        </label>
+      </div>
+      <div class="fg fg2" id="f-periodo-parcial-wrap" style="display:none;grid-column:1/-1">
+        <div class="field">
+          <label>Data início</label>
+          <input type="date" id="f-periodo-inicio" oninput="calc()">
+        </div>
+        <div class="field">
+          <label>Data fim</label>
+          <input type="date" id="f-periodo-fim" oninput="calc()">
+        </div>
       </div>
     </div>
   </div>
@@ -439,7 +456,9 @@
       </div>
       <div class="field" id="fer-cidade-wrap" style="display:none">
         <label>Cidade</label>
-        <input id="fer-cidade" placeholder="Ex: Curitiba/PR" oninput="renderFeriadosPage()">
+        <select id="fer-cidade" onchange="renderFeriadosPage()">
+          <option value="">Selecione a cidade</option>
+        </select>
       </div>
       <div class="field" id="fer-empresa-wrap" style="display:none">
         <label>Empresa</label>
@@ -453,12 +472,15 @@
         <label>Descrição</label>
         <input id="fer-desc" placeholder="Ex: Carnaval / Padroeiro / Municipal">
       </div>
-      <button class="abtn primary" onclick="addFeriado()">+ Adicionar</button>
+      <button class="abtn primary" id="fer-submit-btn" onclick="addFeriado()">+ Adicionar</button>
     </div>
     <div style="margin-top:.8rem;font-size:.74rem;color:var(--ink3)">
       Contexto atual: <b id="fer-context-label">Geral</b>
     </div>
     <div id="feriados-list" style="margin-top:.6rem;display:flex;flex-direction:column;gap:.45rem;"></div>
+    <div style="margin-top:.5rem;display:none" id="fer-edit-actions">
+      <button class="abtn outline" style="max-width:240px" onclick="cancelarEdicaoFeriado()">Cancelar edição</button>
+    </div>
     <div class="field-hint" style="margin-top:.65rem">Os feriados cadastrados impactam o cálculo automático de Dias Úteis e Dias DSR da competência selecionada.</div>
   </div>
 </div>
