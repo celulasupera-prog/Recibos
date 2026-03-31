@@ -648,13 +648,13 @@ function renderQuickAddButtons() {
   const container = document.querySelector('.hcbtns-quick');
   if(!container) return;
   // botões fixos sempre presentes
-  let html = `<button class="hcbtn" onclick="quickAdd('he50')">HE 50%</button>
-    <button class="hcbtn" onclick="quickAdd('he100')">HE 100%</button>`;
+  let html = `<button class="hcbtn quick-rubrica-btn" onclick="quickAdd('he50')">HORAS EXTRAS - 50%</button>
+    <button class="hcbtn quick-rubrica-btn" onclick="quickAdd('he100')">HORAS EXTRAS 100%</button>`;
   // verbas configuradas
   configVerbas
     .filter(v => v.id !== 'he50' && v.id !== 'he100')
     .forEach(v => {
-    html += `<button class="hcbtn" onclick="quickAddConfig('${v.id}')">${v.desc.length>15?v.cod+' '+v.desc.slice(0,12)+'…':v.desc}</button>`;
+    html += `<button class="hcbtn quick-rubrica-btn" onclick="quickAddConfig('${v.id}')">${v.desc}</button>`;
   });
   container.innerHTML = html;
 }

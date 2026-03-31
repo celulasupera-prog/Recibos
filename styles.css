@@ -94,15 +94,27 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   overflow:hidden;
 }
 .section-empresa .card{border-top-color:#5d86db;}
-.section-funcionario .card{border-top-color:#4d9e96;}
-.section-competencia .card{border-top-color:#8b73d9;}
-.section-base .card{border-top-color:#d9a15c;}
+.section-funcionario .card{border-top-color:#5d86db;}
+.section-competencia .card{border-top-color:#5d86db;}
+.section-base .card{border-top-color:#5d86db;}
 .section-verbas .card{border-top-color:#dd7f7f;}
 .section-encargos .card{border-top-color:#64a89f;}
 .section-totais .card{border-top-color:#64748b;}
 .form-section.collapsed .card{display:none;}
 .form-section.collapsed{padding-bottom:.35rem;}
 .section-base .fg3{grid-template-columns:repeat(auto-fit,minmax(150px,1fr));}
+.quick-rubricas-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:.45rem;
+}
+.quick-rubrica-btn{
+  width:100%;
+  white-space:normal;
+  text-align:left;
+  line-height:1.25;
+  padding:.45rem .55rem;
+}
 
 .card{background:#fbfcff;border:1px solid var(--border);border-radius:12px;padding:1rem 1.1rem;box-shadow:0 3px 10px rgba(22,27,36,.04);}
 
