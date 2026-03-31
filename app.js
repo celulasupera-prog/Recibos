@@ -108,6 +108,7 @@ let editId = null;
 let currentUser = null;
 let empresasList = [];
 let grupoId = null;
+let gruposDisponiveis = [];
 let empresaEditando = null;
 let verbasPadraoTemp = [];
 let feriadoEditando = null;
@@ -268,6 +269,7 @@ async function carregarEmpresas() {
     if (currentUser.isAdmin) {
       // admin carrega todas as empresas de todos os grupos
       const todosGrupos = await sbFetch('grupos?select=*&order=nome.asc') || [];
+      gruposDisponiveis = todosGrupos;
       empresasList = [];
       for (const g of todosGrupos) {
         const emps = await sbFetch('empresas?grupo_id=eq.' + g.id + '&order=nome.asc') || [];
@@ -276,6 +278,7 @@ async function carregarEmpresas() {
       }
       grupoId = todosGrupos[0]?.id || null;
     } else {
+      gruposDisponiveis = [];
       // usuário normal — busca ou cria seu grupo
       let grupos = await sbFetch('grupos?user_id=eq.' + currentUser.id);
       if (!grupos || grupos.length === 0) {
@@ -291,6 +294,7 @@ async function carregarEmpresas() {
       empresasList = await sbFetch('empresas?grupo_id=eq.' + grupoId + '&order=nome.asc') || [];
     }
     renderEmpresasSelect();
+    renderEmpresaUsuarioSelect();
     if (document.getElementById('pg-feriados')?.style.display === 'block') {
       renderFeriadosPage();
     }
@@ -382,6 +386,29 @@ async function showEmpresas() {
   renderEmpresasList();
 }
 
+function renderEmpresaUsuarioSelect(selectedGrupoId = '') {
+  const wrap = document.getElementById('new-emp-user-wrap');
+  const sel = document.getElementById('new-emp-user');
+  if (!wrap || !sel) return;
+
+  if (!currentUser?.isAdmin) {
+    wrap.style.display = 'none';
+    sel.innerHTML = '';
+    return;
+  }
+
+  wrap.style.display = 'block';
+  if (!gruposDisponiveis.length) {
+    sel.innerHTML = '<option value="">Nenhum usuário disponível</option>';
+    return;
+  }
+
+  sel.innerHTML = gruposDisponiveis
+    .map(g => `<option value="${g.id}">${g.nome || g.user_id}</option>`)
+    .join('');
+  sel.value = selectedGrupoId || grupoId || gruposDisponiveis[0].id;
+}
+
 function editarEmpresa(id) {
   const emp = empresasList.find(e => e.id == id);
   if (!emp) return;
@@ -392,6 +419,7 @@ function editarEmpresa(id) {
   document.getElementById('new-emp-nome').value = emp.nome || '';
   document.getElementById('new-emp-cnpj').value = emp.cnpj || '';
   document.getElementById('new-emp-cidade').value = emp.cidade || '';
+  renderEmpresaUsuarioSelect(emp.grupo_id || '');
 
   empresaEditando = emp;
 }
@@ -434,6 +462,7 @@ function showAddEmpresa() {
   document.getElementById('new-emp-nome').value = '';
   document.getElementById('new-emp-cnpj').value = '';
   document.getElementById('new-emp-cidade').value = '';
+  renderEmpresaUsuarioSelect(grupoId || '');
 
   empresaEditando = null;
 
@@ -455,20 +484,29 @@ async function salvarEmpresa() {
   const nome = document.getElementById('new-emp-nome').value.trim();
   const cnpj = document.getElementById('new-emp-cnpj').value.trim();
   const cidade = document.getElementById('new-emp-cidade').value.trim();
+  const grupoSelecionado = currentUser.isAdmin
+    ? (document.getElementById('new-emp-user')?.value || '')
+    : grupoId;
 
   if (!nome) { toast('Informe o nome da empresa!', 'err'); return; }
+  if (!grupoSelecionado) { toast('Selecione o usuário da empresa!', 'err'); return; }
 
   try {
     if (empresaEditando) {
       // EDITAR
       await sbFetch('empresas?id=eq.' + empresaEditando.id, {
         method: 'PATCH',
-        body: JSON.stringify({ nome, cnpj, cidade })
+        body: JSON.stringify({ nome, cnpj, cidade, grupo_id: grupoSelecionado })
       });
 
       empresaEditando.nome = nome;
       empresaEditando.cnpj = cnpj;
       empresaEditando.cidade = cidade;
+      empresaEditando.grupo_id = grupoSelecionado;
+      if (currentUser.isAdmin) {
+        const grupo = gruposDisponiveis.find(g => String(g.id) === String(grupoSelecionado));
+        empresaEditando._grupoEmail = grupo?.nome || '';
+      }
 
       toast('Empresa atualizada!');
     } else {
@@ -477,12 +515,16 @@ async function salvarEmpresa() {
         method: 'POST',
         prefer: 'return=representation',
         body: JSON.stringify({
-          grupo_id: grupoId,
+          grupo_id: grupoSelecionado,
           nome, cnpj, cidade,
           verbas_padrao: [{ cod:'8781', desc:'DIAS NORMAIS', autoType:'diasnormais', tipo:'venc', incideIRRF:true, incideINSS:true, incideFGTS:true }]
         })
       });
 
+      if (currentUser.isAdmin) {
+        const grupo = gruposDisponiveis.find(g => String(g.id) === String(grupoSelecionado));
+        if (nova?.[0]) nova[0]._grupoEmail = grupo?.nome || '';
+      }
       empresasList.push(nova[0]);
       toast('Empresa cadastrada!');
     }
@@ -1505,8 +1547,10 @@ if(dsr) rowsData.push({
           </div>
           <div class="rec-tot-row rec-tot-liq">
             <div class="rtc" style="grid-column:1/3"><span class="rtc-lbl">&nbsp;</span></div>
-            <div class="rtc" style="text-align:right"><span class="rtc-lbl" style="font-size:7pt;">Valor Líquido ⇒</span></div>
-            <div class="rtc" style="grid-column:4/6;border-right:none;text-align:right"><span class="rtc-val" style="font-size:8pt;">R$ ${fmtN2(d.liq)}</span></div>
+            <div class="rtc" style="grid-column:3/6;border-right:none;text-align:right">
+              <span class="rtc-lbl" style="font-size:7pt;">Valor Líquido ⇒</span>
+              <span class="rtc-val" style="font-size:8pt;">R$ ${fmtN2(d.liq)}</span>
+            </div>
           </div>
           ${(d.encs.inss || d.encs.fgts || d.encs.irrf) ? `
           <div class="rec-tot-row">
