@@ -11,19 +11,33 @@
 
 </head>
 <body>
+<svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+  <symbol id="i-user" viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm0 2c-3.3 0-6 2.2-6 5v1h12v-1c0-2.8-2.7-5-6-5z" fill="currentColor"/></symbol>
+  <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 20h16v-2h-1V4H5v14H4zm4-2H7v-2h1zm0-4H7v-2h1zm0-4H7V8h1zm4 8h-2v-2h2zm0-4h-2v-2h2zm0-4h-2V8h2zm4 8h-2v-2h2zm0-4h-2v-2h2zm0-4h-2V8h2z" fill="currentColor"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><path d="M7 2h2v2h6V2h2v2h3v18H4V4h3zm11 8H6v10h12z" fill="currentColor"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><path d="m21 13-.1-2-2-.7a6.9 6.9 0 0 0-.6-1.5l1.1-1.8-1.4-1.4-1.8 1.1a6.9 6.9 0 0 0-1.5-.6L13 3h-2l-.7 2.1a6.9 6.9 0 0 0-1.5.6L7 4.6 5.6 6l1.1 1.8a6.9 6.9 0 0 0-.6 1.5L4 10v2l2.1.7a6.9 6.9 0 0 0 .6 1.5L5.6 16l1.4 1.4 1.8-1.1a6.9 6.9 0 0 0 1.5.6L11 19h2l.7-2.1a6.9 6.9 0 0 0 1.5-.6l1.8 1.1 1.4-1.4-1.1-1.8a6.9 6.9 0 0 0 .6-1.5L21 13zm-9-4a3 3 0 1 1 0 6 3 3 0 0 1 0-6z" fill="currentColor"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 2 4 5v6c0 5.2 3.3 9.8 8 11 4.7-1.2 8-5.8 8-11V5z" fill="currentColor"/></symbol>
+  <symbol id="i-logout" viewBox="0 0 24 24"><path d="M10 3H4v18h6v-2H6V5h4zm1 4v3h7.2l-2.6-2.6L17 6l5 5-5 5-1.4-1.4 2.6-2.6H11v3H9V7z" fill="currentColor"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z" fill="currentColor"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="m13.5 5-7 7 7 7 1.4-1.4L10.3 13H20v-2h-9.7l4.6-4.6z" fill="currentColor"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><path d="M17 9V7a5 5 0 0 0-10 0v2H5v12h14V9zm-8 0V7a3 3 0 1 1 6 0v2z" fill="currentColor"/></symbol>
+  <symbol id="i-save" viewBox="0 0 24 24"><path d="M5 3h12l4 4v14H3V3zm2 2v14h10v-6H7V5zm8 0H9v4h6z" fill="currentColor"/></symbol>
+  <symbol id="i-clear" viewBox="0 0 24 24"><path d="m18.3 5.7-12.6 12.6-1.4-1.4L16.9 4.3zM19 19H8v-2h11z" fill="currentColor"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M11 4h2v8h3l-4 4-4-4h3zm-6 12h14v4H5z" fill="currentColor"/></symbol>
+</svg>
 
 <header class="app-header">
   <div class="app-logo">Recibos <span>BETA</span></div>
   <div style="display:flex;align-items:center;gap:1rem">
-    <div class="user-badge" id="user-badge" style="display:none">👤 <b id="user-email-badge"></b></div>
+    <div class="user-badge" id="user-badge" style="display:none"><svg class="ico"><use href="#i-user"/></svg> <b id="user-email-badge"></b></div>
     <div class="hbtns">
-      <button class="hbtn ghost" onclick="showEmpresas()" id="btn-empresas" style="display:none">🏢 Empresas</button>
-      <button class="hbtn ghost" onclick="showFeriados()">📅 Feriados</button>
-      <button class="hbtn ghost" onclick="showConfig()">⚙ Fórmulas</button>
+      <button class="hbtn ghost" onclick="showEmpresas()" id="btn-empresas" style="display:none"><svg class="ico"><use href="#i-building"/></svg> Empresas</button>
+      <button class="hbtn ghost" onclick="showFeriados()"><svg class="ico"><use href="#i-calendar"/></svg> Feriados</button>
+      <button class="hbtn ghost" onclick="showConfig()" id="btn-formulas" style="display:none"><svg class="ico"><use href="#i-gear"/></svg> Fórmulas</button>
       <button class="hbtn ghost" onclick="showHist()">Histórico</button>
-      <button class="hbtn solid" onclick="novoRecibo()">+ Novo</button>
-      <button class="hbtn ghost" onclick="showAdmin()" id="btn-admin" style="display:none;background:#b45309;color:#fff;border-color:#b45309">👑 Admin</button>
-      <button class="hbtn ghost" onclick="fazerLogout()" id="btn-logout" style="display:none">Sair</button>
+      <button class="hbtn solid" onclick="novoRecibo()"><svg class="ico"><use href="#i-plus"/></svg> Novo</button>
+      <button class="hbtn ghost" onclick="showAdmin()" id="btn-admin" style="display:none;background:#b45309;color:#fff;border-color:#b45309"><svg class="ico"><use href="#i-shield"/></svg> Admin</button>
+      <button class="hbtn ghost" onclick="fazerLogout()" id="btn-logout" style="display:none"><svg class="ico"><use href="#i-logout"/></svg> Sair</button>
     </div>
   </div>
 </header>
@@ -53,10 +67,10 @@
 <!-- EMPRESAS PAGE -->
 <div id="pg-empresas">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
-    <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800">🏢 Minhas Empresas</div>
+    <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800"><svg class="ico"><use href="#i-building"/></svg> Minhas Empresas</div>
     <div style="display:flex;gap:.5rem;align-itens:center;">
-      <button class="hbtn solid" onclick="showAddEmpresa()">+ Nova Empresa</button>
-      <button class="hbtn solid" onclick="showMain()">← Voltar</button>
+      <button class="hbtn solid" onclick="showAddEmpresa()"><svg class="ico"><use href="#i-plus"/></svg> Nova Empresa</button>
+      <button class="hbtn solid" onclick="showMain_config()"><svg class="ico"><use href="#i-back"/></svg> Voltar</button>
     </div>
   </div>
   <div id="empresas-list"></div>
@@ -99,8 +113,8 @@
 <!-- ADMIN PAGE -->
 <div id="pg-admin" style="display:none;padding:1.5rem;max-width:1100px;margin:0 auto;">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
-    <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800">👑 Painel Admin</div>
-    <button class="hbtn solid" onclick="showMain()">← Voltar</button>
+    <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800"><svg class="ico"><use href="#i-shield"/></svg> Painel Admin</div>
+    <button class="hbtn solid" onclick="showMain()"><svg class="ico"><use href="#i-back"/></svg> Voltar</button>
   </div>
 
   <!-- filtros -->
@@ -190,6 +204,7 @@
       <div class="field">
         <label>Mês / Ano</label>
         <input type="month" id="f-comp" oninput="calc()">
+        <div class="field-hint">Por padrão, considera o mês inteiro da competência.</div>
       </div>
       <div class="field">
         <label>Tipo de Folha</label>
@@ -200,6 +215,22 @@
           <option>Férias</option>
           <option>Rescisão</option>
         </select>
+      </div>
+      <div class="field" style="grid-column:1/-1">
+        <label style="display:flex;align-items:center;gap:.45rem;text-transform:none;font-size:.8rem;letter-spacing:0;color:var(--ink)">
+          <input type="checkbox" id="f-periodo-parcial" onchange="togglePeriodoParcial()">
+          Funcionário iniciou no meio do mês (calcular por intervalo de dias)
+        </label>
+      </div>
+      <div class="fg fg2" id="f-periodo-parcial-wrap" style="display:none;grid-column:1/-1">
+        <div class="field">
+          <label>Data início</label>
+          <input type="date" id="f-periodo-inicio" oninput="calc()">
+        </div>
+        <div class="field">
+          <label>Data fim</label>
+          <input type="date" id="f-periodo-fim" oninput="calc()">
+        </div>
       </div>
     </div>
   </div>
@@ -258,7 +289,7 @@
     <div class="card">
       <div class="verbas-header">
         <span>Código</span><span>Descrição</span><span>Referência</span>
-        <span>Vencimentos</span><span>Descontos</span><span>IRRF</span><span></span>
+        <span>Vencimentos</span><span>Descontos</span><span></span>
       </div>
       <div id="verbas-list"></div>
 
@@ -403,8 +434,8 @@
 
   <div class="action-bar">
     <button class="abtn outline" onclick="novoRecibo()">Limpar</button>
-    <button class="abtn secondary" onclick="salvar()">💾 Salvar</button>
-    <button class="abtn primary" onclick="gerarPDF()">⬇ PDF</button>
+    <button class="abtn secondary" onclick="salvar()"><svg class="ico"><use href="#i-save"/></svg> Salvar</button>
+    <button class="abtn primary" onclick="gerarPDF()"><svg class="ico"><use href="#i-download"/></svg> PDF</button>
   </div>
 
 </div><!-- /form-side -->
@@ -413,7 +444,11 @@
 <div class="preview-side">
   <div class="preview-toolbar">
     <span class="preview-label">Pré-visualização</span>
-    <button class="btn-pdf" onclick="gerarPDF()">⬇ Baixar PDF</button>
+    <div class="preview-actions">
+      <button class="btn-preview secondary" onclick="salvar()"><svg class="ico"><use href="#i-save"/></svg> Salvar</button>
+      <button class="btn-preview ghost" onclick="novoRecibo()"><svg class="ico"><use href="#i-clear"/></svg> Limpar</button>
+      <button class="btn-preview primary" onclick="gerarPDF()"><svg class="ico"><use href="#i-download"/></svg> Baixar PDF</button>
+    </div>
   </div>
   <div class="recibo-doc" id="recibo-doc"></div>
 </div>
@@ -422,14 +457,16 @@
 </div><!-- /pg-main -->
 
 <!-- HOLIDAYS -->
-<div id="pg-feriados" style="display:none;padding:1.5rem;max-width:1000px;margin:0 auto;">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
-    <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800">📅 Feriados</div>
-    <button class="hbtn solid" onclick="showMain()">← Voltar</button>
+<div id="pg-feriados" class="fer-page" style="display:none">
+  <div class="fer-header">
+    <div class="fer-title">Feriados</div>
+    <button class="fer-back-btn" onclick="showMain()"><svg class="ico"><use href="#i-back"/></svg> Voltar</button>
   </div>
-  <div class="card">
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:.6rem;align-items:end;">
-      <div class="field">
+
+  <div class="fer-card">
+    <div class="fer-card-label">Cadastrar feriado</div>
+    <div class="fer-grid fer-grid-top">
+      <div class="field fer-field">
         <label>Contexto</label>
         <select id="fer-scope" onchange="renderFeriadosPage()">
           <option value="global">Geral (todos)</option>
@@ -437,29 +474,55 @@
           <option value="empresa">Por empresa</option>
         </select>
       </div>
-      <div class="field" id="fer-cidade-wrap" style="display:none">
+      <div class="field fer-field" id="fer-cidade-wrap" style="display:none">
         <label>Cidade</label>
-        <input id="fer-cidade" placeholder="Ex: Curitiba/PR" oninput="renderFeriadosPage()">
+        <select id="fer-cidade" onchange="renderFeriadosPage()">
+          <option value="">Selecione a cidade</option>
+        </select>
       </div>
-      <div class="field" id="fer-empresa-wrap" style="display:none">
+      <div class="field fer-field" id="fer-empresa-wrap" style="display:none">
         <label>Empresa</label>
         <select id="fer-empresa" onchange="renderFeriadosPage()"></select>
       </div>
-      <div class="field">
+    </div>
+    <div class="fer-grid fer-grid-bottom">
+      <div class="field fer-field">
         <label>Data</label>
         <input type="date" id="fer-data">
       </div>
-      <div class="field">
+      <div class="field fer-field">
         <label>Descrição</label>
-        <input id="fer-desc" placeholder="Ex: Carnaval / Padroeiro / Municipal">
+        <input id="fer-desc" placeholder="Ex: Tiradentes / Carnaval / Municipal">
       </div>
-      <button class="abtn primary" onclick="addFeriado()">+ Adicionar</button>
+      <button class="fer-add-btn" onclick="addFeriado()">+ Adicionar</button>
     </div>
-    <div style="margin-top:.8rem;font-size:.74rem;color:var(--ink3)">
-      Contexto atual: <b id="fer-context-label">Geral</b>
+  </div>
+
+  <div class="fer-card">
+    <div class="fer-list-head">
+      <div>Feriados cadastrados — <span id="fer-context-label">Geral</span></div>
+      <span class="fer-badge" id="fer-count-badge">0 feriados</span>
     </div>
-    <div id="feriados-list" style="margin-top:.6rem;display:flex;flex-direction:column;gap:.45rem;"></div>
-    <div class="field-hint" style="margin-top:.65rem">Os feriados cadastrados impactam o cálculo automático de Dias Úteis e Dias DSR da competência selecionada.</div>
+    <div id="feriados-list" class="fer-list"></div>
+    <div class="fer-note">Os feriados impactam o cálculo automático de Dias Úteis e Dias DSR da competência selecionada.</div>
+  </div>
+
+  <div class="fer-edit-modal" id="fer-edit-modal" style="display:none" onclick="if(event.target===this)cancelarEdicaoFeriado()">
+    <div class="fer-edit-card" id="fer-edit-card">
+      <div class="fer-edit-title">Editar feriado</div>
+      <div class="field fer-field">
+        <label>Data</label>
+        <input type="date" id="fer-edit-data">
+      </div>
+      <div class="field fer-field">
+        <label>Descrição</label>
+        <input id="fer-edit-desc" placeholder="Descrição do feriado">
+      </div>
+      <div class="fer-edit-actions">
+        <button class="fer-edit-btn fer-edit-save" onclick="salvarEdicaoFeriado()">Salvar</button>
+        <button class="fer-edit-btn fer-edit-cancel" onclick="cancelarEdicaoFeriado()">Cancelar</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -467,7 +530,7 @@
 <div id="pg-hist">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
     <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800">Histórico de Recibos</div>
-    <button class="hbtn solid" onclick="novoRecibo();showMain()">+ Novo Recibo</button>
+      <button class="hbtn solid" onclick="novoRecibo();showMain()"><svg class="ico"><use href="#i-plus"/></svg> Novo Recibo</button>
   </div>
   <div class="hist-grid" id="hist-grid"></div>
 </div>
@@ -475,10 +538,10 @@
 <!-- CONFIG PAGE -->
 <div id="pg-config">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
-    <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800">⚙ Configuração de Fórmulas</div>
+    <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800"><svg class="ico"><use href="#i-gear"/></svg> Configuração de Fórmulas</div>
     <div style="display:flex;gap:.5rem">
-      <button class="hbtn ghost" style="background:var(--ink);color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.2)" onclick="alterarSenha()">🔒 Alterar Senha</button>
-      <button class="hbtn solid" onclick="showMain()">← Voltar</button>
+      <button class="hbtn ghost" style="background:var(--ink);color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.2)" onclick="alterarSenha()"><svg class="ico"><use href="#i-lock"/></svg> Alterar Senha</button>
+      <button class="hbtn solid" onclick="showMain_config()"><svg class="ico"><use href="#i-back"/></svg> Voltar</button>
     </div>
   </div>
 
@@ -495,7 +558,8 @@
         <code>sal</code>, <code>salHora</code>, <code>salDia</code>, <code>ref</code>, <code>diasTrab</code>, <code>diasMes</code>, <code>diasUteis</code>, <code>diasDSR</code>, <code>totalHE</code>.
         <div style="margin-top:.2rem">Para incluir uma nova rubrica (ex.: HE 60%) no DSR, marque <b>Compõe HE/DSR</b>. Use <b>Compõe IRRF</b> para controlar a base do imposto.</div>
       </div>
-      <table class="config-table" style="margin-top:.75rem">
+      <div class="config-table-wrap">
+      <table class="config-table config-verbas-table" style="margin-top:.75rem">
         <thead><tr>
           <th style="width:60px">Código</th>
           <th>Descrição</th>
@@ -511,6 +575,7 @@
         </tr></thead>
         <tbody id="config-verbas-body"></tbody>
       </table>
+      </div>
     </div>
 
     <!-- PARÂMETROS GERAIS -->
