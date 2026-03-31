@@ -275,7 +275,7 @@
     <div class="card">
       <div class="verbas-header">
         <span>Código</span><span>Descrição</span><span>Referência</span>
-        <span>Vencimentos</span><span>Descontos</span><span>IRRF</span><span></span>
+        <span>Vencimentos</span><span>Descontos</span><span></span>
       </div>
       <div id="verbas-list"></div>
 
@@ -493,19 +493,21 @@
     <div class="fer-note">Os feriados impactam o cálculo automático de Dias Úteis e Dias DSR da competência selecionada.</div>
   </div>
 
-  <div class="fer-edit-card" id="fer-edit-card" style="display:none">
-    <div class="fer-edit-title">Editar feriado</div>
-    <div class="field fer-field">
-      <label>Data</label>
-      <input type="date" id="fer-edit-data">
-    </div>
-    <div class="field fer-field">
-      <label>Descrição</label>
-      <input id="fer-edit-desc" placeholder="Descrição do feriado">
-    </div>
-    <div class="fer-edit-actions">
-      <button class="fer-edit-btn fer-edit-save" onclick="salvarEdicaoFeriado()">Salvar</button>
-      <button class="fer-edit-btn fer-edit-cancel" onclick="cancelarEdicaoFeriado()">Cancelar</button>
+  <div class="fer-edit-modal" id="fer-edit-modal" style="display:none" onclick="if(event.target===this)cancelarEdicaoFeriado()">
+    <div class="fer-edit-card" id="fer-edit-card">
+      <div class="fer-edit-title">Editar feriado</div>
+      <div class="field fer-field">
+        <label>Data</label>
+        <input type="date" id="fer-edit-data">
+      </div>
+      <div class="field fer-field">
+        <label>Descrição</label>
+        <input id="fer-edit-desc" placeholder="Descrição do feriado">
+      </div>
+      <div class="fer-edit-actions">
+        <button class="fer-edit-btn fer-edit-save" onclick="salvarEdicaoFeriado()">Salvar</button>
+        <button class="fer-edit-btn fer-edit-cancel" onclick="cancelarEdicaoFeriado()">Cancelar</button>
+      </div>
     </div>
   </div>
 </div>
@@ -542,7 +544,8 @@
         <code>sal</code>, <code>salHora</code>, <code>salDia</code>, <code>ref</code>, <code>diasTrab</code>, <code>diasMes</code>, <code>diasUteis</code>, <code>diasDSR</code>, <code>totalHE</code>.
         <div style="margin-top:.2rem">Para incluir uma nova rubrica (ex.: HE 60%) no DSR, marque <b>Compõe HE/DSR</b>. Use <b>Compõe IRRF</b> para controlar a base do imposto.</div>
       </div>
-      <table class="config-table" style="margin-top:.75rem">
+      <div class="config-table-wrap">
+      <table class="config-table config-verbas-table" style="margin-top:.75rem">
         <thead><tr>
           <th style="width:60px">Código</th>
           <th>Descrição</th>
@@ -558,6 +561,7 @@
         </tr></thead>
         <tbody id="config-verbas-body"></tbody>
       </table>
+      </div>
     </div>
 
     <!-- PARÂMETROS GERAIS -->
