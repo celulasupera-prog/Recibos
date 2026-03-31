@@ -1727,28 +1727,38 @@ function renderFeriadosPage() {
 
   const list = document.getElementById('feriados-list');
   if (!list) return;
+  const badge = document.getElementById('fer-count-badge');
   if ((scope === 'cidade' || scope === 'empresa') && !key) {
-    list.innerHTML = '<div style="color:var(--ink3)">Selecione o contexto para listar os feriados.</div>';
+    list.innerHTML = '<div style="color:#b8b8b8">Selecione o contexto para listar os feriados.</div>';
+    if (badge) badge.textContent = '0 feriados';
     return;
   }
   const datas = getFeriadosArrayByScope(scope, key);
   if (!datas.length) {
-    list.innerHTML = '<div style="color:var(--ink3)">Nenhum feriado cadastrado neste contexto.</div>';
+    list.innerHTML = '<div style="color:#b8b8b8">Nenhum feriado cadastrado neste contexto.</div>';
+    if (badge) badge.textContent = '0 feriados';
     atualizarEstadoEdicaoFeriado();
     return;
   }
-  list.innerHTML = datas.map(h => `<div class="feriado-item">
-    <div class="feriado-item-main">
-      <span class="feriado-date">${formatDateBR(h.date)}</span>
-      <span class="feriado-desc">${h.desc || 'Sem descrição'}</span>
+  list.innerHTML = datas.map(h => `<div class="fer-item">
+    <div class="fer-item-left">
+      <div class="fer-daybox">
+        <small>${getWeekdayShort(h.date)}</small>
+        <b>${String(new Date(h.date + 'T00:00:00').getDate()).padStart(2,'0')}</b>
+      </div>
+      <div class="fer-text">
+        <strong>${h.desc || 'Sem descrição'}</strong>
+        <span>${formatDateLongBR(h.date)}</span>
+      </div>
     </div>
-    <div class="feriado-actions">
-      <button class="feriado-btn feriado-btn-edit" onclick="editarFeriado('${h.date}')">Editar</button>
-      <button class="feriado-btn feriado-btn-remove" onclick="removerFeriado('${h.date}')">Excluir</button>
+    <div class="fer-item-actions">
+      <button class="fer-icon-btn" onclick="editarFeriado('${h.date}')" title="Editar">✏</button>
+      <button class="fer-icon-btn" onclick="removerFeriado('${h.date}')" title="Excluir">✕</button>
     </div>
   </div>`).join('');
   const ctx = document.getElementById('fer-context-label');
   if (ctx) ctx.textContent = label;
+  if (badge) badge.textContent = `${datas.length} feriado${datas.length > 1 ? 's' : ''}`;
   atualizarEstadoEdicaoFeriado();
 }
 
@@ -1758,11 +1768,22 @@ function formatDateBR(isoDate) {
   return `${d}/${m}/${y}`;
 }
 
+function formatDateLongBR(isoDate) {
+  if (!isoDate || !isoDate.includes('-')) return isoDate || '';
+  const [y, m, d] = isoDate.split('-').map(Number);
+  const meses = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+  return `${String(d).padStart(2,'0')} ${meses[m-1]} ${y}`;
+}
+
+function getWeekdayShort(isoDate) {
+  const dt = new Date(isoDate + 'T00:00:00');
+  const dias = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  return dias[dt.getDay()] || '';
+}
+
 function atualizarEstadoEdicaoFeriado() {
-  const btn = document.getElementById('fer-submit-btn');
-  const editActions = document.getElementById('fer-edit-actions');
-  if (btn) btn.textContent = feriadoEditando ? 'Salvar edição' : '+ Adicionar';
-  if (editActions) editActions.style.display = feriadoEditando ? 'block' : 'none';
+  const editCard = document.getElementById('fer-edit-card');
+  if (editCard) editCard.style.display = feriadoEditando ? 'block' : 'none';
 }
 
 function editarFeriado(data) {
@@ -1771,8 +1792,8 @@ function editarFeriado(data) {
   if (!feriado) return;
 
   feriadoEditando = { scope, key, date: data };
-  const dataEl = document.getElementById('fer-data');
-  const descEl = document.getElementById('fer-desc');
+  const dataEl = document.getElementById('fer-edit-data');
+  const descEl = document.getElementById('fer-edit-desc');
   if (dataEl) dataEl.value = feriado.date;
   if (descEl) descEl.value = feriado.desc || '';
   atualizarEstadoEdicaoFeriado();
@@ -1780,8 +1801,8 @@ function editarFeriado(data) {
 
 function cancelarEdicaoFeriado() {
   feriadoEditando = null;
-  const dataEl = document.getElementById('fer-data');
-  const descEl = document.getElementById('fer-desc');
+  const dataEl = document.getElementById('fer-edit-data');
+  const descEl = document.getElementById('fer-edit-desc');
   if (dataEl) dataEl.value = '';
   if (descEl) descEl.value = '';
   atualizarEstadoEdicaoFeriado();
@@ -1812,6 +1833,28 @@ function addFeriado() {
   saveFeriadosConfig();
   if (document.getElementById('fer-desc')) document.getElementById('fer-desc').value = '';
   if (document.getElementById('fer-data')) document.getElementById('fer-data').value = '';
+  renderFeriadosPage();
+  calc();
+}
+
+function salvarEdicaoFeriado() {
+  if (!feriadoEditando) return;
+  const data = document.getElementById('fer-edit-data')?.value;
+  const desc = (document.getElementById('fer-edit-desc')?.value || '').trim();
+  if (!data) return toast('Selecione a data do feriado.', 'err');
+
+  const { scope, key } = getFeriadosScope();
+  if (scope !== feriadoEditando.scope || key !== feriadoEditando.key) {
+    return toast('Volte ao mesmo contexto para salvar a edição.', 'err');
+  }
+
+  const arr = getFeriadosArrayByScope(scope, key);
+  const atualizado = arr
+    .filter(h => h.date !== feriadoEditando.date)
+    .concat({ date: data, desc });
+  setFeriadosArrayByScope(scope, key, atualizado);
+  saveFeriadosConfig();
+  cancelarEdicaoFeriado();
   renderFeriadosPage();
   calc();
 }
