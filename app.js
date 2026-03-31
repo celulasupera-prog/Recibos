@@ -2254,6 +2254,30 @@ function updateConfigVerba(i, field, val) {
     configVerbas[i].compoeFGTS = false;
   }
   localStorage.setItem('cfg_verbas', JSON.stringify(configVerbas));
+  syncVerbasFromConfig();
+  renderQuickList();
+  renderQuickAddButtons();
+  calc();
+}
+
+function syncVerbasFromConfig() {
+  verbas = verbas.map(v => {
+    if (!v.autoType) return v;
+    const cfg = configVerbas.find(c => c.id === v.autoType);
+    if (!cfg) return v;
+    return {
+      ...v,
+      cod: cfg.cod,
+      desc: cfg.desc,
+      tipo: cfg.tipo,
+      formulaVenc: cfg.formulaVenc,
+      formulaDesc: cfg.formulaDesc,
+      refLabel: cfg.refLabel,
+      incideIRRF: typeof cfg.compoeIRRF === 'boolean' ? cfg.compoeIRRF : cfg.tipo !== 'desc',
+      incideINSS: typeof cfg.compoeINSS === 'boolean' ? cfg.compoeINSS : cfg.tipo !== 'desc',
+      incideFGTS: typeof cfg.compoeFGTS === 'boolean' ? cfg.compoeFGTS : cfg.tipo !== 'desc',
+    };
+  });
 }
 
 function addConfigVerba() {
