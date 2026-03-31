@@ -156,6 +156,7 @@ async function fazerLogout() {
   document.getElementById('user-badge').style.display = 'none';
   document.getElementById('btn-logout').style.display = 'none';
   document.getElementById('btn-empresas').style.display = 'none';
+  document.getElementById('btn-formulas').style.display = 'none';
 }
 
 async function initApp() {
@@ -170,12 +171,16 @@ async function initApp() {
   currentUser.isAdmin = currentUser.email === 'gustavo@jaguarcontabilidade.com.br';
 
   const btnAdmin = document.getElementById('btn-admin');
+  const btnFormulas = document.getElementById('btn-formulas');
 
   if (currentUser.isAdmin) {
     document.getElementById('user-email-badge').textContent = currentUser.email + ' 👑';
     if (btnAdmin) btnAdmin.style.display = 'block';
+    if (btnFormulas) btnFormulas.style.display = 'block';
   } else {
     if (btnAdmin) btnAdmin.style.display = 'none';
+    if (btnFormulas) btnFormulas.style.display = 'none';
+    document.getElementById('pg-config').style.display = 'none';
   }
 
   // 🔥 ESSENCIAL PRA FUNCIONAR TUDO
@@ -2027,6 +2032,10 @@ function saveConfig() {
 }
 
 function showConfig() {
+  if (!currentUser?.isAdmin) {
+    toast('Acesso às fórmulas liberado apenas para admin.', 'err');
+    return;
+  }
   const CONFIG_PASS = localStorage.getItem('cfg_senha') || '1234';
   const input = prompt('Digite a senha para acessar as Fórmulas:');
   if (input === null) return;
@@ -2067,15 +2076,21 @@ function renderConfigVerbas() {
         </select>
       </td>
       <td><input value="${v.refLabel}" oninput="updateConfigVerba(${i},'refLabel',this.value)" placeholder="ex: horas"></td>
-      <td style="text-align:center"><input type="checkbox" ${v.compoeHE ? 'checked' : ''} onchange="updateConfigVerba(${i},'compoeHE',this.checked)"></td>
-      <td style="text-align:center"><input type="checkbox" ${v.compoeIRRF ? 'checked' : ''} onchange="updateConfigVerba(${i},'compoeIRRF',this.checked)"></td>
-      <td style="text-align:center"><input type="checkbox" ${v.compoeINSS ? 'checked' : ''} onchange="updateConfigVerba(${i},'compoeINSS',this.checked)"></td>
-      <td style="text-align:center"><input type="checkbox" ${v.compoeFGTS ? 'checked' : ''} onchange="updateConfigVerba(${i},'compoeFGTS',this.checked)"></td>
+      <td style="text-align:center"><button class="cfg-flag-btn ${v.compoeHE ? 'on' : 'off'}" onclick="toggleConfigFlag(${i},'compoeHE')">${v.compoeHE ? 'Sim' : 'Não'}</button></td>
+      <td style="text-align:center"><button class="cfg-flag-btn ${v.compoeIRRF ? 'on' : 'off'}" onclick="toggleConfigFlag(${i},'compoeIRRF')">${v.compoeIRRF ? 'Sim' : 'Não'}</button></td>
+      <td style="text-align:center"><button class="cfg-flag-btn ${v.compoeINSS ? 'on' : 'off'}" onclick="toggleConfigFlag(${i},'compoeINSS')">${v.compoeINSS ? 'Sim' : 'Não'}</button></td>
+      <td style="text-align:center"><button class="cfg-flag-btn ${v.compoeFGTS ? 'on' : 'off'}" onclick="toggleConfigFlag(${i},'compoeFGTS')">${v.compoeFGTS ? 'Sim' : 'Não'}</button></td>
       <td><input value="${v.formulaVenc}" oninput="updateConfigVerba(${i},'formulaVenc',this.value)" placeholder="ex: ref * salHora * 1.5" style="font-family:'Inconsolata',monospace;font-size:.78rem"></td>
       <td><input value="${v.formulaDesc}" oninput="updateConfigVerba(${i},'formulaDesc',this.value)" placeholder="ex: ref" style="font-family:'Inconsolata',monospace;font-size:.78rem"></td>
       <td><button class="btn-del-config" onclick="delConfigVerba(${i})">×</button></td>
     </tr>
   `).join('');
+}
+
+function toggleConfigFlag(i, field) {
+  configVerbas[i][field] = !configVerbas[i][field];
+  renderConfigVerbas();
+  saveConfigVerbas();
 }
 
 function renderQuickList() {

@@ -689,6 +689,21 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .config-badge{font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:3px;text-transform:uppercase;letter-spacing:.05em;}
 .config-badge.venc{background:#eaf5ee;color:#1a7a4a;}
 .config-badge.desc{background:#fdecea;color:#c0392b;}
+.cfg-flag-btn{
+  border:none;
+  border-radius:999px;
+  min-width:52px;
+  padding:.22rem .55rem;
+  font-family:'Syne',sans-serif;
+  font-size:.68rem;
+  font-weight:700;
+  letter-spacing:.02em;
+  cursor:pointer;
+  transition:all .16s;
+}
+.cfg-flag-btn.on{background:#dbeafe;color:#1d4ed8;}
+.cfg-flag-btn.off{background:#efecec;color:#8a8f99;}
+.cfg-flag-btn:hover{transform:translateY(-1px);}
 .btn-del-config{width:26px;height:26px;border:none;background:transparent;color:#ccc;cursor:pointer;border-radius:4px;font-size:.9rem;}
 .btn-del-config:hover{background:#fdecea;color:#c0392b;}
 .btn-add-config{font-family:'Syne',sans-serif;font-size:.72rem;font-weight:600;letter-spacing:.06em;color:var(--accent);background:transparent;border:1.5px dashed #b0c4f8;border-radius:5px;padding:.45rem;cursor:pointer;width:100%;margin-top:.5rem;}
