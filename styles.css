@@ -128,6 +128,59 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   cursor:pointer;border-radius:3px;font-size:.9rem;display:flex;align-items:center;justify-content:center;}
 .btn-rm:hover{background:var(--red-bg);color:var(--red);}
 
+.feriado-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:.65rem .75rem;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:#fff;
+  gap:.75rem;
+}
+.feriado-item-main{
+  display:flex;
+  flex-direction:column;
+  gap:.2rem;
+}
+.feriado-date{
+  font-family:'Inconsolata',monospace;
+  font-size:.95rem;
+  font-weight:700;
+  color:var(--ink);
+}
+.feriado-desc{
+  font-size:.78rem;
+  color:var(--ink2);
+}
+.feriado-actions{
+  display:flex;
+  gap:.4rem;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+.feriado-btn{
+  border:none;
+  border-radius:6px;
+  padding:.35rem .6rem;
+  cursor:pointer;
+  font-size:.72rem;
+  font-family:'Syne',sans-serif;
+  font-weight:700;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+.feriado-btn-edit{
+  background:var(--accent2);
+  color:var(--accent);
+}
+.feriado-btn-edit:hover{background:#d9e7ff;}
+.feriado-btn-remove{
+  background:var(--red-bg);
+  color:var(--red);
+}
+.feriado-btn-remove:hover{background:#fbdad6;}
+
 .btn-add-verba{
   font-family:'Syne',sans-serif;font-size:.72rem;font-weight:600;letter-spacing:.06em;
   color:var(--accent);background:transparent;border:1.5px dashed #b0c4f8;
