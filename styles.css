@@ -660,6 +660,17 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 }
 .rec-tot-row:last-child{ border-bottom:none; }
 .rec-tot-liq{ background:#f5f5f5; }
+.rec-tot-liq-inline{
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  gap:6px;
+}
+.rec-tot-liq-inline .rtc-lbl,
+.rec-tot-liq-inline .rtc-val{
+  display:inline;
+  margin:0;
+}
 .rtc{
   padding:1px 4px;
   border-right:1px solid #aaa;
