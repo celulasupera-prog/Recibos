@@ -114,6 +114,20 @@ let verbasPadraoTemp = [];
 let feriadoEditando = null;
 let loginGalaxy = null;
 
+function getConfigVerbaById(id) {
+  return configVerbas.find(c => c.id === id);
+}
+
+function getConfigCod(autoType, fallback = '') {
+  const cod = String(getConfigVerbaById(autoType)?.cod || '').trim();
+  return cod || fallback;
+}
+
+function getConfigDesc(autoType, fallback = '') {
+  const desc = String(getConfigVerbaById(autoType)?.desc || '').trim();
+  return desc || fallback;
+}
+
 function initLoginGalaxy() {
   const starsWrap = document.getElementById('stars');
   const host = document.getElementById('pg-login');
@@ -361,8 +375,8 @@ if (!verbas.find(v => v.autoType === 'diasnormais')) {
 if (!verbas.find(v => v.autoType === 'dsrhe')) {
   verbas.push({
     id: Date.now() + Math.random(),
-    cod: '9999',
-    desc: 'DSR SOBRE HORAS EXTRAS',
+    cod: getConfigCod('dsrhe', '9999'),
+    desc: getConfigDesc('dsrhe', 'DSR SOBRE HORAS EXTRAS'),
     ref: '',
     venc: 0,
     desc2: 0,
@@ -747,8 +761,8 @@ function ensureFixedVerbas() {
   if (!verbas.find(v => v.autoType === 'dsrhe')) {
     verbas.push({
       id: Date.now() + Math.random(),
-      cod: '9999',
-      desc: 'DSR SOBRE HORAS EXTRAS',
+      cod: getConfigCod('dsrhe', '9999'),
+      desc: getConfigDesc('dsrhe', 'DSR SOBRE HORAS EXTRAS'),
       ref: '',
       venc: 0,
       desc2: 0,
@@ -802,7 +816,7 @@ function verbaIncideFGTS(v) {
 
 function calcBaseIRRFAutomatica(deducaoBaseIRRF) {
   const baseComVerbas = verbas.reduce((s, v) => s + (verbaIncideIRRF(v) ? (parseFloat(v.venc) || 0) : 0), 0);
-  return roundFiscal(baseComVerbas - (deducaoBaseIRRF || 0));
+  return Math.max(roundFiscal(baseComVerbas - (deducaoBaseIRRF || 0)), 0);
 }
 
 function calcBaseIRRFBruta() {
@@ -1139,7 +1153,10 @@ function calcIRRF(base, baseReducao = base) {
 function addVerbaDiasNormais() {
   const dias = parseFloat(document.getElementById('f-dias').value) || 28;
   verbas.push({
-    id: Date.now(), cod:'8781', desc:'DIAS NORMAIS', ref: String(dias),
+    id: Date.now(),
+    cod:getConfigCod('diasnormais', '8781'),
+    desc:getConfigDesc('diasnormais', 'DIAS NORMAIS'),
+    ref: String(dias),
     venc: 0, desc2: 0, auto: true, autoType:'diasnormais', tipo:'venc', incideIRRF: true, incideINSS:true, incideFGTS:true
   });
   renderVerbasList();
@@ -1176,6 +1193,10 @@ function quickAdd(type) {
       break;
   }
   const cfgTipo = configVerbas.find(c => c.id === type || c.id === v.autoType);
+  if (cfgTipo) {
+    v.cod = cfgTipo.cod ?? v.cod;
+    v.desc = cfgTipo.desc ?? v.desc;
+  }
   if (cfgTipo && typeof cfgTipo.compoeIRRF === 'boolean') {
     v.incideIRRF = cfgTipo.compoeIRRF;
   } else if (v.tipo === 'desc') v.incideIRRF = false;
@@ -1424,8 +1445,8 @@ function buildViaHTML(d, viaLabel) {
   let rowsData = [];
   const dn = d.verbas.find(v=>v.autoType==='diasnormais');
 if(dn) rowsData.push({
-  cod:'8781',
-  desc:'DIAS NORMAIS',
+  cod: dn.cod || getConfigCod('diasnormais', '8781'),
+  desc: dn.desc || getConfigDesc('diasnormais', 'DIAS NORMAIS'),
   ref:fmtRef(dn,'d',d.dias),
   venc:fmtN2(dn.venc),
   descv:''
@@ -1439,7 +1460,7 @@ d.verbas
     const dv = v.desc2 > 0 ? v.desc2 : (v.tipo==='desc'&&v.ref ? parseN(v.ref)||0 : 0);
     const descVal = dv > 0 ? fmtN2(dv) : '';
     rowsData.push({
-      cod:v.cod||'',
+      cod:(v.cod || getConfigCod(v.autoType, '')),
       desc:v.desc||'',
       ref:fmtRef(v,'',null),
       venc:vencVal,
@@ -1481,8 +1502,8 @@ if (d.encs.fgts && d.fgtsVal > 0) {
 // 🔥 DSR FIXO
 const dsr = d.verbas.find(v=>v.autoType==='dsrhe');
 if(dsr) rowsData.push({
-  cod:'9999',
-  desc:'DSR SOBRE HORAS EXTRAS',
+  cod: dsr.cod || getConfigCod('dsrhe', '9999'),
+  desc: dsr.desc || getConfigDesc('dsrhe', 'DSR SOBRE HORAS EXTRAS'),
   ref:'',
   venc:fmtN2(dsr.venc),
   descv:''
@@ -1553,8 +1574,10 @@ if(dsr) rowsData.push({
           <div class="rec-tot-row rec-tot-liq">
             <div class="rtc" style="grid-column:1/3"><span class="rtc-lbl">&nbsp;</span></div>
             <div class="rtc" style="grid-column:3/6;border-right:none;text-align:right">
-              <span class="rtc-lbl" style="font-size:7pt;">Valor Líquido ⇒</span>
-              <span class="rtc-val" style="font-size:8pt;">R$ ${fmtN2(d.liq)}</span>
+              <div class="rec-tot-liq-inline">
+                <span class="rtc-lbl" style="font-size:7pt;">Valor Líquido ⇒</span>
+                <span class="rtc-val" style="font-size:8pt;">R$ ${fmtN2(d.liq)}</span>
+              </div>
             </div>
           </div>
           ${(d.encs.inss || d.encs.fgts || d.encs.irrf) ? `
@@ -1886,8 +1909,12 @@ function renderFeriadosPage() {
       </div>
     </div>
     <div class="fer-item-actions">
-      <button class="fer-icon-btn" onclick="editarFeriado('${h.date}')" title="Editar">Ed</button>
-      <button class="fer-icon-btn" onclick="removerFeriado('${h.date}')" title="Excluir">Ex</button>
+      <button class="fer-icon-btn fer-icon-btn-edit" onclick="editarFeriado('${h.date}')" title="Editar">
+        <svg class="ico"><use href="#i-edit"/></svg><span>Editar</span>
+      </button>
+      <button class="fer-icon-btn fer-icon-btn-remove" onclick="removerFeriado('${h.date}')" title="Excluir">
+        <svg class="ico"><use href="#i-trash"/></svg><span>Excluir</span>
+      </button>
     </div>
   </div>`).join('');
   const ctx = document.getElementById('fer-context-label');
