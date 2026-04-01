@@ -1376,11 +1376,13 @@ function getData() {
   let totDesc = verbas.reduce((s,v)=>s+(v.desc2||0)+(v.tipo==='desc'&&v.auto?parseN(v.ref)||0:0),0);
 
   const inssBase = calcBaseINSSAutomatica();
+  const inssAuto = calcINSSProgressivo(inssBase);
+  let inssAliq = inssAuto.aliq;
   let inssVal=0, fgtsBase=calcBaseFGTSAutomatica(), fgtsVal=0, irrfBase=0, irrfVal=0, irrfFaixa=0;
   if(encs.inss){
     const manual=parseFloat(document.getElementById('f-inss-manual').value);
     if(!isNaN(manual)) inssVal=roundFiscal(manual);
-    else inssVal=calcINSSProgressivo(inssBase).valor;
+    else inssVal=inssAuto.valor;
     totDesc+=inssVal;
   }
   if(encs.fgts){const fb=parseFloat(document.getElementById('f-fgts-base').value);fgtsBase=isNaN(fb)?calcBaseFGTSAutomatica():fb;fgtsVal=roundFiscal(fgtsBase*0.08);}
@@ -1409,7 +1411,7 @@ function getData() {
     sal, dias, diasMes, diasUteis, diasDSR, salDia, salHora, valDias,
     verbas: verbas.map(v=>({...v})),
     totVenc, totDesc, liq: totVenc-totDesc,
-    inssBase, inssVal, fgtsBase, fgtsVal, irrfBase, irrfVal, irrfFaixa,
+    inssBase, inssAliq, inssVal, fgtsBase, fgtsVal, irrfBase, irrfVal, irrfFaixa,
     encs: {...encs},
     savedAt: new Date().toISOString()
   };
@@ -1474,7 +1476,7 @@ if (d.encs.inss && d.inssVal > 0) {
   rowsData.push({
     cod:'9981',
     desc:'DESCONTO INSS',
-    ref: inssAliq > 0 ? `${fmtN2(inssAliq)}%` : '',
+    ref: d.inssAliq > 0 ? `${fmtN2(d.inssAliq)}%` : '',
     venc:'',
     descv:fmtN2(d.inssVal)
   });
