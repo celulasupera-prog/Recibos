@@ -395,6 +395,29 @@
     </div>
   </div>
 
+
+
+  <div class="action-bar">
+    <button class="abtn outline" onclick="novoRecibo()">Limpar</button>
+    <button class="abtn secondary" onclick="salvar()"><svg class="ico"><use href="#i-save"/></svg> Salvar</button>
+    <button class="abtn primary" onclick="gerarPDF()"><svg class="ico"><use href="#i-download"/></svg> PDF</button>
+  </div>
+
+</div><!-- /form-side -->
+
+<!-- ── PREVIEW ── -->
+<div class="preview-side">
+  <div class="preview-toolbar">
+    <span class="preview-label">Pré-visualização</span>
+    <div class="preview-actions">
+      <button class="btn-preview secondary" onclick="salvar()"><svg class="ico"><use href="#i-save"/></svg> Salvar</button>
+      <button class="btn-preview ghost" onclick="novoRecibo()"><svg class="ico"><use href="#i-clear"/></svg> Limpar</button>
+      <button class="btn-preview primary" onclick="gerarPDF()"><svg class="ico"><use href="#i-download"/></svg> Baixar PDF</button>
+    </div>
+  </div>
+
+  <div class="recibo-doc" id="recibo-doc"></div>
+
   <!-- TOTAIS -->
   <div class="form-section section-totais">
     <div class="sec-title"><span>Totais</span><button type="button" class="sec-collapse-btn" onclick="toggleSection(this)">Recolher</button></div>
@@ -439,26 +462,6 @@
       </div>
     </div>
   </div>
-
-  <div class="action-bar">
-    <button class="abtn outline" onclick="novoRecibo()">Limpar</button>
-    <button class="abtn secondary" onclick="salvar()"><svg class="ico"><use href="#i-save"/></svg> Salvar</button>
-    <button class="abtn primary" onclick="gerarPDF()"><svg class="ico"><use href="#i-download"/></svg> PDF</button>
-  </div>
-
-</div><!-- /form-side -->
-
-<!-- ── PREVIEW ── -->
-<div class="preview-side">
-  <div class="preview-toolbar">
-    <span class="preview-label">Pré-visualização</span>
-    <div class="preview-actions">
-      <button class="btn-preview secondary" onclick="salvar()"><svg class="ico"><use href="#i-save"/></svg> Salvar</button>
-      <button class="btn-preview ghost" onclick="novoRecibo()"><svg class="ico"><use href="#i-clear"/></svg> Limpar</button>
-      <button class="btn-preview primary" onclick="gerarPDF()"><svg class="ico"><use href="#i-download"/></svg> Baixar PDF</button>
-    </div>
-  </div>
-  <div class="recibo-doc" id="recibo-doc"></div>
 </div>
 
 </div><!-- /workspace -->

@@ -802,7 +802,7 @@ function verbaIncideFGTS(v) {
 
 function calcBaseIRRFAutomatica(deducaoBaseIRRF) {
   const baseComVerbas = verbas.reduce((s, v) => s + (verbaIncideIRRF(v) ? (parseFloat(v.venc) || 0) : 0), 0);
-  return roundFiscal(baseComVerbas - (deducaoBaseIRRF || 0));
+  return Math.max(roundFiscal(baseComVerbas - (deducaoBaseIRRF || 0)), 0);
 }
 
 function calcBaseIRRFBruta() {
@@ -1553,8 +1553,10 @@ if(dsr) rowsData.push({
           <div class="rec-tot-row rec-tot-liq">
             <div class="rtc" style="grid-column:1/3"><span class="rtc-lbl">&nbsp;</span></div>
             <div class="rtc" style="grid-column:3/6;border-right:none;text-align:right">
-              <span class="rtc-lbl" style="font-size:7pt;">Valor Líquido ⇒</span>
-              <span class="rtc-val" style="font-size:8pt;">R$ ${fmtN2(d.liq)}</span>
+              <div class="rec-tot-liq-inline">
+                <span class="rtc-lbl" style="font-size:7pt;">Valor Líquido ⇒</span>
+                <span class="rtc-val" style="font-size:8pt;">R$ ${fmtN2(d.liq)}</span>
+              </div>
             </div>
           </div>
           ${(d.encs.inss || d.encs.fgts || d.encs.irrf) ? `
