@@ -802,7 +802,7 @@ function verbaIncideFGTS(v) {
 
 function calcBaseIRRFAutomatica(deducaoBaseIRRF) {
   const baseComVerbas = verbas.reduce((s, v) => s + (verbaIncideIRRF(v) ? (parseFloat(v.venc) || 0) : 0), 0);
-  return roundFiscal(baseComVerbas - (deducaoBaseIRRF || 0));
+  return Math.max(roundFiscal(baseComVerbas - (deducaoBaseIRRF || 0)), 0);
 }
 
 function calcBaseIRRFBruta() {
