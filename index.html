@@ -25,6 +25,8 @@
   <symbol id="i-save" viewBox="0 0 24 24"><path d="M5 3h12l4 4v14H3V3zm2 2v14h10v-6H7V5zm8 0H9v4h6z" fill="currentColor"/></symbol>
   <symbol id="i-clear" viewBox="0 0 24 24"><path d="m18.3 5.7-12.6 12.6-1.4-1.4L16.9 4.3zM19 19H8v-2h11z" fill="currentColor"/></symbol>
   <symbol id="i-download" viewBox="0 0 24 24"><path d="M11 4h2v8h3l-4 4-4-4h3zm-6 12h14v4H5z" fill="currentColor"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M3 17.2V21h3.8L18.4 9.4l-3.8-3.8L3 17.2zm17.7-10.4c.4-.4.4-1 0-1.4L18.6 3.3c-.4-.4-1-.4-1.4 0L15.3 5.2l3.8 3.8 1.6-1.6z" fill="currentColor"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 6h2v9h-2V9zm4 0h2v9h-2V9zM6 9h2v9H6V9z" fill="currentColor"/></symbol>
 </svg>
 
 <header class="app-header">
@@ -395,6 +397,29 @@
     </div>
   </div>
 
+
+
+  <div class="action-bar">
+    <button class="abtn outline" onclick="novoRecibo()">Limpar</button>
+    <button class="abtn secondary" onclick="salvar()"><svg class="ico"><use href="#i-save"/></svg> Salvar</button>
+    <button class="abtn primary" onclick="gerarPDF()"><svg class="ico"><use href="#i-download"/></svg> PDF</button>
+  </div>
+
+</div><!-- /form-side -->
+
+<!-- ── PREVIEW ── -->
+<div class="preview-side">
+  <div class="preview-toolbar">
+    <span class="preview-label">Pré-visualização</span>
+    <div class="preview-actions">
+      <button class="btn-preview secondary" onclick="salvar()"><svg class="ico"><use href="#i-save"/></svg> Salvar</button>
+      <button class="btn-preview ghost" onclick="novoRecibo()"><svg class="ico"><use href="#i-clear"/></svg> Limpar</button>
+      <button class="btn-preview primary" onclick="gerarPDF()"><svg class="ico"><use href="#i-download"/></svg> Baixar PDF</button>
+    </div>
+  </div>
+
+  <div class="recibo-doc" id="recibo-doc"></div>
+
   <!-- TOTAIS -->
   <div class="form-section section-totais">
     <div class="sec-title"><span>Totais</span><button type="button" class="sec-collapse-btn" onclick="toggleSection(this)">Recolher</button></div>
@@ -439,26 +464,6 @@
       </div>
     </div>
   </div>
-
-  <div class="action-bar">
-    <button class="abtn outline" onclick="novoRecibo()">Limpar</button>
-    <button class="abtn secondary" onclick="salvar()"><svg class="ico"><use href="#i-save"/></svg> Salvar</button>
-    <button class="abtn primary" onclick="gerarPDF()"><svg class="ico"><use href="#i-download"/></svg> PDF</button>
-  </div>
-
-</div><!-- /form-side -->
-
-<!-- ── PREVIEW ── -->
-<div class="preview-side">
-  <div class="preview-toolbar">
-    <span class="preview-label">Pré-visualização</span>
-    <div class="preview-actions">
-      <button class="btn-preview secondary" onclick="salvar()"><svg class="ico"><use href="#i-save"/></svg> Salvar</button>
-      <button class="btn-preview ghost" onclick="novoRecibo()"><svg class="ico"><use href="#i-clear"/></svg> Limpar</button>
-      <button class="btn-preview primary" onclick="gerarPDF()"><svg class="ico"><use href="#i-download"/></svg> Baixar PDF</button>
-    </div>
-  </div>
-  <div class="recibo-doc" id="recibo-doc"></div>
 </div>
 
 </div><!-- /workspace -->
