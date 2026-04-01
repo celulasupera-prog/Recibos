@@ -1473,6 +1473,7 @@ d.verbas
 
 // 🔥 ENCARGOS COMO LINHAS DE DESCONTO/INFORMATIVO NO RECIBO
 if (d.encs.inss && d.inssVal > 0) {
+  const inssAliq = d.inssBase > 0 ? roundFiscal((d.inssVal / d.inssBase) * 100) : 0;
   rowsData.push({
     cod:'9981',
     desc:'DESCONTO INSS',
