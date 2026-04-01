@@ -1377,7 +1377,8 @@ function getData() {
 
   const inssBase = calcBaseINSSAutomatica();
   const inssAuto = calcINSSProgressivo(inssBase);
-  let inssAliq = inssAuto.aliq;
+  const inssAliqCampo = parseN(document.getElementById('f-inss-aliq')?.value);
+  let inssAliq = inssAliqCampo > 0 ? inssAliqCampo : inssAuto.aliq;
   let inssVal=0, fgtsBase=calcBaseFGTSAutomatica(), fgtsVal=0, irrfBase=0, irrfVal=0, irrfFaixa=0;
   if(encs.inss){
     const manual=parseFloat(document.getElementById('f-inss-manual').value);
