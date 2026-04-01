@@ -669,6 +669,9 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   grid-template-columns:48px minmax(120px,1.2fr) repeat(3, minmax(110px,1fr));
   border-bottom:1px solid #000;
 }
+.rec-tot-row.rec-tot-encargos{
+  grid-template-columns:minmax(145px,1.4fr) minmax(120px,1fr) minmax(115px,1fr) minmax(95px,.85fr) minmax(110px,1fr);
+}
 .rec-tot-row:last-child{ border-bottom:none; }
 .rec-tot-liq{ background:#f5f5f5; }
 .rec-tot-liq-inline{
@@ -690,6 +693,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .rtc:last-child{ border-right:none; }
 .rtc-lbl{ font-size:5.7pt;font-weight:bold;color:#000;display:block;white-space:normal;line-height:1.1; }
 .rtc-val{ font-size:6.8pt;font-weight:bold;color:#000;display:block; text-align:right;white-space:nowrap;overflow:visible;text-overflow:clip; }
+.rec-tot-row.rec-tot-encargos .rtc-lbl{white-space:nowrap;}
 .rtc.span-all{ grid-column: 1 / 4; }
 .rtc.venc{ text-align:right; }
 .rtc.desc{ text-align:right; }

@@ -1470,10 +1470,11 @@ d.verbas
 
 // 🔥 ENCARGOS COMO LINHAS DE DESCONTO/INFORMATIVO NO RECIBO
 if (d.encs.inss && d.inssVal > 0) {
+  const inssAliq = d.inssBase > 0 ? roundFiscal((d.inssVal / d.inssBase) * 100) : 0;
   rowsData.push({
     cod:'9981',
     desc:'DESCONTO INSS',
-    ref:'',
+    ref: inssAliq > 0 ? `${fmtN2(inssAliq)}%` : '',
     venc:'',
     descv:fmtN2(d.inssVal)
   });
@@ -1581,7 +1582,7 @@ if(dsr) rowsData.push({
             </div>
           </div>
           ${(d.encs.inss || d.encs.fgts || d.encs.irrf) ? `
-          <div class="rec-tot-row">
+          <div class="rec-tot-row rec-tot-encargos">
             <div class="rtc"><span class="rtc-lbl">Salário Base</span><span class="rtc-val" style="text-align:left">R$ ${fmtN2(d.sal)}</span></div>
             ${d.encs.inss ? `<div class="rtc"><span class="rtc-lbl">Sal. Contr. INSS</span><span class="rtc-val" style="text-align:left">R$ ${fmtN2(d.inssBase || 0)}</span></div>` : '<div class="rtc"></div>'}
             ${d.encs.fgts ? `<div class="rtc"><span class="rtc-lbl">Base Cálc. FGTS</span><span class="rtc-val" style="text-align:left">R$ ${fmtN2(d.fgtsBase)}</span></div>` : '<div class="rtc"></div>'}
