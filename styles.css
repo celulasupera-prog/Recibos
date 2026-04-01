@@ -350,10 +350,21 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   background:#f7f9fd;
   color:var(--ink2);
   border-radius:10px;
-  width:52px;height:42px;
-  font-size:1.1rem;
+  min-width:92px;
+  height:42px;
+  font-size:.82rem;
+  font-weight:700;
   cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:.35rem;
+  padding:0 .65rem;
 }
+.fer-icon-btn-edit{color:#245ece;background:#eef4ff;border-color:#c6d8ff;}
+.fer-icon-btn-edit:hover{background:#dfeaff;}
+.fer-icon-btn-remove{color:#b42318;background:#fff1f1;border-color:#f4caca;}
+.fer-icon-btn-remove:hover{background:#ffe5e5;}
 .fer-note{
   margin-top:.9rem;
   padding-top:.8rem;

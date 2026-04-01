@@ -1888,8 +1888,12 @@ function renderFeriadosPage() {
       </div>
     </div>
     <div class="fer-item-actions">
-      <button class="fer-icon-btn" onclick="editarFeriado('${h.date}')" title="Editar">Ed</button>
-      <button class="fer-icon-btn" onclick="removerFeriado('${h.date}')" title="Excluir">Ex</button>
+      <button class="fer-icon-btn fer-icon-btn-edit" onclick="editarFeriado('${h.date}')" title="Editar">
+        <svg class="ico"><use href="#i-edit"/></svg><span>Editar</span>
+      </button>
+      <button class="fer-icon-btn fer-icon-btn-remove" onclick="removerFeriado('${h.date}')" title="Excluir">
+        <svg class="ico"><use href="#i-trash"/></svg><span>Excluir</span>
+      </button>
     </div>
   </div>`).join('');
   const ctx = document.getElementById('fer-context-label');
