@@ -97,7 +97,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .section-funcionario .card{border-top-color:#5d86db;}
 .section-competencia .card{border-top-color:#5d86db;}
 .section-base .card{border-top-color:#5d86db;}
-.section-verbas .card{border-top-color:#dd7f7f;overflow-x:auto;}
+.section-verbas .card{border-top-color:#dd7f7f;overflow:visible;}
 .section-encargos .card{border-top-color:#64a89f;}
 .section-totais .card{border-top-color:#64748b;}
 .form-section.collapsed .card{display:none;}
@@ -152,17 +152,15 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 /* verbas table */
 .verbas-header{
   display:grid;
-  grid-template-columns:minmax(64px,72px) minmax(280px,2fr) minmax(100px,0.9fr) minmax(120px,1fr) minmax(120px,1fr) 30px;
+  grid-template-columns:minmax(70px,80px) minmax(380px,3fr) minmax(110px,1fr) minmax(130px,1fr) minmax(130px,1fr) 30px;
   gap:6px;padding:.3rem .4rem;
-  min-width:760px;
   font-size:.62rem;font-weight:700;color:var(--ink3);letter-spacing:.06em;text-transform:uppercase;}
 .verbas-header span:nth-child(3),.verbas-header span:nth-child(4),.verbas-header span:nth-child(5){text-align:right;}
 
 .verba-row{
   display:grid;
-  grid-template-columns:minmax(64px,72px) minmax(280px,2fr) minmax(100px,0.9fr) minmax(120px,1fr) minmax(120px,1fr) 30px;
+  grid-template-columns:minmax(70px,80px) minmax(380px,3fr) minmax(110px,1fr) minmax(130px,1fr) minmax(130px,1fr) 30px;
   gap:6px;align-items:start;padding:.35rem .4rem;border-radius:4px;
-  min-width:760px;
   border-bottom:1px solid #f0ede8;
 }
 .verba-row:last-child{border-bottom:none;}
@@ -195,9 +193,8 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 @media (max-width: 980px){
   .verbas-header,
   .verba-row{
-    grid-template-columns:minmax(54px,64px) minmax(240px,2fr) minmax(90px,0.9fr) minmax(95px,1fr) minmax(95px,1fr) 28px;
+    grid-template-columns:minmax(60px,68px) minmax(260px,3fr) minmax(90px,1fr) minmax(105px,1fr) minmax(105px,1fr) 28px;
     gap:4px;
-    min-width:700px;
   }
 }
 
@@ -663,13 +660,18 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 }
 .rec-table thead th:last-child{ border-right:none; }
 .rec-table thead th.r{ text-align:right; }
-.rec-table tbody tr{ height:15px; }
+.rec-table tbody tr{ min-height:15px; }
 .rec-table tbody td{
   font-size:7.5pt;padding:0px 4px;
   color:#000;vertical-align:middle;
   border-right:1px solid #ddd;
   overflow:hidden;
   white-space:nowrap;
+}
+.rec-table tbody td:nth-child(2){
+  white-space:normal;
+  overflow:visible;
+  line-height:1.2;
 }
 .rec-table tbody td:last-child{ border-right:none; }
 .rec-table tbody td.r{ text-align:right; }
