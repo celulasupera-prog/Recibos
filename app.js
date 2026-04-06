@@ -2,7 +2,7 @@
 const DEFAULT_CONFIG_VERBAS = [
   { id:'he50',   cod:'150', desc:'HORAS EXTRAS - 50%',      tipo:'venc', refLabel:'horas', formulaVenc:'ref * salHora * 1.5', formulaDesc:'', compoeHE:true, compoeIRRF:true, compoeINSS:true, compoeFGTS:true },
   { id:'he100',  cod:'200', desc:'HORAS EXTRAS 100%',       tipo:'venc', refLabel:'horas', formulaVenc:'ref * salHora * 2',   formulaDesc:'', compoeHE:true, compoeIRRF:true, compoeINSS:true, compoeFGTS:true },
-  { id:'dsrhe', cod:'9999', desc:'DSR SOBRE HORAS EXTRAS', tipo:'venc', refLabel:'auto', formulaVenc:'', formulaDesc:'', compoeHE:false, compoeIRRF:true, compoeINSS:true, compoeFGTS:true },
+  { id:'dsrhe', cod:'9999', desc:'DSR SOBRE HORAS EXTRAS', tipo:'venc', refLabel:'auto', formulaVenc:'diasTrab > 0 ? (totalHE / diasTrab) * diasDSR : 0', formulaDesc:'', compoeHE:false, compoeIRRF:true, compoeINSS:true, compoeFGTS:true },
   { id:'adicfunc',cod:'348',desc:'ADICIONAL DE FUNÇÃO',     tipo:'venc', refLabel:'%',     formulaVenc:'sal * ref / 100',     formulaDesc:'', compoeHE:false, compoeIRRF:true, compoeINSS:true, compoeFGTS:true },
   { id:'premiotempo',cod:'576',desc:'PRÊMIO TEMPO SERVIÇO', tipo:'venc', refLabel:'%',     formulaVenc:'sal * ref / 100',     formulaDesc:'', compoeHE:false, compoeIRRF:true, compoeINSS:true, compoeFGTS:true },
   { id:'ajudacusto',cod:'583',desc:'AJUDA DE CUSTO',        tipo:'venc', refLabel:'valor', formulaVenc:'ref',                 formulaDesc:'', compoeHE:false, compoeIRRF:true, compoeINSS:true, compoeFGTS:true },
@@ -1227,65 +1227,19 @@ function updateVerba(id, field, val) {
   if (field === 'venc') {
     v.venc = parseN(val);
     v.auto = false;
-    calcTotaisOnly();
-    renderPreview();
+    calc();
+    return;
 
   } else if (field === 'desc2') {
     v.desc2 = parseN(val);
     v.auto = false;
-    calcTotaisOnly();
-    renderPreview();
+    calc();
+    return;
 
   } else if (field === 'ref') {
     v.ref = val;
-
-    if (v.auto) {
-      
-      // recalcula sem re-renderizar a lista — só atualiza o input de valor
-      const sal = parseN(document.getElementById('f-sal').value) || 0;
-      const diasMes = parseFloat(document.getElementById('f-diasmes').value) || 30;
-      const dias = parseFloat(document.getElementById('f-dias').value) || 0;
-
-      const salDia = sal / diasMes;
-      const salHora = sal / 220;
-      const valDias = salDia * dias;
-
-      const r = calcVerba(v, sal, salDia, salHora, valDias);
-      v.venc = roundFiscal(r.venc);
-      v.desc2 = roundFiscal(r.desc || 0);
-
-      // atualiza só os inputs de valor sem re-renderizar
-      const row = document.querySelector(`.verba-row[data-id="${id}"]`);
-
-      if (row) {
-        const inpVenc = row.querySelector('[data-field="venc"]');
-        const inpDesc2 = row.querySelector('[data-field="desc2"]');
-
-        if (inpVenc) inpVenc.value = v.venc > 0 ? fmtN(v.venc) : '';
-        if (inpDesc2) inpDesc2.value = v.desc2 > 0 ? fmtN(v.desc2) : '';
-      }
-
-      // recalcula DSR automaticamente quando muda HE/ref de qualquer verba auto
-      verbas.forEach(dsrV => {
-        if (!dsrV.auto || dsrV.autoType !== 'dsrhe') return;
-        const dr = calcVerba(dsrV, sal, salDia, salHora, valDias);
-        dsrV.venc = roundFiscal(dr.venc);
-        dsrV.desc2 = roundFiscal(dr.desc || 0);
-        const dsrRow = document.querySelector(`.verba-row[data-id="${dsrV.id}"]`);
-        if (!dsrRow) return;
-        const dsrVencInp = dsrRow.querySelector('[data-field="venc"]');
-        const dsrDescInp = dsrRow.querySelector('[data-field="desc2"]');
-        if (dsrVencInp) dsrVencInp.value = dsrV.venc > 0 ? fmtN(dsrV.venc) : '';
-        if (dsrDescInp) dsrDescInp.value = dsrV.desc2 > 0 ? fmtN(dsrV.desc2) : '';
-      });
-
-      // atualiza totais e preview sem re-renderizar lista
-      calcTotaisOnly();
-      renderPreview();
-
-    } else {
-      renderPreview();
-    }
+    calc();
+    return;
   } else if (field === 'incideIRRF') {
     v.incideIRRF = !!val;
     calcTotaisOnly();
@@ -1341,7 +1295,7 @@ function renderVerbasList() {
     list.innerHTML = '<div style="text-align:center;padding:.75rem;color:var(--ink3);font-size:.8rem">Nenhuma verba adicionada</div>';
     return;
   }
-  list.innerHTML = verbas.map(v => {
+  list.innerHTML = getVerbasOrdenadasParaExibicao(verbas).map(v => {
     const vencCls = v.auto && v.autoType !== 'adiant' ? 'auto' : '';
     const descCls = v.auto && v.autoType === 'adiant' ? 'desc-auto' : '';
     const lockVenc = v.tipo === 'desc' || (v.auto && v.autoType!=='adiant');
@@ -1361,7 +1315,40 @@ function renderVerbasList() {
   }).join('');
 }
 
-function escHtml(s){ return (s||'').replace(/"/g,'&quot;'); }
+function getValorDescontoVerba(v) {
+  return roundFiscal(v.desc2 > 0 ? v.desc2 : (v.tipo === 'desc' && v.ref ? (parseN(v.ref) || 0) : 0));
+}
+
+function verbaTemLancamento(v) {
+  const venc = roundFiscal(parseFloat(v.venc) || 0);
+  const desc = getValorDescontoVerba(v);
+  return venc > 0 || desc > 0;
+}
+
+function getVerbasOrdenadasParaExibicao(lista) {
+  return [...lista]
+    .map((v, i) => ({ v, i }))
+    .sort((a, b) => {
+      const aPreenchida = verbaTemLancamento(a.v) ? 0 : 1;
+      const bPreenchida = verbaTemLancamento(b.v) ? 0 : 1;
+      if (aPreenchida !== bPreenchida) return aPreenchida - bPreenchida;
+
+      const aTipo = a.v.tipo === 'desc' ? 1 : 0;
+      const bTipo = b.v.tipo === 'desc' ? 1 : 0;
+      if (aTipo !== bTipo) return aTipo - bTipo;
+
+      return a.i - b.i;
+    })
+    .map(item => item.v);
+}
+
+function escHtml(s){
+  return String(s || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
 
 // ── DATA ──
 function getData() {
@@ -1447,20 +1434,47 @@ function buildViaHTML(d, viaLabel) {
   // montar linhas de verbas
   let rowsData = [];
   const dn = d.verbas.find(v=>v.autoType==='diasnormais');
-if(dn) rowsData.push({
-  cod: dn.cod || getConfigCod('diasnormais', '8781'),
-  desc: dn.desc || getConfigDesc('diasnormais', 'DIAS NORMAIS'),
-  ref:fmtRef(dn,'d',d.dias),
-  venc:fmtN2(dn.venc),
-  descv:''
-});
+  if(dn && verbaTemLancamento(dn)) rowsData.push({
+    cod: dn.cod || getConfigCod('diasnormais', '8781'),
+    desc: dn.desc || getConfigDesc('diasnormais', 'DIAS NORMAIS'),
+    ref:fmtRef(dn,'d',d.dias),
+    venc:fmtN2(dn.venc),
+    descv:''
+  });
 
-// 🔥 OUTRAS VERBAS (SEM DSR)
-d.verbas
-  .filter(v => v.autoType !== 'diasnormais' && v.autoType !== 'dsrhe')
-  .forEach(v=>{
+  const outrasVerbas = getVerbasOrdenadasParaExibicao(
+    d.verbas.filter(v => v.autoType !== 'diasnormais' && v.autoType !== 'dsrhe')
+  )
+    .filter(v => verbaTemLancamento(v));
+
+  const proventos = outrasVerbas.filter(v => v.tipo !== 'desc');
+  const descontos = outrasVerbas.filter(v => v.tipo === 'desc');
+  proventos.forEach(v => {
     const vencVal = v.venc > 0 ? fmtN2(v.venc) : '';
-    const dv = v.desc2 > 0 ? v.desc2 : (v.tipo==='desc'&&v.ref ? parseN(v.ref)||0 : 0);
+    const dv = getValorDescontoVerba(v);
+    const descVal = dv > 0 ? fmtN2(dv) : '';
+    rowsData.push({
+      cod:(v.cod || getConfigCod(v.autoType, '')),
+      desc:v.desc||'',
+      ref:fmtRef(v,'',null),
+      venc:vencVal,
+      descv:descVal
+    });
+  });
+
+  // 🔥 DSR FIXO (como provento)
+  const dsrVerba = d.verbas.find(v=>v.autoType==='dsrhe');
+  if(dsrVerba && verbaTemLancamento(dsrVerba)) rowsData.push({
+    cod: dsrVerba.cod || getConfigCod('dsrhe', '9999'),
+    desc: dsrVerba.desc || getConfigDesc('dsrhe', 'DSR SOBRE HORAS EXTRAS'),
+    ref:'',
+    venc:fmtN2(dsrVerba.venc),
+    descv:''
+  });
+
+  descontos.forEach(v => {
+    const vencVal = v.venc > 0 ? fmtN2(v.venc) : '';
+    const dv = getValorDescontoVerba(v);
     const descVal = dv > 0 ? fmtN2(dv) : '';
     rowsData.push({
       cod:(v.cod || getConfigCod(v.autoType, '')),
@@ -1502,16 +1516,6 @@ if (d.encs.fgts && d.fgtsVal > 0) {
     descv:''
   });
 }
-
-// 🔥 DSR FIXO
-const dsr = d.verbas.find(v=>v.autoType==='dsrhe');
-if(dsr) rowsData.push({
-  cod: dsr.cod || getConfigCod('dsrhe', '9999'),
-  desc: dsr.desc || getConfigDesc('dsrhe', 'DSR SOBRE HORAS EXTRAS'),
-  ref:'',
-  venc:fmtN2(dsr.venc),
-  descv:''
-});
   
   // preencher com linhas vazias até TOTAL_ROWS
   let rows = '';
@@ -2396,8 +2400,9 @@ function calcVerba(v, sal, salDia, salHora, valDias) {
         if (!diasTrab || totalHE === 0) {
           return { venc: 0, desc: 0 };
         }
-        const dsr = (totalHE / diasTrab) * (diasMes - diasTrab);
-        return { venc: roundFiscal(dsr), desc: 0 };
+        const diasDescanso = diasDSR > 0 ? diasDSR : Math.max(diasMes - diasTrab, 0);
+        const dsrValor = (totalHE / diasTrab) * diasDescanso;
+        return { venc: roundFiscal(dsrValor), desc: 0 };
       }
       break;
   }
