@@ -663,13 +663,18 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 }
 .rec-table thead th:last-child{ border-right:none; }
 .rec-table thead th.r{ text-align:right; }
-.rec-table tbody tr{ height:15px; }
+.rec-table tbody tr{ min-height:15px; }
 .rec-table tbody td{
   font-size:7.5pt;padding:0px 4px;
   color:#000;vertical-align:middle;
   border-right:1px solid #ddd;
   overflow:hidden;
   white-space:nowrap;
+}
+.rec-table tbody td:nth-child(2){
+  white-space:normal;
+  overflow:visible;
+  line-height:1.2;
 }
 .rec-table tbody td:last-child{ border-right:none; }
 .rec-table tbody td.r{ text-align:right; }
