@@ -1363,6 +1363,13 @@ function calcTotaisOnly() {
 
 function renderVerbasList() {
   const list = document.getElementById('verbas-list');
+  const activeEl = document.activeElement;
+  const activeRow = activeEl ? activeEl.closest('.verba-row') : null;
+  const activeVerbaId = activeRow ? activeRow.dataset.id : null;
+  const activeField = activeEl?.dataset?.field || null;
+  const activeSelectionStart = typeof activeEl?.selectionStart === 'number' ? activeEl.selectionStart : null;
+  const activeSelectionEnd = typeof activeEl?.selectionEnd === 'number' ? activeEl.selectionEnd : null;
+
   if (!verbas.length) {
     list.innerHTML = '<div style="text-align:center;padding:.75rem;color:var(--ink3);font-size:.8rem">Nenhuma verba adicionada</div>';
     return;
@@ -1385,6 +1392,14 @@ function renderVerbasList() {
       <button class="btn-rm" onclick="removeVerba(${v.id})">×</button>
     </div>`;
   }).join('');
+
+  if (!activeVerbaId || !activeField) return;
+  const nextInput = list.querySelector(`.verba-row[data-id="${activeVerbaId}"] [data-field="${activeField}"]`);
+  if (!nextInput) return;
+  nextInput.focus();
+  if (typeof activeSelectionStart === 'number' && typeof activeSelectionEnd === 'number' && typeof nextInput.setSelectionRange === 'function') {
+    nextInput.setSelectionRange(activeSelectionStart, activeSelectionEnd);
+  }
 }
 
 function getValorDescontoVerba(v) {
