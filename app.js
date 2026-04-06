@@ -100,6 +100,18 @@ feriadosConfig.byEmpresa = feriadosConfig.byEmpresa && typeof feriadosConfig.byE
 Object.keys(feriadosConfig.byCity).forEach(k => feriadosConfig.byCity[k] = normalizeHolidayArray(feriadosConfig.byCity[k]));
 Object.keys(feriadosConfig.byEmpresa).forEach(k => feriadosConfig.byEmpresa[k] = normalizeHolidayArray(feriadosConfig.byEmpresa[k]));
 
+function normalizeFeriadosConfig(cfg) {
+  const safe = cfg && typeof cfg === 'object' ? cfg : { global: [], byCity: {}, byEmpresa: {} };
+  safe.global = normalizeHolidayArray(safe.global);
+  safe.byCity = safe.byCity && typeof safe.byCity === 'object' ? safe.byCity : {};
+  safe.byEmpresa = safe.byEmpresa && typeof safe.byEmpresa === 'object' ? safe.byEmpresa : {};
+  Object.keys(safe.byCity).forEach(k => safe.byCity[k] = normalizeHolidayArray(safe.byCity[k]));
+  Object.keys(safe.byEmpresa).forEach(k => safe.byEmpresa[k] = normalizeHolidayArray(safe.byEmpresa[k]));
+  return safe;
+}
+
+feriadosConfig = normalizeFeriadosConfig(feriadosConfig);
+
 // ── STATE ──
 let verbas = [];
 let encs = { inss: false, fgts: false, irrf: false };
@@ -113,6 +125,8 @@ let empresaEditando = null;
 let verbasPadraoTemp = [];
 let feriadoEditando = null;
 let loginGalaxy = null;
+let feriadosSyncReady = false;
+let feriadosRemoteUnsupported = false;
 
 function getConfigVerbaById(id) {
   return configVerbas.find(c => c.id === id);
@@ -238,6 +252,8 @@ async function fazerLogout() {
   localStorage.removeItem('sb_token');
   localStorage.removeItem('sb_user');
   currentUser = null;
+  feriadosSyncReady = false;
+  feriadosRemoteUnsupported = false;
   document.getElementById('pg-login').style.display = 'flex';
   document.getElementById('pg-main').style.display = 'none';
   document.getElementById('pg-feriados').style.display = 'none';
@@ -309,6 +325,7 @@ async function carregarEmpresas() {
       }
       empresasList = await sbFetch('empresas?grupo_id=eq.' + grupoId + '&order=nome.asc') || [];
     }
+    await loadFeriadosConfigRemoto();
     renderEmpresasSelect();
     renderEmpresaUsuarioSelect();
     if (document.getElementById('pg-feriados')?.style.display === 'block') {
@@ -899,8 +916,47 @@ function calcINSSProgressivo(base) {
   return { aliq, deducao: 0, valor };
 }
 
-function saveFeriadosConfig() {
+function saveFeriadosConfigLocal() {
   localStorage.setItem(HOLIDAYS_KEY, JSON.stringify(feriadosConfig));
+}
+
+async function loadFeriadosConfigRemoto() {
+  if (!currentUser || !grupoId || currentUser.isAdmin || feriadosRemoteUnsupported) return;
+  try {
+    const rows = await sbFetch(`grupos?id=eq.${grupoId}&select=feriados_config&limit=1`);
+    const remoto = rows?.[0]?.feriados_config;
+    if (remoto && typeof remoto === 'object') {
+      feriadosConfig = normalizeFeriadosConfig(remoto);
+      saveFeriadosConfigLocal();
+    }
+    feriadosSyncReady = true;
+  } catch (e) {
+    if (String(e?.message || '').includes('feriados_config')) {
+      feriadosRemoteUnsupported = true;
+    }
+    feriadosSyncReady = true;
+    console.warn('Não foi possível carregar feriados remotos:', e?.message || e);
+  }
+}
+
+async function saveFeriadosConfigRemoto() {
+  if (!currentUser || !grupoId || currentUser.isAdmin || feriadosRemoteUnsupported || !feriadosSyncReady) return;
+  try {
+    await sbFetch(`grupos?id=eq.${grupoId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ feriados_config: feriadosConfig })
+    });
+  } catch (e) {
+    if (String(e?.message || '').includes('feriados_config')) {
+      feriadosRemoteUnsupported = true;
+    }
+    console.warn('Não foi possível salvar feriados remotos:', e?.message || e);
+  }
+}
+
+function saveFeriadosConfig() {
+  saveFeriadosConfigLocal();
+  saveFeriadosConfigRemoto();
 }
 
 function normalizeCityKey(city) {
