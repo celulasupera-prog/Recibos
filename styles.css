@@ -71,6 +71,9 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   border-radius:14px;
   padding:.8rem;
   background:#f8fafd;
+  width:calc(100% + 20px);
+  margin-left:-10px;
+  box-sizing:border-box;
 }
 .form-section .sec-title{
   margin-bottom:.6rem;
@@ -92,6 +95,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   border-width:1.5px;
   border-top-width:4px;
   overflow:hidden;
+  box-sizing:border-box;
 }
 .section-empresa .card{border-top-color:#5d86db;}
 .section-funcionario .card{border-top-color:#5d86db;}
