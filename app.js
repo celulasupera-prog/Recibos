@@ -1305,9 +1305,9 @@ function renderVerbasList() {
                      v.autoType==='adicfunc'||v.autoType==='premiotempo' ? '%' :
                      cfgV ? cfgV.refLabel : '';
     return `<div class="verba-row" data-id="${v.id}">
-      <input value="${escHtml(v.cod||'')}" placeholder="Cód" style="text-align:left" oninput="updateVerba(${v.id},'cod',this.value)">
-      <input value="${escHtml(v.desc||'')}" placeholder="Descrição do lançamento" class="desc-input" style="text-align:left;font-size:.82rem" oninput="updateVerba(${v.id},'desc',this.value)">
-      <input value="${escHtml(v.ref||'')}" placeholder="${refLabel||'ref'}" oninput="updateVerba(${v.id},'ref',this.value)">
+      <input value="${escHtml(v.cod||'')}" placeholder="Cód" data-field="cod" style="text-align:left" oninput="updateVerba(${v.id},'cod',this.value)">
+      <textarea placeholder="Descrição do lançamento" data-field="desc" class="desc-input" style="text-align:left;font-size:.82rem" oninput="updateVerba(${v.id},'desc',this.value)">${escHtml(v.desc||'')}</textarea>
+      <input value="${escHtml(v.ref||'')}" placeholder="${refLabel||'ref'}" data-field="ref" oninput="updateVerba(${v.id},'ref',this.value)">
       <input value="${v.venc > 0 ? fmtN(v.venc) : ''}" placeholder="0,00" class="${vencCls}" ${lockVenc ? 'readonly' : ''} oninput="updateVerba(${v.id},'venc',this.value)" data-field="venc">
       <input value="${v.desc2 > 0 ? fmtN(v.desc2) : v.tipo==='desc'&&v.ref ? fmtN(parseN(v.ref)||0) : ''}" placeholder="0,00" class="${descCls}" ${lockDesc ? 'readonly' : ''} oninput="updateVerba(${v.id},'desc2',this.value)" data-field="desc2">
       <button class="btn-rm" onclick="removeVerba(${v.id})">×</button>
@@ -1421,10 +1421,12 @@ function syncDOMtoVerbas() {
     const id = Number(row.dataset.id);
     const v = verbas.find(x => x.id === id);
     if (!v) return;
-    const inputs = row.querySelectorAll('input');
-    if (inputs[0]) v.cod  = inputs[0].value;
-    if (inputs[1]) v.desc = inputs[1].value;
-    if (inputs[2] && !v.auto) v.ref = inputs[2].value;
+    const codEl = row.querySelector('input[data-field="cod"]');
+    const descEl = row.querySelector('textarea[data-field="desc"]');
+    const refEl = row.querySelector('input[data-field="ref"]');
+    if (codEl) v.cod  = codEl.value;
+    if (descEl) v.desc = descEl.value;
+    if (refEl && !v.auto) v.ref = refEl.value;
   });
 }
 
@@ -1479,6 +1481,52 @@ function buildViaHTML(d, viaLabel) {
     rowsData.push({
       cod:(v.cod || getConfigCod(v.autoType, '')),
       desc:v.desc||'',
+      ref:fmtRef(v,'',null),
+      venc:vencVal,
+      descv:descVal
+    });
+  });
+
+  // 🔥 DSR FIXO (como provento)
+  const dsr = d.verbas.find(v=>v.autoType==='dsrhe');
+  if(dsr && verbaTemLancamento(dsr)) rowsData.push({
+    cod: dsr.cod || getConfigCod('dsrhe', '9999'),
+    desc: dsr.desc || getConfigDesc('dsrhe', 'DSR SOBRE HORAS EXTRAS'),
+    ref:'',
+    venc:fmtN2(dsr.venc),
+    descv:''
+  });
+
+  descontos.forEach(v => {
+    const vencVal = v.venc > 0 ? fmtN2(v.venc) : '';
+    const dv = getValorDescontoVerba(v);
+    const descVal = dv > 0 ? fmtN2(dv) : '';
+    rowsData.push({
+      cod:(v.cod || getConfigCod(v.autoType, '')),
+      desc:v.desc||'',
+      ref:fmtRef(v,'',null),
+      venc:vencVal,
+      descv:descVal
+    });
+  });
+
+  // 🔥 DSR FIXO (como provento)
+  const dsr = d.verbas.find(v=>v.autoType==='dsrhe');
+  if(dsr && verbaTemLancamento(dsr)) rowsData.push({
+    cod: dsr.cod || getConfigCod('dsrhe', '9999'),
+    desc: dsr.desc || getConfigDesc('dsrhe', 'DSR SOBRE HORAS EXTRAS'),
+    ref:'',
+    venc:fmtN2(dsr.venc),
+    descv:''
+  });
+
+  descontos.forEach(v => {
+    const vencVal = v.venc > 0 ? fmtN2(v.venc) : '';
+    const dv = getValorDescontoVerba(v);
+    const descVal = dv > 0 ? fmtN2(dv) : '';
+    rowsData.push({
+      cod:(v.cod || getConfigCod(v.autoType, '')),
+      desc:v.desc || getConfigDesc(v.autoType, ''),
       ref:fmtRef(v,'',null),
       venc:vencVal,
       descv:descVal
