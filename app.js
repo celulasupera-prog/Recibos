@@ -1451,27 +1451,28 @@ function buildViaHTML(d, viaLabel) {
 
   const proventos = outrasVerbas.filter(v => v.tipo !== 'desc');
   const descontos = outrasVerbas.filter(v => v.tipo === 'desc');
+
   proventos.forEach(v => {
     const vencVal = v.venc > 0 ? fmtN2(v.venc) : '';
     const dv = getValorDescontoVerba(v);
     const descVal = dv > 0 ? fmtN2(dv) : '';
     rowsData.push({
-      cod:(v.cod || getConfigCod(v.autoType, '')),
-      desc:v.desc||'',
-      ref:fmtRef(v,'',null),
-      venc:vencVal,
-      descv:descVal
+      cod: (v.cod || getConfigCod(v.autoType, '')),
+      desc: v.desc || getConfigDesc(v.autoType, ''),
+      ref: fmtRef(v, '', null),
+      venc: vencVal,
+      descv: descVal
     });
   });
 
   // 🔥 DSR FIXO (como provento)
-  const dsrVerba = d.verbas.find(v=>v.autoType==='dsrhe');
-  if(dsrVerba && verbaTemLancamento(dsrVerba)) rowsData.push({
+  const dsrVerba = d.verbas.find(v => v.autoType === 'dsrhe');
+  if (dsrVerba && verbaTemLancamento(dsrVerba)) rowsData.push({
     cod: dsrVerba.cod || getConfigCod('dsrhe', '9999'),
     desc: dsrVerba.desc || getConfigDesc('dsrhe', 'DSR SOBRE HORAS EXTRAS'),
-    ref:'',
-    venc:fmtN2(dsrVerba.venc),
-    descv:''
+    ref: '',
+    venc: fmtN2(dsrVerba.venc),
+    descv: ''
   });
 
   descontos.forEach(v => {
@@ -1479,103 +1480,11 @@ function buildViaHTML(d, viaLabel) {
     const dv = getValorDescontoVerba(v);
     const descVal = dv > 0 ? fmtN2(dv) : '';
     rowsData.push({
-      cod:(v.cod || getConfigCod(v.autoType, '')),
-      desc:v.desc||'',
-      ref:fmtRef(v,'',null),
-      venc:vencVal,
-      descv:descVal
-    });
-  });
-
-  // 🔥 DSR FIXO (como provento)
-  const dsrVerba = d.verbas.find(v=>v.autoType==='dsrhe');
-  if(dsrVerba && verbaTemLancamento(dsrVerba)) rowsData.push({
-    cod: dsrVerba.cod || getConfigCod('dsrhe', '9999'),
-    desc: dsrVerba.desc || getConfigDesc('dsrhe', 'DSR SOBRE HORAS EXTRAS'),
-    ref:'',
-    venc:fmtN2(dsrVerba.venc),
-    descv:''
-  });
-
-  descontos.forEach(v => {
-    const vencVal = v.venc > 0 ? fmtN2(v.venc) : '';
-    const dv = getValorDescontoVerba(v);
-    const descVal = dv > 0 ? fmtN2(dv) : '';
-    rowsData.push({
-      cod:(v.cod || getConfigCod(v.autoType, '')),
-      desc:v.desc||'',
-      ref:fmtRef(v,'',null),
-      venc:vencVal,
-      descv:descVal
-    });
-  });
-
-  // 🔥 DSR FIXO (como provento)
-  const dsrVerba = d.verbas.find(v=>v.autoType==='dsrhe');
-  if(dsrVerba && verbaTemLancamento(dsrVerba)) rowsData.push({
-    cod: dsrVerba.cod || getConfigCod('dsrhe', '9999'),
-    desc: dsrVerba.desc || getConfigDesc('dsrhe', 'DSR SOBRE HORAS EXTRAS'),
-    ref:'',
-    venc:fmtN2(dsrVerba.venc),
-    descv:''
-  });
-
-  descontos.forEach(v => {
-    const vencVal = v.venc > 0 ? fmtN2(v.venc) : '';
-    const dv = getValorDescontoVerba(v);
-    const descVal = dv > 0 ? fmtN2(dv) : '';
-    rowsData.push({
-      cod:(v.cod || getConfigCod(v.autoType, '')),
-      desc:v.desc||'',
-      ref:fmtRef(v,'',null),
-      venc:vencVal,
-      descv:descVal
-    });
-  });
-
-  // 🔥 DSR FIXO (como provento)
-  const dsr = d.verbas.find(v=>v.autoType==='dsrhe');
-  if(dsr && verbaTemLancamento(dsr)) rowsData.push({
-    cod: dsr.cod || getConfigCod('dsrhe', '9999'),
-    desc: dsr.desc || getConfigDesc('dsrhe', 'DSR SOBRE HORAS EXTRAS'),
-    ref:'',
-    venc:fmtN2(dsr.venc),
-    descv:''
-  });
-
-  descontos.forEach(v => {
-    const vencVal = v.venc > 0 ? fmtN2(v.venc) : '';
-    const dv = getValorDescontoVerba(v);
-    const descVal = dv > 0 ? fmtN2(dv) : '';
-    rowsData.push({
-      cod:(v.cod || getConfigCod(v.autoType, '')),
-      desc:v.desc||'',
-      ref:fmtRef(v,'',null),
-      venc:vencVal,
-      descv:descVal
-    });
-  });
-
-  // 🔥 DSR FIXO (como provento)
-  const dsr = d.verbas.find(v=>v.autoType==='dsrhe');
-  if(dsr && verbaTemLancamento(dsr)) rowsData.push({
-    cod: dsr.cod || getConfigCod('dsrhe', '9999'),
-    desc: dsr.desc || getConfigDesc('dsrhe', 'DSR SOBRE HORAS EXTRAS'),
-    ref:'',
-    venc:fmtN2(dsr.venc),
-    descv:''
-  });
-
-  descontos.forEach(v => {
-    const vencVal = v.venc > 0 ? fmtN2(v.venc) : '';
-    const dv = getValorDescontoVerba(v);
-    const descVal = dv > 0 ? fmtN2(dv) : '';
-    rowsData.push({
-      cod:(v.cod || getConfigCod(v.autoType, '')),
-      desc:v.desc || getConfigDesc(v.autoType, ''),
-      ref:fmtRef(v,'',null),
-      venc:vencVal,
-      descv:descVal
+      cod: (v.cod || getConfigCod(v.autoType, '')),
+      desc: v.desc || getConfigDesc(v.autoType, ''),
+      ref: fmtRef(v, '', null),
+      venc: vencVal,
+      descv: descVal
     });
   });
 
