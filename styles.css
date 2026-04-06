@@ -44,7 +44,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .ico{width:14px;height:14px;display:inline-block;vertical-align:-2px;flex:none;}
 
 /* LAYOUT */
-.workspace{display:grid;grid-template-columns:600px 1fr;min-height:calc(100vh - 56px);}
+.workspace{display:grid;grid-template-columns:620px 1fr;min-height:calc(100vh - 56px);}
 
 /* FORM SIDE */
 .form-side{
