@@ -97,7 +97,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .section-funcionario .card{border-top-color:#5d86db;}
 .section-competencia .card{border-top-color:#5d86db;}
 .section-base .card{border-top-color:#5d86db;}
-.section-verbas .card{border-top-color:#dd7f7f;overflow:visible;}
+.section-verbas .card{border-top-color:#dd7f7f;overflow-x:auto;}
 .section-encargos .card{border-top-color:#64a89f;}
 .section-totais .card{border-top-color:#64748b;}
 .form-section.collapsed .card{display:none;}
@@ -154,6 +154,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   display:grid;
   grid-template-columns:minmax(70px,80px) minmax(380px,3fr) minmax(110px,1fr) minmax(130px,1fr) minmax(130px,1fr) 30px;
   gap:6px;padding:.3rem .4rem;
+  min-width:850px;
   font-size:.62rem;font-weight:700;color:var(--ink3);letter-spacing:.06em;text-transform:uppercase;}
 .verbas-header span:nth-child(3),.verbas-header span:nth-child(4),.verbas-header span:nth-child(5){text-align:right;}
 
@@ -161,6 +162,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   display:grid;
   grid-template-columns:minmax(70px,80px) minmax(380px,3fr) minmax(110px,1fr) minmax(130px,1fr) minmax(130px,1fr) 30px;
   gap:6px;align-items:start;padding:.35rem .4rem;border-radius:4px;
+  min-width:850px;
   border-bottom:1px solid #f0ede8;
 }
 .verba-row:last-child{border-bottom:none;}
@@ -195,6 +197,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   .verba-row{
     grid-template-columns:minmax(60px,68px) minmax(260px,3fr) minmax(90px,1fr) minmax(105px,1fr) minmax(105px,1fr) 28px;
     gap:4px;
+    min-width:700px;
   }
 }
 

@@ -1457,7 +1457,7 @@ function buildViaHTML(d, viaLabel) {
     const descVal = dv > 0 ? fmtN2(dv) : '';
     rowsData.push({
       cod:(v.cod || getConfigCod(v.autoType, '')),
-      desc:v.desc || getConfigDesc(v.autoType, ''),
+      desc:v.desc||'',
       ref:fmtRef(v,'',null),
       venc:vencVal,
       descv:descVal
