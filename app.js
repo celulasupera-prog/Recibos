@@ -2,7 +2,7 @@
 const DEFAULT_CONFIG_VERBAS = [
   { id:'he50',   cod:'150', desc:'HORAS EXTRAS - 50%',      tipo:'venc', refLabel:'horas', formulaVenc:'ref * salHora * 1.5', formulaDesc:'', compoeHE:true, compoeIRRF:true, compoeINSS:true, compoeFGTS:true },
   { id:'he100',  cod:'200', desc:'HORAS EXTRAS 100%',       tipo:'venc', refLabel:'horas', formulaVenc:'ref * salHora * 2',   formulaDesc:'', compoeHE:true, compoeIRRF:true, compoeINSS:true, compoeFGTS:true },
-  { id:'dsrhe', cod:'9999', desc:'DSR SOBRE HORAS EXTRAS', tipo:'venc', refLabel:'auto', formulaVenc:'', formulaDesc:'', compoeHE:false, compoeIRRF:true, compoeINSS:true, compoeFGTS:true },
+  { id:'dsrhe', cod:'9999', desc:'DSR SOBRE HORAS EXTRAS', tipo:'venc', refLabel:'auto', formulaVenc:'diasTrab > 0 ? (totalHE / diasTrab) * diasDSR : 0', formulaDesc:'', compoeHE:false, compoeIRRF:true, compoeINSS:true, compoeFGTS:true },
   { id:'adicfunc',cod:'348',desc:'ADICIONAL DE FUNÇÃO',     tipo:'venc', refLabel:'%',     formulaVenc:'sal * ref / 100',     formulaDesc:'', compoeHE:false, compoeIRRF:true, compoeINSS:true, compoeFGTS:true },
   { id:'premiotempo',cod:'576',desc:'PRÊMIO TEMPO SERVIÇO', tipo:'venc', refLabel:'%',     formulaVenc:'sal * ref / 100',     formulaDesc:'', compoeHE:false, compoeIRRF:true, compoeINSS:true, compoeFGTS:true },
   { id:'ajudacusto',cod:'583',desc:'AJUDA DE CUSTO',        tipo:'venc', refLabel:'valor', formulaVenc:'ref',                 formulaDesc:'', compoeHE:false, compoeIRRF:true, compoeINSS:true, compoeFGTS:true },
@@ -1352,7 +1352,7 @@ function renderVerbasList() {
                      cfgV ? cfgV.refLabel : '';
     return `<div class="verba-row" data-id="${v.id}">
       <input value="${escHtml(v.cod||'')}" placeholder="Cód" style="text-align:left" oninput="updateVerba(${v.id},'cod',this.value)">
-      <input value="${escHtml(v.desc||'')}" placeholder="Descrição do lançamento" class="desc-input" style="text-align:left;font-size:.82rem" oninput="updateVerba(${v.id},'desc',this.value)">
+      <textarea placeholder="Descrição do lançamento" class="desc-input" style="text-align:left;font-size:.82rem" oninput="updateVerba(${v.id},'desc',this.value)">${escHtml(v.desc||'')}</textarea>
       <input value="${escHtml(v.ref||'')}" placeholder="${refLabel||'ref'}" oninput="updateVerba(${v.id},'ref',this.value)">
       <input value="${v.venc > 0 ? fmtN(v.venc) : ''}" placeholder="0,00" class="${vencCls}" ${lockVenc ? 'readonly' : ''} oninput="updateVerba(${v.id},'venc',this.value)" data-field="venc">
       <input value="${v.desc2 > 0 ? fmtN(v.desc2) : v.tipo==='desc'&&v.ref ? fmtN(parseN(v.ref)||0) : ''}" placeholder="0,00" class="${descCls}" ${lockDesc ? 'readonly' : ''} oninput="updateVerba(${v.id},'desc2',this.value)" data-field="desc2">
@@ -1361,7 +1361,13 @@ function renderVerbasList() {
   }).join('');
 }
 
-function escHtml(s){ return (s||'').replace(/"/g,'&quot;'); }
+function escHtml(s){
+  return String(s || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
 
 // ── DATA ──
 function getData() {
@@ -2396,7 +2402,8 @@ function calcVerba(v, sal, salDia, salHora, valDias) {
         if (!diasTrab || totalHE === 0) {
           return { venc: 0, desc: 0 };
         }
-        const dsr = (totalHE / diasTrab) * (diasMes - diasTrab);
+        const diasDescanso = diasDSR > 0 ? diasDSR : Math.max(diasMes - diasTrab, 0);
+        const dsr = (totalHE / diasTrab) * diasDescanso;
         return { venc: roundFiscal(dsr), desc: 0 };
       }
       break;
