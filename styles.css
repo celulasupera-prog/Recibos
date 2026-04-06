@@ -173,7 +173,9 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 }
 .verba-row textarea.desc-input{
   text-align:left;font-family:'Lato',sans-serif;font-size:.76rem;
-  min-width:0;width:100%;resize:none;min-height:30px;line-height:1.15;
+  min-width:0;width:100%;resize:none;
+  height:30px;min-height:30px;max-height:30px;
+  line-height:1.15;overflow:hidden;
 }
 .verba-row input:focus,
 .verba-row textarea:focus{border-color:var(--accent);}
