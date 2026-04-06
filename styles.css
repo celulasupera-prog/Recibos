@@ -44,7 +44,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .ico{width:14px;height:14px;display:inline-block;vertical-align:-2px;flex:none;}
 
 /* LAYOUT */
-.workspace{display:grid;grid-template-columns:600px 1fr;min-height:calc(100vh - 56px);}
+.workspace{display:grid;grid-template-columns:620px 1fr;min-height:calc(100vh - 56px);}
 
 /* FORM SIDE */
 .form-side{
@@ -71,6 +71,9 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   border-radius:14px;
   padding:.8rem;
   background:#f8fafd;
+  width:calc(100% + 20px);
+  margin-left:-10px;
+  box-sizing:border-box;
 }
 .form-section .sec-title{
   margin-bottom:.6rem;
@@ -92,6 +95,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   border-width:1.5px;
   border-top-width:4px;
   overflow:hidden;
+  box-sizing:border-box;
 }
 .section-empresa .card{border-top-color:#5d86db;}
 .section-funcionario .card{border-top-color:#5d86db;}
@@ -150,32 +154,29 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 #tc-irrf{border-left:3px solid #f59e0b;}
 
 /* verbas table */
-.verbas-header{display:grid;grid-template-columns:60px 1fr 90px 90px 90px 30px;
-  gap:4px;padding:.3rem .4rem;
-  font-size:.62rem;font-weight:700;color:var(--ink3);letter-spacing:.06em;text-transform:uppercase;}
-.verbas-header span:nth-child(3),.verbas-header span:nth-child(4),.verbas-header span:nth-child(5){text-align:right;}
-
-.verbas-header{display:grid;grid-template-columns:55px 1fr 80px 80px 80px 30px;
+.verbas-header{display:grid;grid-template-columns:55px 1fr 70px 80px 80px 30px;
   gap:4px;padding:.3rem .4rem;
   font-size:.62rem;font-weight:700;color:var(--ink3);letter-spacing:.06em;text-transform:uppercase;}
 .verbas-header span:nth-child(3),.verbas-header span:nth-child(4),.verbas-header span:nth-child(5){text-align:right;}
 
 .verba-row{
-  display:grid;grid-template-columns:55px 1fr 80px 80px 80px 30px;
+  display:grid;grid-template-columns:55px 1fr 70px 80px 80px 30px;
   gap:4px;align-items:center;padding:.25rem .4rem;border-radius:4px;
   border-bottom:1px solid #f0ede8;
 }
 .verba-row:last-child{border-bottom:none;}
-.verba-row input{
+.verba-row input,
+.verba-row textarea{
   font-family:'Inconsolata',monospace;font-size:.82rem;padding:.28rem .4rem;
   border:1px solid var(--border);border-radius:4px;background:#fff;color:var(--ink);
   outline:none;text-align:right;width:100%;min-width:0;
 }
-.verba-row input.desc-input{
+.verba-row textarea.desc-input{
   text-align:left;font-family:'Lato',sans-serif;font-size:.82rem;
-  min-width:0;width:100%;overflow:hidden;text-overflow:ellipsis;
+  min-width:0;width:100%;resize:none;min-height:30px;line-height:1.15;
 }
-.verba-row input:focus{border-color:var(--accent);}
+.verba-row input:focus,
+.verba-row textarea:focus{border-color:var(--accent);}
 .verba-row input[readonly]{background:#f8f8f8;color:var(--ink2);border-color:transparent;}
 .verba-row input.auto{background:#f0f4ff;color:var(--accent);border-color:#dce8ff;}
 .verba-row input.desc-auto{background:#fff5f5;color:var(--red);border-color:#ffd5d0;}
