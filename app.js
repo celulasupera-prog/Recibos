@@ -322,14 +322,18 @@ async function carregarEmpresas() {
 
 function renderEmpresasSelect() {
   const sel = document.getElementById('f-emp-select');
+  const selectedValue = sel.value;
   sel.innerHTML = '<option value="">— Selecione ou preencha abaixo —</option>';
   empresasList.forEach(e => {
     const label = `${e.nome}${e.cnpj?' — '+e.cnpj:''}`;
     sel.innerHTML += `<option value="${e.id}" data-nome="${e.nome}" data-cnpj="${e.cnpj||''}">${label}</option>`;
   });
+  if (selectedValue) sel.value = selectedValue;
+  renderQuickAddButtons();
 }
 
 function selecionarEmpresa(id) {
+  renderQuickAddButtons();
   if (!id) return;
 
   const emp = empresasList.find(e => e.id == id);
@@ -727,15 +731,27 @@ window.onload = async () => {
 function renderQuickAddButtons() {
   const container = document.querySelector('.hcbtns-quick');
   if(!container) return;
-  // botões fixos sempre presentes
-  let html = `<button class="hcbtn quick-rubrica-btn" onclick="quickAdd('he50')">HORAS EXTRAS - 50%</button>
-    <button class="hcbtn quick-rubrica-btn" onclick="quickAdd('he100')">HORAS EXTRAS 100%</button>`;
-  // verbas configuradas
-  configVerbas
-    .filter(v => v.id !== 'he50' && v.id !== 'he100')
-    .forEach(v => {
-    html += `<button class="hcbtn quick-rubrica-btn" onclick="quickAddConfig('${v.id}')">${v.desc}</button>`;
+  const selectedEmpresaId = document.getElementById('f-emp-select')?.value || '';
+  const empresaSelecionada = empresasList.find(e => String(e.id) === String(selectedEmpresaId));
+  const autoTypesEmpresa = new Set(
+    (empresaSelecionada?.verbas_padrao || [])
+      .map(v => v?.autoType)
+      .filter(Boolean)
+  );
+  const usarFiltroEmpresa = !!selectedEmpresaId && autoTypesEmpresa.size > 0;
+
+  const quickVerbas = (usarFiltroEmpresa ? configVerbas.filter(v => autoTypesEmpresa.has(v.id)) : configVerbas)
+    .filter(v => v.id !== 'diasnormais' && v.id !== 'dsrhe');
+
+  let html = '';
+  quickVerbas.forEach(v => {
+    const action = (v.id === 'he50' || v.id === 'he100') ? `quickAdd('${v.id}')` : `quickAddConfig('${v.id}')`;
+    html += `<button class="hcbtn quick-rubrica-btn" onclick="${action}">${v.desc}</button>`;
   });
+
+  if (!html) {
+    html = '<div style="font-size:.78rem;color:var(--ink3);padding:.25rem 0;">Nenhuma rubrica rápida configurada para esta empresa.</div>';
+  }
   container.innerHTML = html;
 }
 
