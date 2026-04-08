@@ -36,25 +36,30 @@ function parseN(raw) {
   return Number.isFinite(n) ? n : 0;
 }
 
-function formatHorasInputProgressivo(raw) {
-  const digits = String(raw ?? '').replace(/\D/g, '');
-  if (!digits) return '';
-  const horasRaw = digits.length > 2 ? digits.slice(0, -2) : '0';
-  const minutosRaw = digits.slice(-2).padStart(2, '0');
-  let horas = parseInt(horasRaw, 10);
-  let minutos = parseInt(minutosRaw, 10);
-  if (!Number.isFinite(horas)) horas = 0;
-  if (!Number.isFinite(minutos)) minutos = 0;
-  horas += Math.floor(minutos / 60);
-  minutos = minutos % 60;
-  return `${String(horas).padStart(2, '0')}:${String(minutos).padStart(2, '0')}`;
+function sanitizeHoraRefInput(raw) {
+  let s = String(raw ?? '').replace(/[^\d:]/g, '');
+  const idx = s.indexOf(':');
+  if (idx !== -1) {
+    s = s.slice(0, idx + 1) + s.slice(idx + 1).replace(/:/g, '');
+  }
+  return s;
 }
 
 function parseRefHoras(raw) {
   if (typeof raw === 'number') return Number.isFinite(raw) ? raw : 0;
-  const s = String(raw ?? '').trim();
+  const s = sanitizeHoraRefInput(String(raw ?? '').trim());
   if (!s) return 0;
-  if (!s.includes(':')) return parseN(s);
+  if (!s.includes(':')) {
+    if (/^\d+$/.test(s)) {
+      if (s.length <= 2) return parseInt(s, 10) || 0;
+      const horasDigits = s.slice(0, -2);
+      const minutosDigits = s.slice(-2);
+      const horas = parseInt(horasDigits, 10) || 0;
+      const minutos = parseInt(minutosDigits, 10) || 0;
+      return horas + (minutos / 60);
+    }
+    return parseN(s);
+  }
   const [hRaw, mRaw = '0'] = s.split(':');
   let horas = parseInt(hRaw, 10);
   let minutos = parseInt(mRaw, 10);
@@ -78,6 +83,14 @@ function isVerbaHoraExtra(v) {
 function getRefNumerica(v) {
   if (!v) return 0;
   return isVerbaHoraExtra(v) ? parseRefHoras(v.ref) : (parseN(v.ref) || 0);
+}
+
+function formatHoraRefDisplay(raw) {
+  const s = sanitizeHoraRefInput(raw);
+  if (!s) return '';
+  if (s.includes(':')) return s;
+  if (/^\d{3,}$/.test(s)) return `${s.slice(0, -2)}:${s.slice(-2)}`;
+  return s;
 }
 
 function formatCurrencyField(input) {
@@ -1353,7 +1366,7 @@ function updateVerba(id, field, val) {
     return;
 
   } else if (field === 'ref') {
-    if (isVerbaHoraExtra(v)) v.ref = formatHorasInputProgressivo(val);
+    if (isVerbaHoraExtra(v)) v.ref = sanitizeHoraRefInput(val);
     else v.ref = val;
     calc();
     return;
@@ -1428,10 +1441,11 @@ function renderVerbasList() {
     const refLabel = v.autoType==='he50'||v.autoType==='he100' ? 'horas' :
                      v.autoType==='adicfunc'||v.autoType==='premiotempo' ? '%' :
                      cfgV ? cfgV.refLabel : '';
+    const refPlaceholder = isVerbaHoraExtra(v) ? 'hh:mm' : (refLabel || 'ref');
     return `<div class="verba-row" data-id="${v.id}">
       <input value="${escHtml(v.cod||'')}" placeholder="Cód" data-field="cod" style="text-align:left" oninput="updateVerba(${v.id},'cod',this.value)">
       <textarea placeholder="Descrição do lançamento" data-field="desc" class="desc-input" style="text-align:left;font-size:.82rem" oninput="updateVerba(${v.id},'desc',this.value)">${escHtml(v.desc||'')}</textarea>
-      <input value="${escHtml(v.ref||'')}" placeholder="${refLabel||'ref'}" data-field="ref" oninput="updateVerba(${v.id},'ref',this.value)">
+      <input value="${escHtml(v.ref||'')}" placeholder="${refPlaceholder}" data-field="ref" oninput="updateVerba(${v.id},'ref',this.value)">
       <input value="${v.venc > 0 ? fmtN(v.venc) : ''}" placeholder="0,00" class="${vencCls}" ${lockVenc ? 'readonly' : ''} oninput="updateVerba(${v.id},'venc',this.value)" data-field="venc">
       <input value="${v.desc2 > 0 ? fmtN(v.desc2) : v.tipo==='desc'&&v.ref ? fmtN(parseN(v.ref)||0) : ''}" placeholder="0,00" class="${descCls}" ${lockDesc ? 'readonly' : ''} oninput="updateVerba(${v.id},'desc2',this.value)" data-field="desc2">
       <button class="btn-rm" onclick="removeVerba(${v.id})">×</button>
@@ -1761,7 +1775,7 @@ if (d.encs.fgts && d.fgtsVal > 0) {
 
 function fmtRef(v, tipo, dias) {
   if(tipo==='d') return String(dias)+',00';
-  if(isVerbaHoraExtra(v)) return v.ref || '';
+  if(isVerbaHoraExtra(v)) return formatHoraRefDisplay(v.ref);
   if(v.autoType==='adicfunc'||v.autoType==='premiotempo') return v.ref ? v.ref+',00' : '';
   return v.ref||'';
 }
