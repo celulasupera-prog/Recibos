@@ -863,6 +863,28 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .btn-add-config{font-family:'Syne',sans-serif;font-size:.72rem;font-weight:600;letter-spacing:.06em;color:var(--accent);background:transparent;border:1.5px dashed #b0c4f8;border-radius:5px;padding:.45rem;cursor:pointer;width:100%;margin-top:.5rem;}
 .btn-add-config:hover{background:var(--accent2);}
 .formula-hint{font-size:.68rem;color:var(--ink3);margin-top:.25rem;font-style:italic;}
+.formula-vars-hint{font-style:normal;}
+.formula-vars-list{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.35rem;
+  margin-top:.35rem;
+}
+.formula-var-pill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:.2rem .55rem;
+  border-radius:999px;
+  border:1px solid #f0b16b;
+  background:#fff1de;
+  color:#b86109;
+  font-family:'Syne',sans-serif;
+  font-size:.65rem;
+  font-weight:700;
+  letter-spacing:.02em;
+  line-height:1.2;
+}
 .config-full{grid-column:span 2;}
 .config-table-wrap{overflow-x:auto;padding-bottom:.3rem;}
 .config-verbas-table{min-width:1280px;}
