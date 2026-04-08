@@ -1007,7 +1007,7 @@ function saveFeriadosConfigLocal() {
 }
 
 async function loadFeriadosConfigRemoto() {
-  if (!currentUser || !grupoId || currentUser.isAdmin || feriadosRemoteUnsupported) return;
+  if (!currentUser || !grupoId || feriadosRemoteUnsupported) return;
   try {
     const rows = await sbFetch(`grupos?id=eq.${grupoId}&select=feriados_config&limit=1`);
     const remoto = rows?.[0]?.feriados_config;
@@ -1026,7 +1026,7 @@ async function loadFeriadosConfigRemoto() {
 }
 
 async function saveFeriadosConfigRemoto() {
-  if (!currentUser || !grupoId || currentUser.isAdmin || feriadosRemoteUnsupported || !feriadosSyncReady) return;
+  if (!currentUser || !grupoId || feriadosRemoteUnsupported || !feriadosSyncReady) return;
   try {
     await sbFetch(`grupos?id=eq.${grupoId}`, {
       method: 'PATCH',
