@@ -55,18 +55,17 @@ function parseRefHoras(raw) {
       const horasDigits = s.slice(0, -2);
       const minutosDigits = s.slice(-2);
       const horas = parseInt(horasDigits, 10) || 0;
-      const minutos = parseInt(minutosDigits, 10) || 0;
+      const minutos = Math.min(parseInt(minutosDigits, 10) || 0, 59);
       return horas + (minutos / 60);
     }
     return parseN(s);
   }
   const [hRaw, mRaw = '0'] = s.split(':');
   let horas = parseInt(hRaw, 10);
-  let minutos = parseInt(mRaw, 10);
+  let minutos = parseInt(String(mRaw).slice(0, 2), 10);
   if (!Number.isFinite(horas)) horas = 0;
   if (!Number.isFinite(minutos)) minutos = 0;
-  horas += Math.floor(minutos / 60);
-  minutos = minutos % 60;
+  minutos = Math.min(minutos, 59);
   return horas + (minutos / 60);
 }
 
@@ -88,8 +87,19 @@ function getRefNumerica(v) {
 function formatHoraRefDisplay(raw) {
   const s = sanitizeHoraRefInput(raw);
   if (!s) return '';
-  if (s.includes(':')) return s;
-  if (/^\d{3,}$/.test(s)) return `${s.slice(0, -2)}:${s.slice(-2)}`;
+  if (s.includes(':')) {
+    const [hRaw = '', mRaw = ''] = s.split(':');
+    const horas = hRaw.replace(/\D/g, '');
+    const minutosDigits = mRaw.replace(/\D/g, '').slice(0, 2);
+    if (!minutosDigits) return `${horas}:`;
+    const minutos = Math.min(parseInt(minutosDigits, 10) || 0, 59);
+    return `${horas}:${String(minutos).padStart(2, '0')}`;
+  }
+  if (/^\d{3,}$/.test(s)) {
+    const horas = s.slice(0, -2);
+    const minutos = Math.min(parseInt(s.slice(-2), 10) || 0, 59);
+    return `${horas}:${String(minutos).padStart(2, '0')}`;
+  }
   return s;
 }
 
