@@ -30,10 +30,16 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 }
 .app-logo{
   font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;
-  color:#fff;letter-spacing:.03em;display:flex;align-items:center;gap:8px;
+  color:#fff;letter-spacing:.03em;display:flex;align-items:center;gap:10px;
+  border:none;background:transparent;cursor:pointer;padding:0;
 }
-.app-logo span{color:var(--accent);font-size:.7rem;font-weight:600;
-  background:rgba(26,86,219,.25);padding:2px 7px;border-radius:3px;letter-spacing:.08em;}
+.app-logo img{
+  height:24px;
+  width:auto;
+  display:block;
+  filter:drop-shadow(0 1px 1px rgba(0,0,0,.2));
+}
+.app-logo:hover{opacity:.9;}
 .hbtn{font-family:'Syne',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.04em;
   text-transform:none;padding:.5rem .9rem;border-radius:10px;cursor:pointer;border:1px solid transparent;transition:all .2s;}
 .hbtn.ghost{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.2);color:#f1f4f8;}
