@@ -194,6 +194,7 @@ let feriadoEditando = null;
 let loginGalaxy = null;
 let feriadosSyncReady = false;
 let feriadosRemoteUnsupported = false;
+let configVerbaDragState = { from: null, over: null, position: null };
 
 function getConfigVerbaById(id) {
   return configVerbas.find(c => c.id === id);
@@ -2429,7 +2430,10 @@ function showMain_config() {
 function renderConfigVerbas() {
   const tbody = document.getElementById('config-verbas-body');
   tbody.innerHTML = configVerbas.map((v,i) => `
-    <tr>
+    <tr class="config-verba-row" data-idx="${i}" ondragover="onConfigVerbaDragOver(event,${i})" ondragleave="onConfigVerbaDragLeave(event)" ondrop="onConfigVerbaDrop(event,${i})">
+      <td style="text-align:center">
+        <button type="button" class="cfg-drag-handle" draggable="true" title="Arraste para reordenar" ondragstart="onConfigVerbaDragStart(event,${i})" ondragend="onConfigVerbaDragEnd(event)">⋮⋮</button>
+      </td>
       <td><input value="${v.cod}" oninput="updateConfigVerba(${i},'cod',this.value)" placeholder="Cód"></td>
       <td><input value="${v.desc}" oninput="updateConfigVerba(${i},'desc',this.value)" placeholder="Descrição"></td>
       <td>
@@ -2448,6 +2452,70 @@ function renderConfigVerbas() {
       <td><button class="btn-del-config" onclick="delConfigVerba(${i})">×</button></td>
     </tr>
   `).join('');
+}
+
+function clearConfigVerbaDragMarkers() {
+  document.querySelectorAll('#config-verbas-body .config-verba-row').forEach(row => {
+    row.classList.remove('drag-source', 'drag-over-top', 'drag-over-bottom');
+  });
+}
+
+function onConfigVerbaDragStart(event, index) {
+  configVerbaDragState.from = index;
+  configVerbaDragState.over = null;
+  configVerbaDragState.position = null;
+  event.dataTransfer.effectAllowed = 'move';
+  event.dataTransfer.setData('text/plain', String(index));
+  const row = event.target.closest('tr');
+  if (row) row.classList.add('drag-source');
+}
+
+function onConfigVerbaDragOver(event, index) {
+  event.preventDefault();
+  const row = event.currentTarget;
+  if (!row || index === configVerbaDragState.from) return;
+  const rect = row.getBoundingClientRect();
+  const middle = rect.top + rect.height / 2;
+  const position = event.clientY < middle ? 'top' : 'bottom';
+  configVerbaDragState.over = index;
+  configVerbaDragState.position = position;
+  row.classList.remove('drag-over-top', 'drag-over-bottom');
+  row.classList.add(position === 'top' ? 'drag-over-top' : 'drag-over-bottom');
+}
+
+function onConfigVerbaDragLeave(event) {
+  const row = event.currentTarget;
+  if (row) row.classList.remove('drag-over-top', 'drag-over-bottom');
+}
+
+function onConfigVerbaDrop(event, targetIndex) {
+  event.preventDefault();
+  const fromIndex = Number(event.dataTransfer.getData('text/plain'));
+  const position = configVerbaDragState.position === 'bottom' ? 'bottom' : 'top';
+  if (!Number.isInteger(fromIndex) || fromIndex < 0 || fromIndex >= configVerbas.length) {
+    clearConfigVerbaDragMarkers();
+    return;
+  }
+  let insertAt = targetIndex + (position === 'bottom' ? 1 : 0);
+  if (insertAt > fromIndex) insertAt--;
+  if (insertAt === fromIndex) {
+    clearConfigVerbaDragMarkers();
+    return;
+  }
+  const [item] = configVerbas.splice(fromIndex, 1);
+  configVerbas.splice(insertAt, 0, item);
+  localStorage.setItem('cfg_verbas', JSON.stringify(configVerbas));
+  clearConfigVerbaDragMarkers();
+  renderConfigVerbas();
+  renderQuickList();
+  renderQuickAddButtons();
+  syncVerbasFromConfig();
+  calc();
+}
+
+function onConfigVerbaDragEnd() {
+  clearConfigVerbaDragMarkers();
+  configVerbaDragState = { from: null, over: null, position: null };
 }
 
 function toggleConfigFlag(i, field) {
