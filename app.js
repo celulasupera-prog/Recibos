@@ -36,6 +36,50 @@ function parseN(raw) {
   return Number.isFinite(n) ? n : 0;
 }
 
+function formatHorasInputProgressivo(raw) {
+  const digits = String(raw ?? '').replace(/\D/g, '');
+  if (!digits) return '';
+  const horasRaw = digits.length > 2 ? digits.slice(0, -2) : '0';
+  const minutosRaw = digits.slice(-2).padStart(2, '0');
+  let horas = parseInt(horasRaw, 10);
+  let minutos = parseInt(minutosRaw, 10);
+  if (!Number.isFinite(horas)) horas = 0;
+  if (!Number.isFinite(minutos)) minutos = 0;
+  horas += Math.floor(minutos / 60);
+  minutos = minutos % 60;
+  return `${String(horas).padStart(2, '0')}:${String(minutos).padStart(2, '0')}`;
+}
+
+function parseRefHoras(raw) {
+  if (typeof raw === 'number') return Number.isFinite(raw) ? raw : 0;
+  const s = String(raw ?? '').trim();
+  if (!s) return 0;
+  if (!s.includes(':')) return parseN(s);
+  const [hRaw, mRaw = '0'] = s.split(':');
+  let horas = parseInt(hRaw, 10);
+  let minutos = parseInt(mRaw, 10);
+  if (!Number.isFinite(horas)) horas = 0;
+  if (!Number.isFinite(minutos)) minutos = 0;
+  horas += Math.floor(minutos / 60);
+  minutos = minutos % 60;
+  return horas + (minutos / 60);
+}
+
+function isVerbaHoraExtra(v) {
+  if (!v) return false;
+  if (v.autoType === 'he50' || v.autoType === 'he100') return true;
+  const cfg = configVerbas.find(c => c.id === v.autoType);
+  if (!cfg) return false;
+  const refLabel = String(cfg.refLabel || '').trim().toLowerCase();
+  if (!cfg.compoeHE) return false;
+  return refLabel.includes('hora');
+}
+
+function getRefNumerica(v) {
+  if (!v) return 0;
+  return isVerbaHoraExtra(v) ? parseRefHoras(v.ref) : (parseN(v.ref) || 0);
+}
+
 function formatCurrencyField(input) {
   if (!input) return;
   const value = parseN(input.value);
@@ -1309,7 +1353,8 @@ function updateVerba(id, field, val) {
     return;
 
   } else if (field === 'ref') {
-    v.ref = val;
+    if (isVerbaHoraExtra(v)) v.ref = formatHorasInputProgressivo(val);
+    else v.ref = val;
     calc();
     return;
   } else if (field === 'incideIRRF') {
@@ -1716,7 +1761,7 @@ if (d.encs.fgts && d.fgtsVal > 0) {
 
 function fmtRef(v, tipo, dias) {
   if(tipo==='d') return String(dias)+',00';
-  if(v.autoType==='he50'||v.autoType==='he100') return v.ref ? v.ref+':00' : '';
+  if(isVerbaHoraExtra(v)) return v.ref || '';
   if(v.autoType==='adicfunc'||v.autoType==='premiotempo') return v.ref ? v.ref+',00' : '';
   return v.ref||'';
 }
@@ -2450,7 +2495,7 @@ function quickAddConfig(id) {
 // sobrescreve calcVerba para usar fórmulas configuráveis
 function calcVerba(v, sal, salDia, salHora, valDias) {
   let venc = 0, desc = 0;
-  const ref = parseN(v.ref)||0;
+  const ref = getRefNumerica(v);
   const horasMes = configParams.horasMes||220;
   const salHoraCalc = sal / horasMes;
   const diasTrab = parseFloat(document.getElementById('f-dias').value) || 0;
@@ -2466,7 +2511,7 @@ function calcVerba(v, sal, salDia, salHora, valDias) {
     .reduce((sum, h) => {
       const valorVenc = parseFloat(h.venc) || 0;
       if (valorVenc > 0) return sum + valorVenc;
-      const refHE = parseN(h.ref) || 0;
+      const refHE = getRefNumerica(h);
       if (h.autoType === 'he50') return sum + (refHE * salHoraCalc * (configParams.he50Mult || 1.5));
       if (h.autoType === 'he100') return sum + (refHE * salHoraCalc * (configParams.he100Mult || 2));
       return sum;
@@ -2530,15 +2575,15 @@ function calcVerba(v, sal, salDia, salHora, valDias) {
   // legado
   switch(v.autoType) {
     case 'adicfunc':
-      venc = sal*(parseN(v.ref)||0)/100;
+      venc = sal*(getRefNumerica(v))/100;
       break;
 
     case 'premiotempo':
-      venc = sal*(parseN(v.ref)||0)/100;
+      venc = sal*(getRefNumerica(v))/100;
       break;
 
     case 'adiant':
-      desc = parseN(v.ref)||0;
+      desc = getRefNumerica(v);
       break;
   }
 
