@@ -589,9 +589,19 @@
         Verbas Cadastradas
         <button class="btn-add-config" style="width:auto;padding:.35rem 1rem" onclick="addConfigVerba()">+ Nova Verba</button>
       </div>
-      <div class="formula-hint" style="line-height:1.5;background:#f3f6ff;border:1px solid #dbe7ff;padding:.45rem .55rem;border-radius:6px">
+      <div class="formula-hint formula-vars-hint" style="line-height:1.5;background:#f3f6ff;border:1px solid #dbe7ff;padding:.45rem .55rem;border-radius:6px">
         <b style="color:var(--accent)">Variáveis de fórmula:</b>
-        <code>sal</code>, <code>salHora</code>, <code>salDia</code>, <code>ref</code>, <code>diasTrab</code>, <code>diasMes</code>, <code>diasUteis</code>, <code>diasDSR</code>, <code>totalHE</code>.
+        <div class="formula-vars-list">
+          <span class="formula-var-pill">sal</span>
+          <span class="formula-var-pill">salHora</span>
+          <span class="formula-var-pill">salDia</span>
+          <span class="formula-var-pill">ref</span>
+          <span class="formula-var-pill">diasTrab</span>
+          <span class="formula-var-pill">diasMes</span>
+          <span class="formula-var-pill">diasUteis</span>
+          <span class="formula-var-pill">diasDSR</span>
+          <span class="formula-var-pill">totalHE</span>
+        </div>
         <div style="margin-top:.2rem">Para incluir uma nova rubrica (ex.: HE 60%) no DSR, marque <b>Compõe HE/DSR</b>. Use <b>Compõe IRRF</b> para controlar a base do imposto.</div>
       </div>
       <div class="config-table-wrap">
