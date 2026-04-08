@@ -517,7 +517,7 @@ function editarEmpresa(id) {
   if (!emp) return;
 
   document.getElementById('add-empresa-form').style.display = 'block';
-  document.getElementById('emp-verbas-config').style.display = 'none';
+  document.getElementById('emp-verbas-config-modal').style.display = 'none';
 
   document.getElementById('new-emp-nome').value = emp.nome || '';
   document.getElementById('new-emp-cnpj').value = emp.cnpj || '';
@@ -560,7 +560,7 @@ function renderEmpresasList() {
 
 function showAddEmpresa() {
   document.getElementById('add-empresa-form').style.display = 'block';
-  document.getElementById('emp-verbas-config').style.display = 'none';
+  document.getElementById('emp-verbas-config-modal').style.display = 'none';
 
   document.getElementById('new-emp-nome').value = '';
   document.getElementById('new-emp-cnpj').value = '';
@@ -676,8 +676,9 @@ window.configVerbasEmpresa = function(id) {
   renderVerbasPadrao();
 
   document.getElementById('add-empresa-form').style.display = 'none';
-
-  document.getElementById('emp-verbas-config').style.display = 'block';
+  const nomeEl = document.getElementById('emp-verbas-empresa-nome');
+  if (nomeEl) nomeEl.textContent = `Empresa: ${emp.nome || 'Sem nome'}`;
+  document.getElementById('emp-verbas-config-modal').style.display = 'flex';
 };
 
 
@@ -779,7 +780,9 @@ function addVerbaPadrao() {
 }
 
   function fecharConfigVerbas() {
-  document.getElementById('emp-verbas-config').style.display = 'none';
+  document.getElementById('emp-verbas-config-modal').style.display = 'none';
+  const nomeEl = document.getElementById('emp-verbas-empresa-nome');
+  if (nomeEl) nomeEl.textContent = '';
   empresaEditando = null;
 }
 

@@ -863,3 +863,20 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .config-verbas-table th:nth-child(2), .config-verbas-table td:nth-child(2){min-width:260px;}
 .config-verbas-table th:nth-child(9), .config-verbas-table td:nth-child(9),
 .config-verbas-table th:nth-child(10), .config-verbas-table td:nth-child(10){min-width:220px;}
+
+.emp-verbas-modal{
+  position:fixed;
+  inset:0;
+  background:rgba(12, 16, 30, .45);
+  z-index:1200;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:1rem;
+}
+.emp-verbas-modal-card{
+  width:min(940px, 96vw);
+  max-height:88vh;
+  overflow:auto;
+  margin:0;
+}
