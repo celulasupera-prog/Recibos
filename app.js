@@ -1376,7 +1376,7 @@ function updateVerba(id, field, val) {
     return;
 
   } else if (field === 'ref') {
-    if (isVerbaHoraExtra(v)) v.ref = formatHoraRefDisplay(val);
+    if (isVerbaHoraExtra(v)) v.ref = sanitizeHoraRefInput(val);
     else v.ref = val;
     calc();
     return;
@@ -1389,6 +1389,14 @@ function updateVerba(id, field, val) {
     v[field] = val;
     renderPreview();
   }
+}
+
+function finalizeVerbaRef(id, val) {
+  const v = verbas.find(item => item.id === id);
+  if (!v) return;
+  if (isVerbaHoraExtra(v)) v.ref = formatHoraRefDisplay(val);
+  else v.ref = val;
+  calc();
 }
 
 function calcTotaisOnly() {
@@ -1455,7 +1463,7 @@ function renderVerbasList() {
     return `<div class="verba-row" data-id="${v.id}">
       <input value="${escHtml(v.cod||'')}" placeholder="Cód" data-field="cod" style="text-align:left" oninput="updateVerba(${v.id},'cod',this.value)">
       <textarea placeholder="Descrição do lançamento" data-field="desc" class="desc-input" style="text-align:left;font-size:.82rem" oninput="updateVerba(${v.id},'desc',this.value)">${escHtml(v.desc||'')}</textarea>
-      <input value="${escHtml(v.ref||'')}" placeholder="${refPlaceholder}" data-field="ref" oninput="updateVerba(${v.id},'ref',this.value)">
+      <input value="${escHtml(v.ref||'')}" placeholder="${refPlaceholder}" data-field="ref" oninput="updateVerba(${v.id},'ref',this.value)" onblur="finalizeVerbaRef(${v.id},this.value)">
       <input value="${v.venc > 0 ? fmtN(v.venc) : ''}" placeholder="0,00" class="${vencCls}" ${lockVenc ? 'readonly' : ''} oninput="updateVerba(${v.id},'venc',this.value)" data-field="venc">
       <input value="${v.desc2 > 0 ? fmtN(v.desc2) : v.tipo==='desc'&&v.ref ? fmtN(parseN(v.ref)||0) : ''}" placeholder="0,00" class="${descCls}" ${lockDesc ? 'readonly' : ''} oninput="updateVerba(${v.id},'desc2',this.value)" data-field="desc2">
       <button class="btn-rm" onclick="removeVerba(${v.id})">×</button>
