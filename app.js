@@ -1366,7 +1366,7 @@ function updateVerba(id, field, val) {
     return;
 
   } else if (field === 'ref') {
-    if (isVerbaHoraExtra(v)) v.ref = sanitizeHoraRefInput(val);
+    if (isVerbaHoraExtra(v)) v.ref = formatHoraRefDisplay(val);
     else v.ref = val;
     calc();
     return;
