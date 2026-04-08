@@ -682,36 +682,30 @@ window.configVerbasEmpresa = function(id) {
 };
 
 
- function renderVerbasPadrao() {
+function renderVerbasPadrao() {
   const el = document.getElementById('emp-verbas-list');
 
   if (!verbasPadraoTemp.length) {
-    el.innerHTML = '<div style="color:#999">Nenhuma verba definida</div>';
+    el.innerHTML = '<div class="emp-vp-empty">Nenhuma verba definida</div>';
     return;
   }
 
   el.innerHTML = verbasPadraoTemp.map((v,i) => `
-    <div style="
-      display:grid;
-      grid-template-columns:70px 1fr 90px 80px 30px;
-      gap:.5rem;
-      margin-bottom:.4rem;
-      align-items:center;
-    ">
-      <input class="field-input" value="${v.cod}" placeholder="Cód" oninput="updVP(${i},'cod',this.value)">
-      <input class="field-input" value="${v.desc}" placeholder="Descrição" oninput="updVP(${i},'desc',this.value)">
-      
-      <select class="field-input" onchange="updVP(${i},'tipo',this.value)">
+    <div class="emp-vp-row">
+      <input class="emp-vp-input emp-vp-cod" value="${v.cod}" placeholder="Cód" oninput="updVP(${i},'cod',this.value)">
+      <input class="emp-vp-input emp-vp-desc" value="${v.desc}" placeholder="Descrição" oninput="updVP(${i},'desc',this.value)">
+
+      <select class="emp-vp-input emp-vp-select" onchange="updVP(${i},'tipo',this.value)">
         <option value="venc" ${v.tipo==='venc'?'selected':''}>Venc</option>
         <option value="desc" ${v.tipo==='desc'?'selected':''}>Desc</option>
       </select>
-      <label style="font-size:.72rem;display:flex;align-items:center;gap:.25rem;justify-content:center">
+      <label class="emp-vp-check">
         <input type="checkbox" ${typeof v.incideIRRF === 'boolean' ? (v.incideIRRF ? 'checked' : '') : (v.tipo !== 'desc' ? 'checked' : '')}
           onchange="updVP(${i},'incideIRRF',this.checked)">
         IRRF
       </label>
 
-      <button class="btn-rm" onclick="delVP(${i})">×</button>
+      <button class="btn-rm emp-vp-remove" onclick="delVP(${i})">×</button>
     </div>
   `).join('');
 }
