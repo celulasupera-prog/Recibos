@@ -726,26 +726,33 @@ function delVP(i) {
 }
 
 function addVerbaPadrao() {
+  openVerbaSelectorModal();
+}
+
+function openVerbaSelectorModal() {
   if (!configVerbas.length) {
     alert('Cadastre verbas na aba Fórmulas primeiro!');
     return;
   }
+  renderVerbaSelectorList();
+  document.getElementById('emp-verba-selector-modal').style.display = 'flex';
+}
 
-  // cria lista para escolher
-  const lista = configVerbas.map((v,i) => `${i} - ${v.desc}`).join('\n');
+function closeVerbaSelectorModal() {
+  const modal = document.getElementById('emp-verba-selector-modal');
+  if (modal) modal.style.display = 'none';
+}
 
-  const escolha = prompt('Escolha a verba pelo número:\n\n' + lista);
-
-  if (escolha === null) return;
-
-  const idx = parseInt(escolha);
-  const cfg = configVerbas[idx];
-
-  if (!cfg) {
-    alert('Opção inválida');
+function toggleVerbaPadraoConfig(id) {
+  const idx = verbasPadraoTemp.findIndex(v => v.autoType === id);
+  if (idx >= 0) {
+    verbasPadraoTemp.splice(idx, 1);
+    renderVerbasPadrao();
+    renderVerbaSelectorList();
     return;
   }
-
+  const cfg = configVerbas.find(v => v.id === id);
+  if (!cfg) return;
   verbasPadraoTemp.push({
     cod: cfg.cod,
     desc: cfg.desc,
@@ -755,8 +762,22 @@ function addVerbaPadrao() {
     incideINSS: typeof cfg.compoeINSS === 'boolean' ? cfg.compoeINSS : cfg.tipo !== 'desc',
     incideFGTS: typeof cfg.compoeFGTS === 'boolean' ? cfg.compoeFGTS : cfg.tipo !== 'desc'
   });
-
   renderVerbasPadrao();
+  renderVerbaSelectorList();
+}
+
+function renderVerbaSelectorList() {
+  const wrap = document.getElementById('emp-verba-selector-list');
+  if (!wrap) return;
+  wrap.innerHTML = configVerbas.map(cfg => {
+    const ativo = verbasPadraoTemp.some(v => v.autoType === cfg.id);
+    return `
+      <button type="button" class="emp-verba-selector-btn ${ativo ? 'active' : ''}" onclick="toggleVerbaPadraoConfig('${cfg.id}')">
+        <strong>${escHtml(cfg.desc || 'Sem descrição')}</strong>
+        <small>Cód. ${escHtml(cfg.cod || '—')} · ${cfg.tipo === 'desc' ? 'Desconto' : 'Vencimento'}</small>
+      </button>
+    `;
+  }).join('');
 }
 
   async function salvarVerbasPadrao() {
@@ -779,7 +800,8 @@ function addVerbaPadrao() {
   }
 }
 
-  function fecharConfigVerbas() {
+function fecharConfigVerbas() {
+  closeVerbaSelectorModal();
   document.getElementById('emp-verbas-config-modal').style.display = 'none';
   const nomeEl = document.getElementById('emp-verbas-empresa-nome');
   if (nomeEl) nomeEl.textContent = '';

@@ -87,13 +87,25 @@
           <div style="font-family:'Syne';font-weight:700">Configurar verbas padrão</div>
           <div id="emp-verbas-empresa-nome" style="font-size:.78rem;color:var(--ink2);margin-top:.2rem"></div>
         </div>
-        <button class="abtn outline" style="padding:.25rem .5rem" onclick="fecharConfigVerbas()">✕</button>
+        <button class="emp-modal-close-btn" title="Fechar" onclick="fecharConfigVerbas()">✕</button>
       </div>
       <div id="emp-verbas-list"></div>
       <button class="abtn outline" onclick="addVerbaPadrao()">+ Adicionar verba</button>
       <div style="display:flex;gap:.5rem;margin-top:.75rem">
         <button class="abtn primary" onclick="salvarVerbasPadrao()">Salvar</button>
         <button class="abtn outline" onclick="fecharConfigVerbas()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+  <div id="emp-verba-selector-modal" class="emp-verbas-modal" style="display:none;" onclick="if(event.target===this)closeVerbaSelectorModal()">
+    <div class="card emp-verba-selector-card" onclick="event.stopPropagation()">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:.75rem;margin-bottom:.75rem">
+        <div style="font-family:'Syne';font-weight:700">Selecionar verbas padrão</div>
+        <button class="emp-modal-close-btn" title="Fechar" onclick="closeVerbaSelectorModal()">✕</button>
+      </div>
+      <div id="emp-verba-selector-list" class="emp-verba-selector-list"></div>
+      <div style="display:flex;justify-content:flex-end;margin-top:.75rem">
+        <button class="abtn primary" onclick="closeVerbaSelectorModal()">Concluir</button>
       </div>
     </div>
   </div>
