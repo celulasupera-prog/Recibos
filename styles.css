@@ -858,17 +858,74 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .cfg-flag-btn.on{background:#e5f4ea;color:#2f7a4b;}
 .cfg-flag-btn.off{background:#f9e7e7;color:#a04545;}
 .cfg-flag-btn:hover{transform:translateY(-1px);}
+.config-verba-row{
+  transition:background-color .2s ease, box-shadow .2s ease, transform .2s ease, opacity .2s ease;
+}
+.config-verba-row.drag-source{
+  opacity:.55;
+  transform:scale(.997);
+}
+.config-verba-row.drag-over-top{
+  background:#fff8ef;
+  box-shadow:inset 0 2px 0 #e99439;
+}
+.config-verba-row.drag-over-bottom{
+  background:#fff8ef;
+  box-shadow:inset 0 -2px 0 #e99439;
+}
+.cfg-drag-handle{
+  border:none;
+  width:28px;
+  height:28px;
+  border-radius:999px;
+  background:#fff1de;
+  color:#b86109;
+  font-size:.95rem;
+  line-height:1;
+  cursor:grab;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  transition:all .18s ease;
+}
+.cfg-drag-handle:hover{
+  background:#ffe8cd;
+  transform:translateY(-1px);
+}
+.cfg-drag-handle:active{cursor:grabbing;}
 .btn-del-config{width:26px;height:26px;border:none;background:transparent;color:#ccc;cursor:pointer;border-radius:4px;font-size:.9rem;}
 .btn-del-config:hover{background:#fdecea;color:#c0392b;}
 .btn-add-config{font-family:'Syne',sans-serif;font-size:.72rem;font-weight:600;letter-spacing:.06em;color:var(--accent);background:transparent;border:1.5px dashed #b0c4f8;border-radius:5px;padding:.45rem;cursor:pointer;width:100%;margin-top:.5rem;}
 .btn-add-config:hover{background:var(--accent2);}
 .formula-hint{font-size:.68rem;color:var(--ink3);margin-top:.25rem;font-style:italic;}
+.formula-vars-hint{font-style:normal;}
+.formula-vars-list{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.35rem;
+  margin-top:.35rem;
+}
+.formula-var-pill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:.2rem .55rem;
+  border-radius:999px;
+  border:1px solid #f0b16b;
+  background:#fff1de;
+  color:#b86109;
+  font-family:'Syne',sans-serif;
+  font-size:.65rem;
+  font-weight:700;
+  letter-spacing:.02em;
+  line-height:1.2;
+}
 .config-full{grid-column:span 2;}
 .config-table-wrap{overflow-x:auto;padding-bottom:.3rem;}
 .config-verbas-table{min-width:1280px;}
-.config-verbas-table th:nth-child(2), .config-verbas-table td:nth-child(2){min-width:260px;}
-.config-verbas-table th:nth-child(9), .config-verbas-table td:nth-child(9),
-.config-verbas-table th:nth-child(10), .config-verbas-table td:nth-child(10){min-width:220px;}
+.config-verbas-table th:nth-child(3), .config-verbas-table td:nth-child(3){min-width:260px;}
+.config-verbas-table th:nth-child(10), .config-verbas-table td:nth-child(10),
+.config-verbas-table th:nth-child(11), .config-verbas-table td:nth-child(11){min-width:220px;}
 
 .emp-verbas-modal{
   position:fixed;
