@@ -49,6 +49,24 @@ function hasAdminRole(user) {
   return roles.map(r => String(r || '').toLowerCase()).includes('admin');
 }
 
+async function isAdminByTable(user) {
+  if (!user?.id) return false;
+  try {
+    const rows = await sbFetch(`admins?select=user_id&user_id=eq.${user.id}&limit=1`);
+    return Array.isArray(rows) && rows.length > 0;
+  } catch (e) {
+    console.warn('Não foi possível consultar tabela admins:', e?.message || e);
+    return false;
+  }
+}
+
+async function resolveIsAdmin(user) {
+  if (!user) return false;
+  if (hasAdminRole(user)) return true;
+  if (await isAdminByTable(user)) return true;
+  return normalizeEmail(user.email) === FALLBACK_ADMIN_EMAIL;
+}
+
 function parseN(raw) {
   if (typeof raw === 'number') return Number.isFinite(raw) ? raw : 0;
   const s = String(raw ?? '').trim().replace(/[^\d,.-]/g, '');
@@ -366,7 +384,7 @@ async function initApp() {
   document.getElementById('btn-empresas').style.display = 'block';
 
   // verifica se é admin
-  currentUser.isAdmin = hasAdminRole(currentUser) || normalizeEmail(currentUser.email) === FALLBACK_ADMIN_EMAIL;
+  currentUser.isAdmin = await resolveIsAdmin(currentUser);
 
   const btnAdmin = document.getElementById('btn-admin');
   const btnFormulas = document.getElementById('btn-formulas');
