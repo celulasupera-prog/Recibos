@@ -437,6 +437,7 @@ async function carregarEmpresas() {
     }
     await loadFeriadosConfigRemoto();
     renderEmpresasSelect();
+    renderCidadeSuggestions();
     renderEmpresaUsuarioSelect();
     if (document.getElementById('pg-feriados')?.style.display === 'block') {
       renderFeriadosPage();
@@ -564,7 +565,8 @@ function editarEmpresa(id) {
 
   document.getElementById('new-emp-nome').value = emp.nome || '';
   document.getElementById('new-emp-cnpj').value = emp.cnpj || '';
-  document.getElementById('new-emp-cidade').value = emp.cidade || '';
+  document.getElementById('new-emp-cidade').value = normalizeCidadeUF(emp.cidade || '') || '';
+  renderCidadeSuggestions();
   renderEmpresaUsuarioSelect(emp.grupo_id || '');
 
   empresaEditando = emp;
@@ -608,6 +610,7 @@ function showAddEmpresa() {
   document.getElementById('new-emp-nome').value = '';
   document.getElementById('new-emp-cnpj').value = '';
   document.getElementById('new-emp-cidade').value = '';
+  renderCidadeSuggestions();
   renderEmpresaUsuarioSelect(grupoId || '');
 
   empresaEditando = null;
@@ -649,22 +652,19 @@ function normalizeCidadeUF(rawCidade) {
   return `${toTitleCaseWords(cidadeNome)} - ${uf}`;
 }
 
-function cidadeCanonicalKey(cidade) {
-  return String(cidade || '')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLocaleLowerCase('pt-BR')
-    .replace(/\s+/g, ' ')
-    .trim();
+function getCidadesPadrao() {
+  const cidades = (empresasList || [])
+    .map(e => normalizeCidadeUF(e?.cidade || ''))
+    .filter(Boolean);
+  return [...new Set(cidades)].sort((a, b) => a.localeCompare(b, 'pt-BR'));
 }
 
-function hasCidadeDuplicada(cidadeFormatada, empresaIdAtual = null) {
-  const keyNova = cidadeCanonicalKey(cidadeFormatada);
-  if (!keyNova) return false;
-  return empresasList.some(e => {
-    if (empresaIdAtual && String(e.id) === String(empresaIdAtual)) return false;
-    return cidadeCanonicalKey(normalizeCidadeUF(e.cidade || '')) === keyNova;
-  });
+function renderCidadeSuggestions() {
+  const datalist = document.getElementById('cidades-sugestoes');
+  if (!datalist) return;
+  datalist.innerHTML = getCidadesPadrao()
+    .map(cidade => `<option value="${cidade}"></option>`)
+    .join('');
 }
 
 async function salvarEmpresa() {
@@ -678,10 +678,6 @@ async function salvarEmpresa() {
 
   if (!nome) { toast('Informe o nome da empresa!', 'err'); return; }
   if (!cidade) { toast('Informe a cidade no formato: Cidade - UF.', 'err'); return; }
-  if (hasCidadeDuplicada(cidade, empresaEditando?.id)) {
-    toast('Cidade já cadastrada nesse padrão (Cidade - UF).', 'err');
-    return;
-  }
   if (!grupoSelecionado) { toast('Selecione o usuário da empresa!', 'err'); return; }
   cidadeInput.value = cidade;
 
@@ -726,6 +722,7 @@ async function salvarEmpresa() {
     empresasList.sort((a,b)=>a.nome.localeCompare(b.nome));
     renderEmpresasList();
     renderEmpresasSelect();
+    renderCidadeSuggestions();
 
     document.getElementById('add-empresa-form').style.display = 'none';
     empresaEditando = null;
