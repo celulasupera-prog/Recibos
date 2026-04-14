@@ -560,7 +560,7 @@ function editarEmpresa(id) {
   const emp = empresasList.find(e => e.id == id);
   if (!emp) return;
 
-  document.getElementById('add-empresa-form').style.display = 'block';
+  document.getElementById('add-empresa-modal').style.display = 'flex';
   document.getElementById('emp-verbas-config-modal').style.display = 'none';
 
   document.getElementById('new-emp-nome').value = emp.nome || '';
@@ -604,7 +604,7 @@ function renderEmpresasList() {
 }
 
 function showAddEmpresa() {
-  document.getElementById('add-empresa-form').style.display = 'block';
+  document.getElementById('add-empresa-modal').style.display = 'flex';
   document.getElementById('emp-verbas-config-modal').style.display = 'none';
 
   document.getElementById('new-emp-nome').value = '';
@@ -616,6 +616,11 @@ function showAddEmpresa() {
   empresaEditando = null;
 
   document.getElementById('new-emp-nome').focus();
+}
+
+function closeEmpresaModal() {
+  document.getElementById('add-empresa-modal').style.display = 'none';
+  empresaEditando = null;
 }
 
 function formatCNPJ(v) {
@@ -642,10 +647,10 @@ function normalizeCidadeUF(rawCidade) {
   const raw = String(rawCidade || '').trim().replace(/\s+/g, ' ');
   if (!raw) return '';
 
-  const match = raw.match(/^(.*?)[\s-]*([a-zA-Z]{2})$/);
+  const match = raw.match(/^(.*?)[\s\-\/]*([a-zA-Z]{2})$/);
   if (!match) return '';
 
-  const cidadeNome = match[1].replace(/[-,]+$/g, '').trim();
+  const cidadeNome = match[1].replace(/[-,\/]+$/g, '').trim();
   const uf = match[2].toUpperCase();
   if (!cidadeNome) return '';
 
@@ -724,8 +729,7 @@ async function salvarEmpresa() {
     renderEmpresasSelect();
     renderCidadeSuggestions();
 
-    document.getElementById('add-empresa-form').style.display = 'none';
-    empresaEditando = null;
+    closeEmpresaModal();
 
   } catch(e) {
     toast('Erro ao salvar!', 'err');
@@ -763,7 +767,7 @@ window.configVerbasEmpresa = function(id) {
 
   renderVerbasPadrao();
 
-  document.getElementById('add-empresa-form').style.display = 'none';
+  closeEmpresaModal();
   const nomeEl = document.getElementById('emp-verbas-empresa-nome');
   if (nomeEl) nomeEl.textContent = `Empresa: ${emp.nome || 'Sem nome'}`;
   document.getElementById('emp-verbas-config-modal').style.display = 'flex';
