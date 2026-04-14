@@ -114,29 +114,35 @@
   </div>
 
   <!-- Form add empresa -->
-  <div id="add-empresa-form" style="display:none;background:#fff;border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin-top:1rem;">
-    <div style="font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;margin-bottom:.75rem">Nova Empresa</div>
-    <div class="fg fg2" style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
-      <div class="field" style="grid-column:span 2">
-        <label>Razão Social *</label>
-        <input type="text" id="new-emp-nome" placeholder="Ex: Transportes ABC Ltda">
+  <div id="add-empresa-modal" class="emp-verbas-modal" style="display:none;" onclick="if(event.target===this)closeEmpresaModal()">
+    <div id="add-empresa-form" class="card emp-verbas-modal-card" style="max-width:760px;padding:1.25rem;" onclick="event.stopPropagation()">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem">
+        <div style="font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700">Empresa</div>
+        <button class="emp-modal-close-btn" title="Fechar" onclick="closeEmpresaModal()">✕</button>
       </div>
-      <div class="field" id="new-emp-user-wrap" style="grid-column:span 2;display:none">
-        <label>Usuário responsável *</label>
-        <select id="new-emp-user"></select>
+      <div class="fg fg2" style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+        <div class="field" style="grid-column:span 2">
+          <label>Razão Social *</label>
+          <input type="text" id="new-emp-nome" placeholder="Ex: Transportes ABC Ltda">
+        </div>
+        <div class="field" id="new-emp-user-wrap" style="grid-column:span 2;display:none">
+          <label>Usuário responsável *</label>
+          <select id="new-emp-user"></select>
+        </div>
+        <div class="field">
+          <label>CNPJ</label>
+          <input type="text" id="new-emp-cnpj" oninput="this.value = formatCNPJ(this.value)" placeholder="00.000.000/0001-00">
+        </div>
+        <div class="field">
+          <label>Cidade</label>
+          <input type="text" id="new-emp-cidade" list="cidades-sugestoes" placeholder="Ex: Curitiba - PR">
+          <datalist id="cidades-sugestoes"></datalist>
+        </div>
       </div>
-      <div class="field">
-        <label>CNPJ</label>
-        <input type="text" id="new-emp-cnpj" oninput="this.value = formatCNPJ(this.value)" placeholder="00.000.000/0001-00">
+      <div style="display:flex;gap:.5rem;margin-top:.75rem">
+        <button class="abtn primary" onclick="salvarEmpresa()">Salvar</button>
+        <button class="abtn outline" onclick="closeEmpresaModal()">Cancelar</button>
       </div>
-      <div class="field">
-        <label>Cidade</label>
-        <input type="text" id="new-emp-cidade" placeholder="Ex: Curitiba/PR">
-      </div>
-    </div>
-    <div style="display:flex;gap:.5rem;margin-top:.75rem">
-      <button class="abtn primary" onclick="salvarEmpresa()">Salvar</button>
-      <button class="abtn outline" onclick="document.getElementById('add-empresa-form').style.display='none'">Cancelar</button>
     </div>
   </div>
 </div>
