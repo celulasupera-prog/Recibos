@@ -16,6 +16,7 @@ const LOGIN_REMEMBER_KEY = 'login_remember';
 const LOGIN_REMEMBER_EMAIL_KEY = 'login_remember_email';
 const LOGIN_REMEMBER_SENHA_KEY = 'login_remember_senha';
 const HOLIDAYS_KEY = 'cfg_feriados_v1';
+const FALLBACK_ADMIN_EMAIL = 'gustavo@jaguarcontabilidade.com.br';
 
 function safeParseJSON(raw, fallback) {
   try {
@@ -23,6 +24,47 @@ function safeParseJSON(raw, fallback) {
   } catch (e) {
     return fallback;
   }
+}
+
+function normalizeEmail(email) {
+  return String(email || '').trim().toLowerCase();
+}
+
+function hasAdminRole(user) {
+  if (!user || typeof user !== 'object') return false;
+
+  const appMeta = user.app_metadata && typeof user.app_metadata === 'object'
+    ? user.app_metadata
+    : {};
+  const userMeta = user.user_metadata && typeof user.user_metadata === 'object'
+    ? user.user_metadata
+    : {};
+
+  const roles = [];
+  if (Array.isArray(appMeta.roles)) roles.push(...appMeta.roles);
+  if (Array.isArray(userMeta.roles)) roles.push(...userMeta.roles);
+  if (appMeta.role) roles.push(appMeta.role);
+  if (userMeta.role) roles.push(userMeta.role);
+
+  return roles.map(r => String(r || '').toLowerCase()).includes('admin');
+}
+
+async function isAdminByTable(user) {
+  if (!user?.id) return false;
+  try {
+    const rows = await sbFetch(`admins?select=user_id&user_id=eq.${user.id}&limit=1`);
+    return Array.isArray(rows) && rows.length > 0;
+  } catch (e) {
+    console.warn('Não foi possível consultar tabela admins:', e?.message || e);
+    return false;
+  }
+}
+
+async function resolveIsAdmin(user) {
+  if (!user) return false;
+  if (hasAdminRole(user)) return true;
+  if (await isAdminByTable(user)) return true;
+  return normalizeEmail(user.email) === FALLBACK_ADMIN_EMAIL;
 }
 
 function parseN(raw) {
@@ -342,7 +384,7 @@ async function initApp() {
   document.getElementById('btn-empresas').style.display = 'block';
 
   // verifica se é admin
-  currentUser.isAdmin = currentUser.email === 'gustavo@jaguarcontabilidade.com.br';
+  currentUser.isAdmin = await resolveIsAdmin(currentUser);
 
   const btnAdmin = document.getElementById('btn-admin');
   const btnFormulas = document.getElementById('btn-formulas');
