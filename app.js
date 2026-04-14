@@ -16,6 +16,7 @@ const LOGIN_REMEMBER_KEY = 'login_remember';
 const LOGIN_REMEMBER_EMAIL_KEY = 'login_remember_email';
 const LOGIN_REMEMBER_SENHA_KEY = 'login_remember_senha';
 const HOLIDAYS_KEY = 'cfg_feriados_v1';
+const FALLBACK_ADMIN_EMAIL = 'gustavo@jaguarcontabilidade.com.br';
 
 function safeParseJSON(raw, fallback) {
   try {
@@ -23,6 +24,47 @@ function safeParseJSON(raw, fallback) {
   } catch (e) {
     return fallback;
   }
+}
+
+function normalizeEmail(email) {
+  return String(email || '').trim().toLowerCase();
+}
+
+function hasAdminRole(user) {
+  if (!user || typeof user !== 'object') return false;
+
+  const appMeta = user.app_metadata && typeof user.app_metadata === 'object'
+    ? user.app_metadata
+    : {};
+  const userMeta = user.user_metadata && typeof user.user_metadata === 'object'
+    ? user.user_metadata
+    : {};
+
+  const roles = [];
+  if (Array.isArray(appMeta.roles)) roles.push(...appMeta.roles);
+  if (Array.isArray(userMeta.roles)) roles.push(...userMeta.roles);
+  if (appMeta.role) roles.push(appMeta.role);
+  if (userMeta.role) roles.push(userMeta.role);
+
+  return roles.map(r => String(r || '').toLowerCase()).includes('admin');
+}
+
+async function isAdminByTable(user) {
+  if (!user?.id) return false;
+  try {
+    const rows = await sbFetch(`admins?select=user_id&user_id=eq.${user.id}&limit=1`);
+    return Array.isArray(rows) && rows.length > 0;
+  } catch (e) {
+    console.warn('Não foi possível consultar tabela admins:', e?.message || e);
+    return false;
+  }
+}
+
+async function resolveIsAdmin(user) {
+  if (!user) return false;
+  if (hasAdminRole(user)) return true;
+  if (await isAdminByTable(user)) return true;
+  return normalizeEmail(user.email) === FALLBACK_ADMIN_EMAIL;
 }
 
 function parseN(raw) {
@@ -342,7 +384,7 @@ async function initApp() {
   document.getElementById('btn-empresas').style.display = 'block';
 
   // verifica se é admin
-  currentUser.isAdmin = currentUser.email === 'gustavo@jaguarcontabilidade.com.br';
+  currentUser.isAdmin = await resolveIsAdmin(currentUser);
 
   const btnAdmin = document.getElementById('btn-admin');
   const btnFormulas = document.getElementById('btn-formulas');
@@ -584,16 +626,64 @@ function formatCNPJ(v) {
   return v.substring(0, 18);
 }
 
+function toTitleCaseWords(value) {
+  return String(value || '')
+    .toLocaleLowerCase('pt-BR')
+    .split(/\s+/)
+    .filter(Boolean)
+    .map(word => word.charAt(0).toLocaleUpperCase('pt-BR') + word.slice(1))
+    .join(' ');
+}
+
+function normalizeCidadeUF(rawCidade) {
+  const raw = String(rawCidade || '').trim().replace(/\s+/g, ' ');
+  if (!raw) return '';
+
+  const match = raw.match(/^(.*?)[\s-]*([a-zA-Z]{2})$/);
+  if (!match) return '';
+
+  const cidadeNome = match[1].replace(/[-,]+$/g, '').trim();
+  const uf = match[2].toUpperCase();
+  if (!cidadeNome) return '';
+
+  return `${toTitleCaseWords(cidadeNome)} - ${uf}`;
+}
+
+function cidadeCanonicalKey(cidade) {
+  return String(cidade || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLocaleLowerCase('pt-BR')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function hasCidadeDuplicada(cidadeFormatada, empresaIdAtual = null) {
+  const keyNova = cidadeCanonicalKey(cidadeFormatada);
+  if (!keyNova) return false;
+  return empresasList.some(e => {
+    if (empresaIdAtual && String(e.id) === String(empresaIdAtual)) return false;
+    return cidadeCanonicalKey(normalizeCidadeUF(e.cidade || '')) === keyNova;
+  });
+}
+
 async function salvarEmpresa() {
   const nome = document.getElementById('new-emp-nome').value.trim();
   const cnpj = document.getElementById('new-emp-cnpj').value.trim();
-  const cidade = document.getElementById('new-emp-cidade').value.trim();
+  const cidadeInput = document.getElementById('new-emp-cidade');
+  const cidade = normalizeCidadeUF(cidadeInput.value);
   const grupoSelecionado = currentUser.isAdmin
     ? (document.getElementById('new-emp-user')?.value || '')
     : grupoId;
 
   if (!nome) { toast('Informe o nome da empresa!', 'err'); return; }
+  if (!cidade) { toast('Informe a cidade no formato: Cidade - UF.', 'err'); return; }
+  if (hasCidadeDuplicada(cidade, empresaEditando?.id)) {
+    toast('Cidade já cadastrada nesse padrão (Cidade - UF).', 'err');
+    return;
+  }
   if (!grupoSelecionado) { toast('Selecione o usuário da empresa!', 'err'); return; }
+  cidadeInput.value = cidade;
 
   try {
     if (empresaEditando) {
