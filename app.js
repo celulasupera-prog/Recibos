@@ -626,16 +626,64 @@ function formatCNPJ(v) {
   return v.substring(0, 18);
 }
 
+function toTitleCaseWords(value) {
+  return String(value || '')
+    .toLocaleLowerCase('pt-BR')
+    .split(/\s+/)
+    .filter(Boolean)
+    .map(word => word.charAt(0).toLocaleUpperCase('pt-BR') + word.slice(1))
+    .join(' ');
+}
+
+function normalizeCidadeUF(rawCidade) {
+  const raw = String(rawCidade || '').trim().replace(/\s+/g, ' ');
+  if (!raw) return '';
+
+  const match = raw.match(/^(.*?)[\s-]*([a-zA-Z]{2})$/);
+  if (!match) return '';
+
+  const cidadeNome = match[1].replace(/[-,]+$/g, '').trim();
+  const uf = match[2].toUpperCase();
+  if (!cidadeNome) return '';
+
+  return `${toTitleCaseWords(cidadeNome)} - ${uf}`;
+}
+
+function cidadeCanonicalKey(cidade) {
+  return String(cidade || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLocaleLowerCase('pt-BR')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function hasCidadeDuplicada(cidadeFormatada, empresaIdAtual = null) {
+  const keyNova = cidadeCanonicalKey(cidadeFormatada);
+  if (!keyNova) return false;
+  return empresasList.some(e => {
+    if (empresaIdAtual && String(e.id) === String(empresaIdAtual)) return false;
+    return cidadeCanonicalKey(normalizeCidadeUF(e.cidade || '')) === keyNova;
+  });
+}
+
 async function salvarEmpresa() {
   const nome = document.getElementById('new-emp-nome').value.trim();
   const cnpj = document.getElementById('new-emp-cnpj').value.trim();
-  const cidade = document.getElementById('new-emp-cidade').value.trim();
+  const cidadeInput = document.getElementById('new-emp-cidade');
+  const cidade = normalizeCidadeUF(cidadeInput.value);
   const grupoSelecionado = currentUser.isAdmin
     ? (document.getElementById('new-emp-user')?.value || '')
     : grupoId;
 
   if (!nome) { toast('Informe o nome da empresa!', 'err'); return; }
+  if (!cidade) { toast('Informe a cidade no formato: Cidade - UF.', 'err'); return; }
+  if (hasCidadeDuplicada(cidade, empresaEditando?.id)) {
+    toast('Cidade já cadastrada nesse padrão (Cidade - UF).', 'err');
+    return;
+  }
   if (!grupoSelecionado) { toast('Selecione o usuário da empresa!', 'err'); return; }
+  cidadeInput.value = cidade;
 
   try {
     if (empresaEditando) {
