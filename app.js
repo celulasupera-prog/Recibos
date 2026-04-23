@@ -421,6 +421,12 @@ async function fazerLogout() {
 }
 
 async function initApp() {
+  if (!currentUser) {
+    document.getElementById('pg-login').style.display = 'flex';
+    document.getElementById('pg-main').style.display = 'none';
+    return;
+  }
+
   document.getElementById('pg-login').style.display = 'none';
   document.getElementById('pg-main').style.display = 'block';
   document.getElementById('user-badge').style.display = 'flex';
@@ -431,6 +437,9 @@ async function initApp() {
 
   // verifica se é admin
   currentUser.isAdmin = await resolveIsAdmin(currentUser);
+  if (!currentUser) {
+    return;
+  }
 
   const btnAdmin = document.getElementById('btn-admin');
   const btnFormulas = document.getElementById('btn-formulas');
