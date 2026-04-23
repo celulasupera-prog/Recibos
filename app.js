@@ -663,9 +663,11 @@ function showAddEmpresa() {
   document.getElementById('new-emp-nome').focus();
 }
 
-function closeEmpresaModal() {
+function closeEmpresaModal(preserveEmpresaEditando = false) {
   document.getElementById('add-empresa-modal').style.display = 'none';
-  empresaEditando = null;
+  if (!preserveEmpresaEditando) {
+    empresaEditando = null;
+  }
 }
 
 function formatCNPJ(v) {
@@ -812,7 +814,7 @@ window.configVerbasEmpresa = function(id) {
 
   renderVerbasPadrao();
 
-  closeEmpresaModal();
+  closeEmpresaModal(true);
   const nomeEl = document.getElementById('emp-verbas-empresa-nome');
   if (nomeEl) nomeEl.textContent = `Empresa: ${emp.nome || 'Sem nome'}`;
   document.getElementById('emp-verbas-config-modal').style.display = 'flex';
