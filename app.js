@@ -964,7 +964,7 @@ function fecharConfigVerbas() {
 }
 
 function bindEmpresaVerbasModalActions() {
-  const saveBtn = document.getElementById('btn-salvar-verbas-padrao');
+  const saveBtn = document.getElementById('btnSalvarVerba') || document.getElementById('btn-salvar-verbas-padrao');
   if (saveBtn && saveBtn.dataset.bound !== '1') {
     saveBtn.addEventListener('click', (event) => {
       event.preventDefault();
@@ -974,7 +974,7 @@ function bindEmpresaVerbasModalActions() {
     saveBtn.dataset.bound = '1';
   }
 
-  const cancelBtn = document.getElementById('btn-cancelar-verbas-padrao');
+  const cancelBtn = document.getElementById('btnCancelarVerba') || document.getElementById('btn-cancelar-verbas-padrao');
   if (cancelBtn && cancelBtn.dataset.bound !== '1') {
     cancelBtn.addEventListener('click', (event) => {
       event.preventDefault();
