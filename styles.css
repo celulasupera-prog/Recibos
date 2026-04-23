@@ -737,7 +737,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   background:#1a7a4a;color:#fff;padding:.65rem 1.1rem;
   border-radius:6px;font-size:.82rem;font-weight:600;
   box-shadow:var(--shadow-lg);
-  transform:translateY(80px);opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);z-index:999;}
+  transform:translateY(80px);opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);z-index:2000;}
 .toast.show{transform:translateY(0);opacity:1;}
 .toast.err{background:var(--red);}
 
