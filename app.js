@@ -276,6 +276,7 @@ let empresasList = [];
 let grupoId = null;
 let gruposDisponiveis = [];
 let empresaEditando = null;
+let empresaVerbasEditando = null;
 let verbasPadraoTemp = [];
 let feriadoEditando = null;
 let loginGalaxy = null;
@@ -806,7 +807,7 @@ window.configVerbasEmpresa = function(id) {
   const emp = empresasList.find(e => e.id == id);
   if (!emp) return;
 
-  empresaEditando = emp;
+  empresaVerbasEditando = emp;
 
   verbasPadraoTemp = emp.verbas_padrao
     ? JSON.parse(JSON.stringify(emp.verbas_padrao))
@@ -913,18 +914,21 @@ function renderVerbaSelectorList() {
   }).join('');
 }
 
-  async function salvarVerbasPadrao() {
-  if (!empresaEditando) return;
+async function salvarVerbasPadrao() {
+  if (!empresaVerbasEditando) {
+    toast('Selecione uma empresa para salvar as verbas padrão.', 'err');
+    return;
+  }
 
   try {
-    await sbFetch('empresas?id=eq.' + empresaEditando.id, {
+    await sbFetch('empresas?id=eq.' + empresaVerbasEditando.id, {
       method: 'PATCH',
       body: JSON.stringify({
         verbas_padrao: verbasPadraoTemp
       })
     });
 
-    empresaEditando.verbas_padrao = verbasPadraoTemp;
+    empresaVerbasEditando.verbas_padrao = verbasPadraoTemp;
 
     fecharConfigVerbas();
     toast('Verbas padrão salvas!');
@@ -938,7 +942,7 @@ function fecharConfigVerbas() {
   document.getElementById('emp-verbas-config-modal').style.display = 'none';
   const nomeEl = document.getElementById('emp-verbas-empresa-nome');
   if (nomeEl) nomeEl.textContent = '';
-  empresaEditando = null;
+  empresaVerbasEditando = null;
 }
 
 // ── INIT ──
