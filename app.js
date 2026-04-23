@@ -925,12 +925,16 @@ window.salvarVerbasPadrao = async function() {
   }
 
   try {
-    await sbFetch('empresas?id=eq.' + empId, {
+    const updated = await sbFetch('empresas?id=eq.' + encodeURIComponent(empId), {
       method: 'PATCH',
+      prefer: 'return=representation',
       body: JSON.stringify({
         verbas_padrao: verbasPadraoTemp
       })
     });
+    if (!Array.isArray(updated) || !updated.length) {
+      throw new Error('Nenhuma empresa foi atualizada. Verifique permissões de acesso (RLS).');
+    }
 
     const emp = empresasList.find(e => String(e.id) === empId);
     if (emp) emp.verbas_padrao = JSON.parse(JSON.stringify(verbasPadraoTemp));
@@ -941,7 +945,9 @@ window.salvarVerbasPadrao = async function() {
     fecharConfigVerbas();
     toast('Verbas padrão salvas!');
   } catch(e) {
-    toast('Erro ao salvar!', 'err');
+    const msg = String(e?.message || 'Erro ao salvar!');
+    console.error('Erro ao salvar verbas padrão:', msg);
+    toast(msg, 'err');
   }
 };
 
