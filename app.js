@@ -816,6 +816,8 @@ window.configVerbasEmpresa = function(id) {
   renderVerbasPadrao();
 
   closeEmpresaModal(true);
+  const modal = document.getElementById('emp-verbas-config-modal');
+  if (modal) modal.dataset.empId = String(emp.id);
   const nomeEl = document.getElementById('emp-verbas-empresa-nome');
   if (nomeEl) nomeEl.textContent = `Empresa: ${emp.nome || 'Sem nome'}`;
   document.getElementById('emp-verbas-config-modal').style.display = 'flex';
@@ -915,20 +917,26 @@ function renderVerbaSelectorList() {
 }
 
 window.salvarVerbasPadrao = async function() {
-  if (!empresaVerbasEditando) {
+  const modal = document.getElementById('emp-verbas-config-modal');
+  const empId = String(empresaVerbasEditando?.id || modal?.dataset?.empId || '').trim();
+  if (!empId) {
     toast('Selecione uma empresa para salvar as verbas padrão.', 'err');
     return;
   }
 
   try {
-    await sbFetch('empresas?id=eq.' + empresaVerbasEditando.id, {
+    await sbFetch('empresas?id=eq.' + empId, {
       method: 'PATCH',
       body: JSON.stringify({
         verbas_padrao: verbasPadraoTemp
       })
     });
 
-    empresaVerbasEditando.verbas_padrao = verbasPadraoTemp;
+    const emp = empresasList.find(e => String(e.id) === empId);
+    if (emp) emp.verbas_padrao = JSON.parse(JSON.stringify(verbasPadraoTemp));
+    if (empresaVerbasEditando) {
+      empresaVerbasEditando.verbas_padrao = JSON.parse(JSON.stringify(verbasPadraoTemp));
+    }
 
     fecharConfigVerbas();
     toast('Verbas padrão salvas!');
@@ -939,7 +947,11 @@ window.salvarVerbasPadrao = async function() {
 
 function fecharConfigVerbas() {
   closeVerbaSelectorModal();
-  document.getElementById('emp-verbas-config-modal').style.display = 'none';
+  const modal = document.getElementById('emp-verbas-config-modal');
+  if (modal) {
+    modal.style.display = 'none';
+    delete modal.dataset.empId;
+  }
   const nomeEl = document.getElementById('emp-verbas-empresa-nome');
   if (nomeEl) nomeEl.textContent = '';
   empresaVerbasEditando = null;
