@@ -914,7 +914,7 @@ function renderVerbaSelectorList() {
   }).join('');
 }
 
-async function salvarVerbasPadrao() {
+window.salvarVerbasPadrao = async function() {
   if (!empresaVerbasEditando) {
     toast('Selecione uma empresa para salvar as verbas padrão.', 'err');
     return;
@@ -935,7 +935,7 @@ async function salvarVerbasPadrao() {
   } catch(e) {
     toast('Erro ao salvar!', 'err');
   }
-}
+};
 
 function fecharConfigVerbas() {
   closeVerbaSelectorModal();
