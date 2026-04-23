@@ -16,6 +16,7 @@ const LOGIN_REMEMBER_KEY = 'login_remember';
 const LOGIN_REMEMBER_EMAIL_KEY = 'login_remember_email';
 const LOGIN_REMEMBER_SENHA_KEY = 'login_remember_senha';
 const HOLIDAYS_KEY = 'cfg_feriados_v1';
+const SHARED_SETTINGS_KEY = 'shared_settings_v1';
 const FALLBACK_ADMIN_EMAIL = 'gustavo@jaguarcontabilidade.com.br';
 
 function safeParseJSON(raw, fallback) {
@@ -169,6 +170,31 @@ function normalizeConfigVerba(v) {
   };
 }
 
+function normalizeConfigParams(cfg) {
+  const safe = cfg && typeof cfg === 'object' ? cfg : {};
+  return {
+    horasMes: parseFloat(safe.horasMes) || 220,
+    he50Mult: parseFloat(safe.he50Mult) || 1.5,
+    he100Mult: parseFloat(safe.he100Mult) || 2.0,
+    fgtsAliq: parseFloat(safe.fgtsAliq) || 8,
+  };
+}
+
+function normalizeSharedSettings(raw) {
+  const safe = raw && typeof raw === 'object' ? raw : {};
+  const verbasRaw = Array.isArray(safe.configVerbas) ? safe.configVerbas : [];
+  const configVerbasSafe = verbasRaw.length
+    ? verbasRaw.map(v => normalizeConfigVerba(v))
+    : DEFAULT_CONFIG_VERBAS.map(v => normalizeConfigVerba({ ...v }));
+  const cfgParamsSafe = normalizeConfigParams(safe.configParams);
+  const cfgSenhaSafe = String(safe.cfgSenha || '').trim();
+  return {
+    configVerbas: configVerbasSafe,
+    configParams: cfgParamsSafe,
+    cfgSenha: cfgSenhaSafe || '1234',
+  };
+}
+
 let configVerbas = safeParseJSON(localStorage.getItem('cfg_verbas'), null);
 if (!Array.isArray(configVerbas) || !configVerbas.length) {
   configVerbas = DEFAULT_CONFIG_VERBAS.map(v => normalizeConfigVerba({ ...v }));
@@ -176,10 +202,7 @@ if (!Array.isArray(configVerbas) || !configVerbas.length) {
   configVerbas = configVerbas.map(v => normalizeConfigVerba(v));
 }
 
-let configParams = safeParseJSON(localStorage.getItem('cfg_params'), null);
-if (!configParams || typeof configParams !== 'object') {
-  configParams = { horasMes:220, he50Mult:1.5, he100Mult:2.0, fgtsAliq:8 };
-}
+let configParams = normalizeConfigParams(safeParseJSON(localStorage.getItem('cfg_params'), null));
 
 let feriadosConfig = safeParseJSON(localStorage.getItem(HOLIDAYS_KEY), null);
 if (!feriadosConfig || typeof feriadosConfig !== 'object') {
@@ -214,9 +237,31 @@ function normalizeFeriadosConfig(cfg) {
   safe.global = normalizeHolidayArray(safe.global);
   safe.byCity = safe.byCity && typeof safe.byCity === 'object' ? safe.byCity : {};
   safe.byEmpresa = safe.byEmpresa && typeof safe.byEmpresa === 'object' ? safe.byEmpresa : {};
+  safe[SHARED_SETTINGS_KEY] = normalizeSharedSettings(safe[SHARED_SETTINGS_KEY]);
   Object.keys(safe.byCity).forEach(k => safe.byCity[k] = normalizeHolidayArray(safe.byCity[k]));
   Object.keys(safe.byEmpresa).forEach(k => safe.byEmpresa[k] = normalizeHolidayArray(safe.byEmpresa[k]));
   return safe;
+}
+
+function applySharedSettings(sharedRaw) {
+  const shared = normalizeSharedSettings(sharedRaw);
+  configVerbas = shared.configVerbas.map(v => normalizeConfigVerba(v));
+  configParams = normalizeConfigParams(shared.configParams);
+  localStorage.setItem('cfg_verbas', JSON.stringify(configVerbas));
+  localStorage.setItem('cfg_params', JSON.stringify(configParams));
+  localStorage.setItem('cfg_senha', shared.cfgSenha);
+}
+
+function updateSharedSettings(partial = {}) {
+  feriadosConfig = normalizeFeriadosConfig(feriadosConfig);
+  const atual = normalizeSharedSettings(feriadosConfig[SHARED_SETTINGS_KEY]);
+  const proximo = normalizeSharedSettings({
+    ...atual,
+    ...partial,
+  });
+  feriadosConfig[SHARED_SETTINGS_KEY] = proximo;
+  applySharedSettings(proximo);
+  saveFeriadosConfig();
 }
 
 feriadosConfig = normalizeFeriadosConfig(feriadosConfig);
@@ -231,6 +276,7 @@ let empresasList = [];
 let grupoId = null;
 let gruposDisponiveis = [];
 let empresaEditando = null;
+let empresaVerbasEditando = null;
 let verbasPadraoTemp = [];
 let feriadoEditando = null;
 let loginGalaxy = null;
@@ -375,6 +421,12 @@ async function fazerLogout() {
 }
 
 async function initApp() {
+  if (!currentUser) {
+    document.getElementById('pg-login').style.display = 'flex';
+    document.getElementById('pg-main').style.display = 'none';
+    return;
+  }
+
   document.getElementById('pg-login').style.display = 'none';
   document.getElementById('pg-main').style.display = 'block';
   document.getElementById('user-badge').style.display = 'flex';
@@ -385,6 +437,9 @@ async function initApp() {
 
   // verifica se é admin
   currentUser.isAdmin = await resolveIsAdmin(currentUser);
+  if (!currentUser) {
+    return;
+  }
 
   const btnAdmin = document.getElementById('btn-admin');
   const btnFormulas = document.getElementById('btn-formulas');
@@ -618,9 +673,11 @@ function showAddEmpresa() {
   document.getElementById('new-emp-nome').focus();
 }
 
-function closeEmpresaModal() {
+function closeEmpresaModal(preserveEmpresaEditando = false) {
   document.getElementById('add-empresa-modal').style.display = 'none';
-  empresaEditando = null;
+  if (!preserveEmpresaEditando) {
+    empresaEditando = null;
+  }
 }
 
 function formatCNPJ(v) {
@@ -759,7 +816,7 @@ window.configVerbasEmpresa = function(id) {
   const emp = empresasList.find(e => e.id == id);
   if (!emp) return;
 
-  empresaEditando = emp;
+  empresaVerbasEditando = emp;
 
   verbasPadraoTemp = emp.verbas_padrao
     ? JSON.parse(JSON.stringify(emp.verbas_padrao))
@@ -767,7 +824,9 @@ window.configVerbasEmpresa = function(id) {
 
   renderVerbasPadrao();
 
-  closeEmpresaModal();
+  closeEmpresaModal(true);
+  const modal = document.getElementById('emp-verbas-config-modal');
+  if (modal) modal.dataset.empId = String(emp.id);
   const nomeEl = document.getElementById('emp-verbas-empresa-nome');
   if (nomeEl) nomeEl.textContent = `Empresa: ${emp.nome || 'Sem nome'}`;
   document.getElementById('emp-verbas-config-modal').style.display = 'flex';
@@ -866,38 +925,80 @@ function renderVerbaSelectorList() {
   }).join('');
 }
 
-  async function salvarVerbasPadrao() {
-  if (!empresaEditando) return;
+window.salvarVerbasPadrao = async function() {
+  const modal = document.getElementById('emp-verbas-config-modal');
+  const empId = String(empresaVerbasEditando?.id || modal?.dataset?.empId || '').trim();
+  if (!empId) {
+    toast('Selecione uma empresa para salvar as verbas padrão.', 'err');
+    return;
+  }
 
   try {
-    await sbFetch('empresas?id=eq.' + empresaEditando.id, {
+    const updated = await sbFetch('empresas?id=eq.' + encodeURIComponent(empId), {
       method: 'PATCH',
+      prefer: 'return=representation',
       body: JSON.stringify({
         verbas_padrao: verbasPadraoTemp
       })
     });
+    if (!Array.isArray(updated) || !updated.length) {
+      throw new Error('Nenhuma empresa foi atualizada. Verifique permissões de acesso (RLS).');
+    }
 
-    empresaEditando.verbas_padrao = verbasPadraoTemp;
+    const emp = empresasList.find(e => String(e.id) === empId);
+    if (emp) emp.verbas_padrao = JSON.parse(JSON.stringify(verbasPadraoTemp));
+    if (empresaVerbasEditando) {
+      empresaVerbasEditando.verbas_padrao = JSON.parse(JSON.stringify(verbasPadraoTemp));
+    }
 
     fecharConfigVerbas();
     toast('Verbas padrão salvas!');
   } catch(e) {
-    toast('Erro ao salvar!', 'err');
+    const msg = String(e?.message || 'Erro ao salvar!');
+    console.error('Erro ao salvar verbas padrão:', msg);
+    toast(msg, 'err');
   }
-}
+};
 
 function fecharConfigVerbas() {
   closeVerbaSelectorModal();
-  document.getElementById('emp-verbas-config-modal').style.display = 'none';
+  const modal = document.getElementById('emp-verbas-config-modal');
+  if (modal) {
+    modal.style.display = 'none';
+    delete modal.dataset.empId;
+  }
   const nomeEl = document.getElementById('emp-verbas-empresa-nome');
   if (nomeEl) nomeEl.textContent = '';
-  empresaEditando = null;
+  empresaVerbasEditando = null;
+}
+
+function bindEmpresaVerbasModalActions() {
+  const saveBtn = document.getElementById('btnSalvarVerba') || document.getElementById('btn-salvar-verbas-padrao');
+  if (saveBtn && saveBtn.dataset.bound !== '1') {
+    saveBtn.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      window.salvarVerbasPadrao();
+    });
+    saveBtn.dataset.bound = '1';
+  }
+
+  const cancelBtn = document.getElementById('btnCancelarVerba') || document.getElementById('btn-cancelar-verbas-padrao');
+  if (cancelBtn && cancelBtn.dataset.bound !== '1') {
+    cancelBtn.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      fecharConfigVerbas();
+    });
+    cancelBtn.dataset.bound = '1';
+  }
 }
 
 // ── INIT ──
 window.onload = async () => {
   initLoginGalaxy();
   carregarLoginLembrado();
+  bindEmpresaVerbasModalActions();
 
   const now = new Date();
   const y = now.getFullYear(), m = String(now.getMonth()+1).padStart(2,'0');
@@ -1105,6 +1206,7 @@ async function loadFeriadosConfigRemoto() {
     const remoto = rows?.[0]?.feriados_config;
     if (remoto && typeof remoto === 'object') {
       feriadosConfig = normalizeFeriadosConfig(remoto);
+      applySharedSettings(feriadosConfig[SHARED_SETTINGS_KEY]);
       saveFeriadosConfigLocal();
     }
     feriadosSyncReady = true;
@@ -2481,6 +2583,7 @@ function saveConfig() {
   configParams.he100Mult = parseFloat(document.getElementById('cfg-he100-mult').value)||2.0;
   configParams.fgtsAliq  = parseFloat(document.getElementById('cfg-fgts-aliq').value)||8;
   localStorage.setItem('cfg_params', JSON.stringify(configParams));
+  updateSharedSettings({ configParams });
   toast('Configurações salvas!');
 }
 
@@ -2489,7 +2592,7 @@ function showConfig() {
     toast('Acesso às fórmulas liberado apenas para admin.', 'err');
     return;
   }
-  const CONFIG_PASS = localStorage.getItem('cfg_senha') || '1234';
+  const CONFIG_PASS = normalizeSharedSettings(feriadosConfig?.[SHARED_SETTINGS_KEY]).cfgSenha;
   const input = prompt('Digite a senha para acessar as Fórmulas:');
   if (input === null) return;
   if (input !== CONFIG_PASS) { toast('Senha incorreta!', 'err'); return; }
@@ -2596,6 +2699,7 @@ function onConfigVerbaDrop(event, targetIndex) {
   const [item] = configVerbas.splice(fromIndex, 1);
   configVerbas.splice(insertAt, 0, item);
   localStorage.setItem('cfg_verbas', JSON.stringify(configVerbas));
+  updateSharedSettings({ configVerbas });
   clearConfigVerbaDragMarkers();
   renderConfigVerbas();
   renderQuickList();
@@ -2613,6 +2717,16 @@ function toggleConfigFlag(i, field) {
   configVerbas[i][field] = !configVerbas[i][field];
   renderConfigVerbas();
   saveConfigVerbas();
+}
+
+function saveConfigVerbas() {
+  configVerbas = configVerbas.map(v => normalizeConfigVerba(v));
+  localStorage.setItem('cfg_verbas', JSON.stringify(configVerbas));
+  updateSharedSettings({ configVerbas });
+  syncVerbasFromConfig();
+  renderQuickList();
+  renderQuickAddButtons();
+  calc();
 }
 
 function renderQuickList() {
@@ -2634,6 +2748,7 @@ function updateConfigVerba(i, field, val) {
     configVerbas[i].compoeFGTS = false;
   }
   localStorage.setItem('cfg_verbas', JSON.stringify(configVerbas));
+  updateSharedSettings({ configVerbas });
   syncVerbasFromConfig();
   renderQuickList();
   renderQuickAddButtons();
@@ -2666,6 +2781,7 @@ function addConfigVerba() {
     tipo:'venc', refLabel:'valor', formulaVenc:'ref', formulaDesc:'', compoeHE:false, compoeIRRF:true, compoeINSS:true, compoeFGTS:true
   });
   localStorage.setItem('cfg_verbas', JSON.stringify(configVerbas));
+  updateSharedSettings({ configVerbas });
   renderConfigVerbas();
   if (typeof configVerbas !== 'undefined') {
   renderQuickAddButtons();
@@ -2676,6 +2792,7 @@ function delConfigVerba(i) {
   if(!confirm('Remover esta verba?')) return;
   configVerbas.splice(i,1);
   localStorage.setItem('cfg_verbas', JSON.stringify(configVerbas));
+  updateSharedSettings({ configVerbas });
   renderConfigVerbas();
   renderQuickList();
   syncQuickAddButtons();
@@ -2816,7 +2933,7 @@ function showSenhaTab() {
 }
 
 function salvarNovaSenha() {
-  const atual = localStorage.getItem('cfg_senha') || '1234';
+  const atual = normalizeSharedSettings(feriadosConfig?.[SHARED_SETTINGS_KEY]).cfgSenha;
   const confirmAtual = document.getElementById('senha-atual').value;
   const nova = document.getElementById('senha-nova').value;
   const confirma = document.getElementById('senha-confirma').value;
@@ -2824,6 +2941,7 @@ function salvarNovaSenha() {
   if (!nova || nova.trim() === '') { toast('Senha não pode ser vazia!', 'err'); return; }
   if (nova !== confirma) { toast('Senhas não conferem!', 'err'); return; }
   localStorage.setItem('cfg_senha', nova);
+  updateSharedSettings({ cfgSenha: nova });
   document.getElementById('senha-atual').value = '';
   document.getElementById('senha-nova').value = '';
   document.getElementById('senha-confirma').value = '';
