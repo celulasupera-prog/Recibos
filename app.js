@@ -1390,6 +1390,7 @@ function togglePeriodoParcial() {
   const ativo = !!document.getElementById('f-periodo-parcial')?.checked;
   if (wrap) wrap.style.display = ativo ? 'grid' : 'none';
   getPeriodoCompetenciaSelecionada();
+  applyAutoDiasHE();
   calc();
 }
 
@@ -1417,8 +1418,6 @@ function calc() {
   const sal = parseN(document.getElementById('f-sal').value) || 0;
   const dias = parseFloat(document.getElementById('f-dias').value) || 0;
 
-  // auto diasmes from month
-  applyAutoDiasHE();
   const diasMes = parseFloat(document.getElementById('f-diasmes').value) || 30;
   const diasLimitados = Math.max(0, Math.min(dias, diasMes));
   if (dias !== diasLimitados) {
