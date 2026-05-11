@@ -1126,21 +1126,29 @@ function verbaIncideFGTS(v) {
   return true;
 }
 
+function verbaContaNosTotais(v) {
+  return v?.exibirNoRecibo !== false;
+}
+
+function getVerbasParaTotais(lista = verbas) {
+  return (Array.isArray(lista) ? lista : []).filter(verbaContaNosTotais);
+}
+
 function calcBaseIRRFAutomatica(deducaoBaseIRRF) {
-  const baseComVerbas = verbas.reduce((s, v) => s + (verbaIncideIRRF(v) ? (parseFloat(v.venc) || 0) : 0), 0);
+  const baseComVerbas = getVerbasParaTotais().reduce((s, v) => s + (verbaIncideIRRF(v) ? (parseFloat(v.venc) || 0) : 0), 0);
   return Math.max(roundFiscal(baseComVerbas - (deducaoBaseIRRF || 0)), 0);
 }
 
 function calcBaseIRRFBruta() {
-  return roundFiscal(verbas.reduce((s, v) => s + (verbaIncideIRRF(v) ? (parseFloat(v.venc) || 0) : 0), 0));
+  return roundFiscal(getVerbasParaTotais().reduce((s, v) => s + (verbaIncideIRRF(v) ? (parseFloat(v.venc) || 0) : 0), 0));
 }
 
 function calcBaseINSSAutomatica() {
-  return roundFiscal(verbas.reduce((s, v) => s + (verbaIncideINSS(v) ? (parseFloat(v.venc) || 0) : 0), 0));
+  return roundFiscal(getVerbasParaTotais().reduce((s, v) => s + (verbaIncideINSS(v) ? (parseFloat(v.venc) || 0) : 0), 0));
 }
 
 function calcBaseFGTSAutomatica() {
-  return roundFiscal(verbas.reduce((s, v) => s + (verbaIncideFGTS(v) ? (parseFloat(v.venc) || 0) : 0), 0));
+  return roundFiscal(getVerbasParaTotais().reduce((s, v) => s + (verbaIncideFGTS(v) ? (parseFloat(v.venc) || 0) : 0), 0));
 }
 
 function calcDeducaoBaseIRRF(inssVal) {
@@ -1398,8 +1406,9 @@ function calc() {
   });
 
   // totals
-  let totVenc = verbas.reduce((s,v) => s + (v.venc||0), 0);
-  let totDesc = verbas.reduce((s,v) => s + (v.desc2||0), 0);
+  const verbasTotais = getVerbasParaTotais();
+  let totVenc = verbasTotais.reduce((s,v) => s + (v.venc||0), 0);
+  let totDesc = verbasTotais.reduce((s,v) => s + (v.desc2||0), 0);
 
   // INSS
   const inssBase = calcBaseINSSAutomatica();
@@ -1622,8 +1631,9 @@ function calcTotaisOnly() {
   const dias = parseFloat(document.getElementById('f-dias').value)||0;
   const salDia = sal/diasMes, salHora = sal/220;
 
-  let totVenc = verbas.reduce((s,v)=>s+(v.venc||0),0);
-  let totDesc = verbas.reduce((s,v)=>s+(v.desc2||0),0);
+  const verbasTotais = getVerbasParaTotais();
+  let totVenc = verbasTotais.reduce((s,v)=>s+(v.venc||0),0);
+  let totDesc = verbasTotais.reduce((s,v)=>s+(v.desc2||0),0);
 
   const inssBase = calcBaseINSSAutomatica();
   let inssVal=0;
@@ -1741,8 +1751,9 @@ function getData() {
   const diasDSR = parseFloat(document.getElementById('f-diasdsr').value)||0;
   const salDia = sal/diasMes, salHora = sal/220, valDias = salDia*dias;
 
-  let totVenc = verbas.reduce((s,v)=>s+(v.venc||0),0);
-  let totDesc = verbas.reduce((s,v)=>s+(v.desc2||0)+(v.tipo==='desc'&&v.auto?parseN(v.ref)||0:0),0);
+  const verbasTotais = getVerbasParaTotais();
+  let totVenc = verbasTotais.reduce((s,v)=>s+(v.venc||0),0);
+  let totDesc = verbasTotais.reduce((s,v)=>s+(v.desc2||0)+(v.tipo==='desc'&&v.auto?parseN(v.ref)||0:0),0);
 
   const inssBase = calcBaseINSSAutomatica();
   const inssAuto = calcINSSProgressivo(inssBase);
