@@ -1255,13 +1255,58 @@ function uniqueSortedHolidays(arr) {
   return normalizeHolidayArray(arr);
 }
 
+function calcPascoa(year) {
+  const a = year % 19;
+  const b = Math.floor(year / 100);
+  const c = year % 100;
+  const d = Math.floor(b / 4);
+  const e = b % 4;
+  const f = Math.floor((b + 8) / 25);
+  const g = Math.floor((b - f + 1) / 3);
+  const h = (19 * a + b - d - g + 15) % 30;
+  const i = Math.floor(c / 4);
+  const k = c % 4;
+  const l = (32 + 2 * e + 2 * i - h - k) % 7;
+  const m = Math.floor((a + 11 * h + 22 * l) / 451);
+  const mes = Math.floor((h + l - 7 * m + 114) / 31);
+  const dia = ((h + l - 7 * m + 114) % 31) + 1;
+  return new Date(year, mes - 1, dia);
+}
+
+function toISODate(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+function addDias(date, qtd) {
+  const d = new Date(date);
+  d.setDate(d.getDate() + qtd);
+  return d;
+}
+
+function getFeriadosNacionaisBR(y) {
+  const fixos = ['01-01', '04-21', '05-01', '09-07', '10-12', '11-02', '11-15', '11-20', '12-25']
+    .map(md => `${y}-${md}`);
+  const pascoa = calcPascoa(y);
+  const moveis = [
+    toISODate(addDias(pascoa, -48)), // carnaval segunda
+    toISODate(addDias(pascoa, -47)), // carnaval terça
+    toISODate(addDias(pascoa, -2)),  // sexta santa
+    toISODate(addDias(pascoa, 60)),  // corpus christi
+  ];
+  return [...new Set([...fixos, ...moveis])].sort();
+}
+
 function getFeriadosDoContexto() {
   const empresaId = document.getElementById('f-emp-select')?.value || '';
   const cityKey = normalizeCityKey(document.getElementById('f-cidade')?.value || '');
   const globalDates = (feriadosConfig.global || []).map(h => h.date);
   const cityDates = cityKey ? (feriadosConfig.byCity[cityKey] || []).map(h => h.date) : [];
   const empresaDates = empresaId ? (feriadosConfig.byEmpresa[empresaId] || []).map(h => h.date) : [];
-  return [...new Set([...globalDates, ...cityDates, ...empresaDates])].sort();
+  const comp = document.getElementById('f-comp')?.value || '';
+  const [compY] = comp.split('-').map(Number);
+  const y = compY || new Date().getFullYear();
+  const nacionais = getFeriadosNacionaisBR(y);
+  return [...new Set([...nacionais, ...globalDates, ...cityDates, ...empresaDates])].sort();
 }
 
 function calcDiasUteisEDSR(y, m) {
@@ -2849,7 +2894,7 @@ function calcVerba(v, sal, salDia, salHora, valDias) {
   const diasMes = parseFloat(document.getElementById('f-diasmes').value) || 30;
   const diasUteis = parseFloat(document.getElementById('f-diasuteis').value) || 0;
   const diasDSR = parseFloat(document.getElementById('f-diasdsr').value) || 0;
-  const totalHE = verbas
+  const totalHE = getVerbasParaTotais(verbas)
     .filter(h => {
       if (h.autoType === 'he50' || h.autoType === 'he100') return true;
       const cfgHE = configVerbas.find(c => c.id === h.autoType);
