@@ -2920,17 +2920,14 @@ function calcVerba(v, sal, salDia, salHora, valDias) {
     case 'he100':
       return { venc: roundFiscal(ref * salHoraCalc * (configParams.he100Mult||2.0)), desc: 0 };
 
-    case 'dsrhe':
-      // mantém fórmula padrão se a verba DSR estiver sem fórmula configurada
-      if(!cfg || (!cfg.formulaVenc && !cfg.formulaDesc)) {
-        if (!diasTrab || totalHE === 0) {
-          return { venc: 0, desc: 0 };
-        }
-        const diasDescanso = diasDSR > 0 ? diasDSR : Math.max(diasMes - diasTrab, 0);
-        const dsrValor = (totalHE / diasTrab) * diasDescanso;
-        return { venc: roundFiscal(dsrValor), desc: 0 };
+    case 'dsrhe': {
+      // DSR/HE sempre baseado nos campos da Base de Cálculo
+      if (diasUteis <= 0 || diasDSR <= 0 || totalHE === 0) {
+        return { venc: 0, desc: 0 };
       }
-      break;
+      const dsrValor = (totalHE / diasUteis) * diasDSR;
+      return { venc: roundFiscal(dsrValor), desc: 0 };
+    }
   }
 
   // verbas configuráveis
