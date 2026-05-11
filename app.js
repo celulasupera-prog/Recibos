@@ -1609,7 +1609,8 @@ function updateVerba(id, field, val) {
 
   } else if (field === 'exibirNoRecibo') {
     v.exibirNoRecibo = !!val;
-    renderPreview();
+    calc();
+    return;
 
   } else {
     v[field] = val;
@@ -1831,6 +1832,7 @@ function buildViaHTML(d, viaLabel) {
   const verbasRecibo = d.verbas.filter(v => v.exibirNoRecibo !== false);
 
   const dn = verbasRecibo.find(v=>v.autoType==='diasnormais');
+  const mostrarSalarioBase = !!(dn && verbaTemLancamento(dn));
   if(dn && verbaTemLancamento(dn)) rowsData.push({
     cod: dn.cod || getConfigCod('diasnormais', '8781'),
     desc: dn.desc || getConfigDesc('diasnormais', 'DIAS NORMAIS'),
@@ -1955,7 +1957,7 @@ if (d.encs.fgts && d.fgtsVal > 0) {
         <div class="rec-row2">
           <div class="rc grow"><span class="rc-lbl">Cargo / Função</span><span class="rc-val">${d.cargo||'—'}</span></div>
           <div class="rc"><span class="rc-lbl">Admissão</span><span class="rc-val">${d.admissao||'—'}</span></div>
-          <div class="rc" style="border-right:none;min-width:170px"><span class="rc-lbl">Salário Base</span><span class="rc-val">R$ ${fmtN2(d.sal)}</span></div>
+          <div class="rc" style="border-right:none;min-width:170px"><span class="rc-lbl">Salário Base</span><span class="rc-val">${mostrarSalarioBase ? `R$ ${fmtN2(d.sal)}` : '—'}</span></div>
         </div>
 
         <!-- TABELA DE VERBAS -->
@@ -1988,7 +1990,7 @@ if (d.encs.fgts && d.fgtsVal > 0) {
           </div>
           ${(d.encs.inss || d.encs.fgts || d.encs.irrf) ? `
           <div class="rec-tot-row rec-tot-encargos">
-            <div class="rtc"><span class="rtc-lbl">Salário Base</span><span class="rtc-val" style="text-align:left">R$ ${fmtN2(d.sal)}</span></div>
+            <div class="rtc"><span class="rtc-lbl">Salário Base</span><span class="rtc-val" style="text-align:left">${mostrarSalarioBase ? `R$ ${fmtN2(d.sal)}` : '—'}</span></div>
             ${d.encs.inss ? `<div class="rtc"><span class="rtc-lbl">Sal. Contr. INSS</span><span class="rtc-val" style="text-align:left">R$ ${fmtN2(d.inssBase || 0)}</span></div>` : '<div class="rtc"></div>'}
             ${d.encs.fgts ? `<div class="rtc"><span class="rtc-lbl">Base Cálc. FGTS</span><span class="rtc-val" style="text-align:left">R$ ${fmtN2(d.fgtsBase)}</span></div>` : '<div class="rtc"></div>'}
             ${d.encs.fgts ? `<div class="rtc"><span class="rtc-lbl">F.G.T.S do Mês</span><span class="rtc-val">R$ ${fmtN2(d.fgtsVal)}</span></div>` : '<div class="rtc"></div>'}
