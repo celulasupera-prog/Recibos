@@ -1126,21 +1126,29 @@ function verbaIncideFGTS(v) {
   return true;
 }
 
+function verbaContaNosTotais(v) {
+  return v?.exibirNoRecibo !== false;
+}
+
+function getVerbasParaTotais(lista = verbas) {
+  return (Array.isArray(lista) ? lista : []).filter(verbaContaNosTotais);
+}
+
 function calcBaseIRRFAutomatica(deducaoBaseIRRF) {
-  const baseComVerbas = verbas.reduce((s, v) => s + (verbaIncideIRRF(v) ? (parseFloat(v.venc) || 0) : 0), 0);
+  const baseComVerbas = getVerbasParaTotais().reduce((s, v) => s + (verbaIncideIRRF(v) ? (parseFloat(v.venc) || 0) : 0), 0);
   return Math.max(roundFiscal(baseComVerbas - (deducaoBaseIRRF || 0)), 0);
 }
 
 function calcBaseIRRFBruta() {
-  return roundFiscal(verbas.reduce((s, v) => s + (verbaIncideIRRF(v) ? (parseFloat(v.venc) || 0) : 0), 0));
+  return roundFiscal(getVerbasParaTotais().reduce((s, v) => s + (verbaIncideIRRF(v) ? (parseFloat(v.venc) || 0) : 0), 0));
 }
 
 function calcBaseINSSAutomatica() {
-  return roundFiscal(verbas.reduce((s, v) => s + (verbaIncideINSS(v) ? (parseFloat(v.venc) || 0) : 0), 0));
+  return roundFiscal(getVerbasParaTotais().reduce((s, v) => s + (verbaIncideINSS(v) ? (parseFloat(v.venc) || 0) : 0), 0));
 }
 
 function calcBaseFGTSAutomatica() {
-  return roundFiscal(verbas.reduce((s, v) => s + (verbaIncideFGTS(v) ? (parseFloat(v.venc) || 0) : 0), 0));
+  return roundFiscal(getVerbasParaTotais().reduce((s, v) => s + (verbaIncideFGTS(v) ? (parseFloat(v.venc) || 0) : 0), 0));
 }
 
 function calcDeducaoBaseIRRF(inssVal) {
@@ -1398,8 +1406,9 @@ function calc() {
   });
 
   // totals
-  let totVenc = verbas.reduce((s,v) => s + (v.venc||0), 0);
-  let totDesc = verbas.reduce((s,v) => s + (v.desc2||0), 0);
+  const verbasTotais = getVerbasParaTotais();
+  let totVenc = verbasTotais.reduce((s,v) => s + (v.venc||0), 0);
+  let totDesc = verbasTotais.reduce((s,v) => s + (v.desc2||0), 0);
 
   // INSS
   const inssBase = calcBaseINSSAutomatica();
@@ -1509,7 +1518,7 @@ function addVerbaDiasNormais() {
     cod:getConfigCod('diasnormais', '8781'),
     desc:getConfigDesc('diasnormais', 'DIAS NORMAIS'),
     ref: String(dias),
-    venc: 0, desc2: 0, auto: true, autoType:'diasnormais', tipo:'venc', incideIRRF: true, incideINSS:true, incideFGTS:true
+    venc: 0, desc2: 0, auto: true, autoType:'diasnormais', tipo:'venc', incideIRRF: true, incideINSS:true, incideFGTS:true, exibirNoRecibo:true
   });
   renderVerbasList();
 }
@@ -1517,7 +1526,7 @@ function addVerbaDiasNormais() {
 function quickAdd(type) {
   const sal = parseN(document.getElementById('f-sal').value) || 0;
   const salHora = sal / 220;
-  let v = { id: Date.now(), auto: false, tipo:'venc', venc:0, desc2:0, ref:'', incideIRRF:true, incideINSS:true, incideFGTS:true };
+  let v = { id: Date.now(), auto: false, tipo:'venc', venc:0, desc2:0, ref:'', incideIRRF:true, incideINSS:true, incideFGTS:true, exibirNoRecibo:true };
   switch(type) {
     case 'he50':
       v = {...v, cod:'150', desc:'HORAS EXTRAS - 50%', ref:'', auto:true, autoType:'he50', tipo:'venc'};
@@ -1561,7 +1570,7 @@ function quickAdd(type) {
 }
 
 function addVerba(tipo) {
-  verbas.push({ id: Date.now(), cod:'', desc:'', ref:'', venc:0, desc2:0, auto:false, tipo, incideIRRF: tipo !== 'desc', incideINSS: tipo !== 'desc', incideFGTS: tipo !== 'desc' });
+  verbas.push({ id: Date.now(), cod:'', desc:'', ref:'', venc:0, desc2:0, auto:false, tipo, incideIRRF: tipo !== 'desc', incideINSS: tipo !== 'desc', incideFGTS: tipo !== 'desc', exibirNoRecibo:true });
   renderVerbasList();
 }
 
@@ -1598,6 +1607,11 @@ function updateVerba(id, field, val) {
     calcTotaisOnly();
     renderPreview();
 
+  } else if (field === 'exibirNoRecibo') {
+    v.exibirNoRecibo = !!val;
+    calc();
+    return;
+
   } else {
     v[field] = val;
     renderPreview();
@@ -1618,8 +1632,9 @@ function calcTotaisOnly() {
   const dias = parseFloat(document.getElementById('f-dias').value)||0;
   const salDia = sal/diasMes, salHora = sal/220;
 
-  let totVenc = verbas.reduce((s,v)=>s+(v.venc||0),0);
-  let totDesc = verbas.reduce((s,v)=>s+(v.desc2||0),0);
+  const verbasTotais = getVerbasParaTotais();
+  let totVenc = verbasTotais.reduce((s,v)=>s+(v.venc||0),0);
+  let totDesc = verbasTotais.reduce((s,v)=>s+(v.desc2||0),0);
 
   const inssBase = calcBaseINSSAutomatica();
   let inssVal=0;
@@ -1679,6 +1694,7 @@ function renderVerbasList() {
       <input value="${escHtml(v.ref||'')}" placeholder="${refPlaceholder}" data-field="ref" oninput="updateVerba(${v.id},'ref',this.value)" onblur="finalizeVerbaRef(${v.id},this.value)">
       <input value="${v.venc > 0 ? fmtN(v.venc) : ''}" placeholder="0,00" class="${vencCls}" ${lockVenc ? 'readonly' : ''} oninput="updateVerba(${v.id},'venc',this.value)" data-field="venc">
       <input value="${v.desc2 > 0 ? fmtN(v.desc2) : v.tipo==='desc'&&v.ref ? fmtN(parseN(v.ref)||0) : ''}" placeholder="0,00" class="${descCls}" ${lockDesc ? 'readonly' : ''} oninput="updateVerba(${v.id},'desc2',this.value)" data-field="desc2">
+      <button class="btn-toggle-recibo ${v.exibirNoRecibo === false ? 'off' : 'on'}" title="${v.exibirNoRecibo === false ? 'Mostrar no recibo' : 'Ocultar no recibo'}" onclick="updateVerba(${v.id},'exibirNoRecibo',${v.exibirNoRecibo === false ? 'true' : 'false'})">${v.exibirNoRecibo === false ? '🙈' : '👁'}</button>
       <button class="btn-rm" onclick="removeVerba(${v.id})">×</button>
     </div>`;
   }).join('');
@@ -1736,8 +1752,9 @@ function getData() {
   const diasDSR = parseFloat(document.getElementById('f-diasdsr').value)||0;
   const salDia = sal/diasMes, salHora = sal/220, valDias = salDia*dias;
 
-  let totVenc = verbas.reduce((s,v)=>s+(v.venc||0),0);
-  let totDesc = verbas.reduce((s,v)=>s+(v.desc2||0)+(v.tipo==='desc'&&v.auto?parseN(v.ref)||0:0),0);
+  const verbasTotais = getVerbasParaTotais();
+  let totVenc = verbasTotais.reduce((s,v)=>s+(v.venc||0),0);
+  let totDesc = verbasTotais.reduce((s,v)=>s+(v.desc2||0)+(v.tipo==='desc'&&v.auto?parseN(v.ref)||0:0),0);
 
   const inssBase = calcBaseINSSAutomatica();
   const inssAuto = calcINSSProgressivo(inssBase);
@@ -1812,7 +1829,10 @@ function buildViaHTML(d, viaLabel) {
 
   // montar linhas de verbas
   let rowsData = [];
-  const dn = d.verbas.find(v=>v.autoType==='diasnormais');
+  const verbasRecibo = d.verbas.filter(v => v.exibirNoRecibo !== false);
+
+  const dn = verbasRecibo.find(v=>v.autoType==='diasnormais');
+  const mostrarSalarioBase = !!(dn && verbaTemLancamento(dn));
   if(dn && verbaTemLancamento(dn)) rowsData.push({
     cod: dn.cod || getConfigCod('diasnormais', '8781'),
     desc: dn.desc || getConfigDesc('diasnormais', 'DIAS NORMAIS'),
@@ -1822,7 +1842,7 @@ function buildViaHTML(d, viaLabel) {
   });
 
   const outrasVerbas = getVerbasOrdenadasParaExibicao(
-    d.verbas.filter(v => v.autoType !== 'diasnormais' && v.autoType !== 'dsrhe')
+    verbasRecibo.filter(v => v.autoType !== 'diasnormais' && v.autoType !== 'dsrhe')
   )
     .filter(v => verbaTemLancamento(v));
 
@@ -1843,7 +1863,7 @@ function buildViaHTML(d, viaLabel) {
   });
 
   // 🔥 DSR FIXO (como provento)
-  const dsrVerba = d.verbas.find(v => v.autoType === 'dsrhe');
+  const dsrVerba = verbasRecibo.find(v => v.autoType === 'dsrhe');
   if (dsrVerba && verbaTemLancamento(dsrVerba)) rowsData.push({
     cod: dsrVerba.cod || getConfigCod('dsrhe', '9999'),
     desc: dsrVerba.desc || getConfigDesc('dsrhe', 'DSR SOBRE HORAS EXTRAS'),
@@ -1937,7 +1957,7 @@ if (d.encs.fgts && d.fgtsVal > 0) {
         <div class="rec-row2">
           <div class="rc grow"><span class="rc-lbl">Cargo / Função</span><span class="rc-val">${d.cargo||'—'}</span></div>
           <div class="rc"><span class="rc-lbl">Admissão</span><span class="rc-val">${d.admissao||'—'}</span></div>
-          <div class="rc" style="border-right:none;min-width:170px"><span class="rc-lbl">Salário Base</span><span class="rc-val">R$ ${fmtN2(d.sal)}</span></div>
+          <div class="rc" style="border-right:none;min-width:170px"><span class="rc-lbl">Salário Base</span><span class="rc-val">${mostrarSalarioBase ? `R$ ${fmtN2(d.sal)}` : '—'}</span></div>
         </div>
 
         <!-- TABELA DE VERBAS -->
@@ -1970,7 +1990,7 @@ if (d.encs.fgts && d.fgtsVal > 0) {
           </div>
           ${(d.encs.inss || d.encs.fgts || d.encs.irrf) ? `
           <div class="rec-tot-row rec-tot-encargos">
-            <div class="rtc"><span class="rtc-lbl">Salário Base</span><span class="rtc-val" style="text-align:left">R$ ${fmtN2(d.sal)}</span></div>
+            <div class="rtc"><span class="rtc-lbl">Salário Base</span><span class="rtc-val" style="text-align:left">${mostrarSalarioBase ? `R$ ${fmtN2(d.sal)}` : '—'}</span></div>
             ${d.encs.inss ? `<div class="rtc"><span class="rtc-lbl">Sal. Contr. INSS</span><span class="rtc-val" style="text-align:left">R$ ${fmtN2(d.inssBase || 0)}</span></div>` : '<div class="rtc"></div>'}
             ${d.encs.fgts ? `<div class="rtc"><span class="rtc-lbl">Base Cálc. FGTS</span><span class="rtc-val" style="text-align:left">R$ ${fmtN2(d.fgtsBase)}</span></div>` : '<div class="rtc"></div>'}
             ${d.encs.fgts ? `<div class="rtc"><span class="rtc-lbl">F.G.T.S do Mês</span><span class="rtc-val">R$ ${fmtN2(d.fgtsVal)}</span></div>` : '<div class="rtc"></div>'}
