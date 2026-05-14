@@ -528,30 +528,32 @@ function selecionarEmpresa(id) {
   verbas = [];
 
   if (emp.verbas_padrao && emp.verbas_padrao.length) {
-    emp.verbas_padrao.forEach(v => {
-      const cfg = configVerbas.find(c => c.id === v.autoType);
-      verbas.push({
-        id: Date.now() + Math.random(),
-        cod: v.cod,
-        desc: v.desc,
-        ref: '',
-        venc: 0,
-        desc2: 0,
-        incideIRRF: typeof v.incideIRRF === 'boolean'
-          ? v.incideIRRF
-          : (cfg && typeof cfg.compoeIRRF === 'boolean' ? cfg.compoeIRRF : v.tipo !== 'desc'),
-        incideINSS: typeof v.incideINSS === 'boolean'
-          ? v.incideINSS
-          : (cfg && typeof cfg.compoeINSS === 'boolean' ? cfg.compoeINSS : v.tipo !== 'desc'),
-        incideFGTS: typeof v.incideFGTS === 'boolean'
-          ? v.incideFGTS
-          : (cfg && typeof cfg.compoeFGTS === 'boolean' ? cfg.compoeFGTS : v.tipo !== 'desc'),
-        auto: !!v.autoType,
-        autoType: v.autoType,
-        tipo: v.tipo
+    emp.verbas_padrao
+      .filter(v => v.autoType === 'diasnormais' || v.autoType === 'dsrhe')
+      .forEach(v => {
+        const cfg = configVerbas.find(c => c.id === v.autoType);
+        verbas.push({
+          id: Date.now() + Math.random(),
+          cod: v.cod,
+          desc: v.desc,
+          ref: '',
+          venc: 0,
+          desc2: 0,
+          incideIRRF: typeof v.incideIRRF === 'boolean'
+            ? v.incideIRRF
+            : (cfg && typeof cfg.compoeIRRF === 'boolean' ? cfg.compoeIRRF : v.tipo !== 'desc'),
+          incideINSS: typeof v.incideINSS === 'boolean'
+            ? v.incideINSS
+            : (cfg && typeof cfg.compoeINSS === 'boolean' ? cfg.compoeINSS : v.tipo !== 'desc'),
+          incideFGTS: typeof v.incideFGTS === 'boolean'
+            ? v.incideFGTS
+            : (cfg && typeof cfg.compoeFGTS === 'boolean' ? cfg.compoeFGTS : v.tipo !== 'desc'),
+          auto: !!v.autoType,
+          autoType: v.autoType,
+          tipo: v.tipo
+        });
       });
-    });
-  } 
+  }
   
  // DIAS NORMAIS (fixo)
 if (!verbas.find(v => v.autoType === 'diasnormais')) {
@@ -1031,7 +1033,15 @@ function renderQuickAddButtons() {
   const empresaSelecionada = empresasList.find(e => String(e.id) === String(selectedEmpresaId));
   const autoTypesEmpresa = new Set(
     (empresaSelecionada?.verbas_padrao || [])
-      .map(v => v?.autoType)
+      .map(v => {
+        if (!v) return null;
+        if (v.autoType) return v.autoType;
+        if (v.id) return v.id;
+        const byCod = configVerbas.find(cfg => String(cfg.cod || '').trim() === String(v.cod || '').trim());
+        if (byCod?.id) return byCod.id;
+        const byDesc = configVerbas.find(cfg => String(cfg.desc || '').trim().toLowerCase() === String(v.desc || '').trim().toLowerCase());
+        return byDesc?.id || null;
+      })
       .filter(Boolean)
   );
   const usarFiltroEmpresa = !!selectedEmpresaId && autoTypesEmpresa.size > 0;
@@ -1738,7 +1748,7 @@ function renderVerbasList() {
       <input value="${escHtml(v.ref||'')}" placeholder="${refPlaceholder}" data-field="ref" oninput="updateVerba(${v.id},'ref',this.value)" onblur="finalizeVerbaRef(${v.id},this.value)">
       <input value="${v.venc > 0 ? fmtN(v.venc) : ''}" placeholder="0,00" class="${vencCls}" ${lockVenc ? 'readonly' : ''} oninput="updateVerba(${v.id},'venc',this.value)" data-field="venc">
       <input value="${v.desc2 > 0 ? fmtN(v.desc2) : v.tipo==='desc'&&v.ref ? fmtN(parseN(v.ref)||0) : ''}" placeholder="0,00" class="${descCls}" ${lockDesc ? 'readonly' : ''} oninput="updateVerba(${v.id},'desc2',this.value)" data-field="desc2">
-      <button class="btn-toggle-recibo ${v.exibirNoRecibo === false ? 'off' : 'on'}" title="${v.exibirNoRecibo === false ? 'Mostrar no recibo' : 'Ocultar no recibo'}" onclick="updateVerba(${v.id},'exibirNoRecibo',${v.exibirNoRecibo === false ? 'true' : 'false'})">${v.exibirNoRecibo === false ? '🙈' : '👁'}</button>
+      <button class="btn-toggle-recibo ${v.exibirNoRecibo === false ? 'off' : 'on'}" title="${v.exibirNoRecibo === false ? 'Mostrar no recibo' : 'Ocultar no recibo'}" onclick="updateVerba(${v.id},'exibirNoRecibo',${v.exibirNoRecibo === false ? 'true' : 'false'})">${getReciboVisibilidadeIcon(v.exibirNoRecibo === false)}</button>
       <button class="btn-rm" onclick="removeVerba(${v.id})">×</button>
     </div>`;
   }).join('');
@@ -1750,6 +1760,20 @@ function renderVerbasList() {
   if (typeof activeSelectionStart === 'number' && typeof activeSelectionEnd === 'number' && typeof nextInput.setSelectionRange === 'function') {
     nextInput.setSelectionRange(activeSelectionStart, activeSelectionEnd);
   }
+}
+
+function getReciboVisibilidadeIcon(oculto) {
+  return oculto
+    ? `<svg viewBox="0 0 24 24" aria-hidden="true">
+         <path d="M3 3l18 18"></path>
+         <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"></path>
+         <path d="M9.9 5.2A10.9 10.9 0 0 1 12 5c5.1 0 8.9 3.8 11 7.5a16.8 16.8 0 0 1-3.2 3.9"></path>
+         <path d="M6.3 6.3A16.8 16.8 0 0 0 1 12.5C3.1 16.2 6.9 20 12 20a11 11 0 0 0 5.2-1.3"></path>
+       </svg>`
+    : `<svg viewBox="0 0 24 24" aria-hidden="true">
+         <path d="M1 12.5C3.1 8.8 6.9 5 12 5s8.9 3.8 11 7.5C20.9 16.2 17.1 20 12 20S3.1 16.2 1 12.5z"></path>
+         <path d="M9.5 12.5a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0-5 0"></path>
+       </svg>`;
 }
 
 function getValorDescontoVerba(v) {
