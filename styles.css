@@ -124,10 +124,12 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   text-align:left;
   line-height:1.25;
   padding:.45rem .55rem;
+  background:#f5f5f3;
   transition:transform .15s, box-shadow .15s, border-color .15s;
 }
 .quick-rubrica-btn:hover{
   transform:translateY(-1px);
+  background:#efefec;
   box-shadow:0 2px 8px rgba(22,27,36,.08);
 }
 .quick-rubrica-btn:focus-visible{
@@ -137,41 +139,21 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .hcbtn.quick-rubrica-btn-venc{
   border-color:#a7e0bf;
   color:var(--ink2);
-  background:transparent;
+  background:#f5f5f3;
 }
 .hcbtn.quick-rubrica-btn-venc:hover{
   border-color:#84cfaa;
-  background:transparent;
+  background:#efefec;
   color:var(--ink2);
 }
 .hcbtn.quick-rubrica-btn-desc{
   border-color:#f2b5ad;
   color:var(--ink2);
-  background:transparent;
+  background:#f5f5f3;
 }
 .hcbtn.quick-rubrica-btn-desc:hover{
   border-color:#e79a90;
-  background:transparent;
-  color:var(--ink2);
-}
-.hcbtn.quick-rubrica-btn-venc{
-  border-color:#a7e0bf;
-  color:var(--ink2);
-  background:transparent;
-}
-.hcbtn.quick-rubrica-btn-venc:hover{
-  border-color:#84cfaa;
-  background:transparent;
-  color:var(--ink2);
-}
-.hcbtn.quick-rubrica-btn-desc{
-  border-color:#f2b5ad;
-  color:var(--ink2);
-  background:transparent;
-}
-.hcbtn.quick-rubrica-btn-desc:hover{
-  border-color:#e79a90;
-  background:transparent;
+  background:#efefec;
   color:var(--ink2);
 }
 
