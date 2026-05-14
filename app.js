@@ -1033,7 +1033,15 @@ function renderQuickAddButtons() {
   const empresaSelecionada = empresasList.find(e => String(e.id) === String(selectedEmpresaId));
   const autoTypesEmpresa = new Set(
     (empresaSelecionada?.verbas_padrao || [])
-      .map(v => v?.autoType)
+      .map(v => {
+        if (!v) return null;
+        if (v.autoType) return v.autoType;
+        if (v.id) return v.id;
+        const byCod = configVerbas.find(cfg => String(cfg.cod || '').trim() === String(v.cod || '').trim());
+        if (byCod?.id) return byCod.id;
+        const byDesc = configVerbas.find(cfg => String(cfg.desc || '').trim().toLowerCase() === String(v.desc || '').trim().toLowerCase());
+        return byDesc?.id || null;
+      })
       .filter(Boolean)
   );
   const usarFiltroEmpresa = !!selectedEmpresaId && autoTypesEmpresa.size > 0;
