@@ -502,6 +502,15 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .abtn.secondary:hover{background:#333;}
 .abtn.outline{background:transparent;border:1.5px solid var(--border);color:var(--ink2);}
 .abtn.outline:hover{border-color:var(--ink);color:var(--ink);}
+.form-side .abtn.outline{
+  border-color:rgba(255,255,255,.35);
+  color:#e8edf6;
+}
+.form-side .abtn.outline:hover{
+  border-color:rgba(255,255,255,.62);
+  color:#ffffff;
+  background:rgba(255,255,255,.08);
+}
 
 /* PREVIEW SIDE */
 .preview-side{
