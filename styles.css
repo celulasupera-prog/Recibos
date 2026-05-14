@@ -54,7 +54,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 
 /* FORM SIDE */
 .form-side{
-  background:var(--panel);border-right:1px solid var(--border);
+  background:linear-gradient(120deg,#1a2028,#242d38);border-right:1px solid rgba(255,255,255,.08);
   overflow-y:auto;padding:1.5rem;display:flex;flex-direction:column;gap:1.25rem;
 }
 
