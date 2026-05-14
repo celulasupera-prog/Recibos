@@ -528,30 +528,32 @@ function selecionarEmpresa(id) {
   verbas = [];
 
   if (emp.verbas_padrao && emp.verbas_padrao.length) {
-    emp.verbas_padrao.forEach(v => {
-      const cfg = configVerbas.find(c => c.id === v.autoType);
-      verbas.push({
-        id: Date.now() + Math.random(),
-        cod: v.cod,
-        desc: v.desc,
-        ref: '',
-        venc: 0,
-        desc2: 0,
-        incideIRRF: typeof v.incideIRRF === 'boolean'
-          ? v.incideIRRF
-          : (cfg && typeof cfg.compoeIRRF === 'boolean' ? cfg.compoeIRRF : v.tipo !== 'desc'),
-        incideINSS: typeof v.incideINSS === 'boolean'
-          ? v.incideINSS
-          : (cfg && typeof cfg.compoeINSS === 'boolean' ? cfg.compoeINSS : v.tipo !== 'desc'),
-        incideFGTS: typeof v.incideFGTS === 'boolean'
-          ? v.incideFGTS
-          : (cfg && typeof cfg.compoeFGTS === 'boolean' ? cfg.compoeFGTS : v.tipo !== 'desc'),
-        auto: !!v.autoType,
-        autoType: v.autoType,
-        tipo: v.tipo
+    emp.verbas_padrao
+      .filter(v => v.autoType === 'diasnormais' || v.autoType === 'dsrhe')
+      .forEach(v => {
+        const cfg = configVerbas.find(c => c.id === v.autoType);
+        verbas.push({
+          id: Date.now() + Math.random(),
+          cod: v.cod,
+          desc: v.desc,
+          ref: '',
+          venc: 0,
+          desc2: 0,
+          incideIRRF: typeof v.incideIRRF === 'boolean'
+            ? v.incideIRRF
+            : (cfg && typeof cfg.compoeIRRF === 'boolean' ? cfg.compoeIRRF : v.tipo !== 'desc'),
+          incideINSS: typeof v.incideINSS === 'boolean'
+            ? v.incideINSS
+            : (cfg && typeof cfg.compoeINSS === 'boolean' ? cfg.compoeINSS : v.tipo !== 'desc'),
+          incideFGTS: typeof v.incideFGTS === 'boolean'
+            ? v.incideFGTS
+            : (cfg && typeof cfg.compoeFGTS === 'boolean' ? cfg.compoeFGTS : v.tipo !== 'desc'),
+          auto: !!v.autoType,
+          autoType: v.autoType,
+          tipo: v.tipo
+        });
       });
-    });
-  } 
+  }
   
  // DIAS NORMAIS (fixo)
 if (!verbas.find(v => v.autoType === 'diasnormais')) {
