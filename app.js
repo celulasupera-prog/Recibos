@@ -527,8 +527,13 @@ function selecionarEmpresa(id) {
   document.getElementById('f-cidade').value = emp.cidade || '';
   verbas = [];
 
-  if (emp.verbas_padrao && emp.verbas_padrao.length) {
-    emp.verbas_padrao
+  const verbasPadraoEmpresaRaw = emp.verbas_padrao;
+  const verbasPadraoEmpresa = Array.isArray(verbasPadraoEmpresaRaw)
+    ? verbasPadraoEmpresaRaw
+    : (typeof verbasPadraoEmpresaRaw === 'string' ? safeParseJSON(verbasPadraoEmpresaRaw, []) : []);
+
+  if (verbasPadraoEmpresa && verbasPadraoEmpresa.length) {
+    verbasPadraoEmpresa
       .filter(v => v.autoType === 'diasnormais' || v.autoType === 'dsrhe')
       .forEach(v => {
         const cfg = configVerbas.find(c => c.id === v.autoType);
@@ -1031,8 +1036,12 @@ function renderQuickAddButtons() {
   if(!container) return;
   const selectedEmpresaId = document.getElementById('f-emp-select')?.value || '';
   const empresaSelecionada = empresasList.find(e => String(e.id) === String(selectedEmpresaId));
+  const verbasPadraoEmpresaRaw = empresaSelecionada?.verbas_padrao;
+  const verbasPadraoEmpresa = Array.isArray(verbasPadraoEmpresaRaw)
+    ? verbasPadraoEmpresaRaw
+    : (typeof verbasPadraoEmpresaRaw === 'string' ? safeParseJSON(verbasPadraoEmpresaRaw, []) : []);
   const autoTypesEmpresa = new Set(
-    (empresaSelecionada?.verbas_padrao || [])
+    (verbasPadraoEmpresa || [])
       .map(v => {
         if (!v) return null;
         if (v.autoType) return v.autoType;
@@ -1052,7 +1061,8 @@ function renderQuickAddButtons() {
   let html = '';
   quickVerbas.forEach(v => {
     const action = (v.id === 'he50' || v.id === 'he100') ? `quickAdd('${v.id}')` : `quickAddConfig('${v.id}')`;
-    html += `<button class="hcbtn quick-rubrica-btn" onclick="${action}">${v.desc}</button>`;
+    const tipoCls = v.tipo === 'desc' ? 'quick-rubrica-btn-desc' : 'quick-rubrica-btn-venc';
+    html += `<button class="hcbtn quick-rubrica-btn ${tipoCls}" onclick="${action}">${v.desc}</button>`;
   });
 
   if (!html) {

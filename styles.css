@@ -125,6 +125,24 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   line-height:1.25;
   padding:.45rem .55rem;
 }
+.quick-rubrica-btn-venc{
+  border-color:#a7e0bf;
+  color:#197a43;
+  background:#f2fcf6;
+}
+.quick-rubrica-btn-venc:hover{
+  border-color:#84cfaa;
+  background:#e8f8ef;
+}
+.quick-rubrica-btn-desc{
+  border-color:#f2b5ad;
+  color:#b53a2e;
+  background:#fff6f5;
+}
+.quick-rubrica-btn-desc:hover{
+  border-color:#e79a90;
+  background:#ffeceb;
+}
 
 .card{background:#fbfcff;border:1px solid var(--border);border-radius:12px;padding:1rem 1.1rem;box-shadow:0 3px 10px rgba(22,27,36,.04);}
 
