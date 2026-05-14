@@ -127,23 +127,23 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 }
 .hcbtn.quick-rubrica-btn-venc{
   border-color:#a7e0bf;
-  color:#197a43;
-  background:#f2fcf6;
+  color:var(--ink2);
+  background:transparent;
 }
 .hcbtn.quick-rubrica-btn-venc:hover{
   border-color:#84cfaa;
-  background:#e8f8ef;
-  color:#146737;
+  background:transparent;
+  color:var(--ink2);
 }
 .hcbtn.quick-rubrica-btn-desc{
   border-color:#f2b5ad;
-  color:#b53a2e;
-  background:#fff6f5;
+  color:var(--ink2);
+  background:transparent;
 }
 .hcbtn.quick-rubrica-btn-desc:hover{
   border-color:#e79a90;
-  background:#ffeceb;
-  color:#9d2e24;
+  background:transparent;
+  color:var(--ink2);
 }
 
 .card{background:#fbfcff;border:1px solid var(--border);border-radius:12px;padding:1rem 1.1rem;box-shadow:0 3px 10px rgba(22,27,36,.04);}
