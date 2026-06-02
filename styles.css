@@ -1101,6 +1101,8 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   box-shadow: none !important;
   transform: none !important;
   zoom: 1 !important;
+  border: none !important;
+  background: #fff !important;
 }
 
 .pdf-render-fixed .via {
