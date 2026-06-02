@@ -2153,7 +2153,7 @@ async function gerarPDF() {
     fontFamily: 'Arial, Helvetica, sans-serif',
     fontSize: '8pt',
     color: '#000',
-    border: '1px solid #bbb',
+    border: 'none',
     borderBottom: 'none',
     boxShadow: 'none',
     transform: 'none',
