@@ -2129,12 +2129,14 @@ async function gerarPDF() {
   if (!el) { toast('Nada para gerar!', 'err'); return; }
   toast('Gerando PDF...');
 
-  const canvas = await html2canvas(el, {
-    scale: 3,
-    useCORS: true,
-    backgroundColor: '#ffffff',
-    logging: false
-  });
+  const canvas = await html2canvas(printWrap, {
+  scale: 3,
+  useCORS: true,
+  backgroundColor: '#ffffff',
+  logging: false,
+  scrollX: 0,
+  scrollY: 0
+});
 
   const imgData = canvas.toDataURL('image/png');
   const { jsPDF } = window.jspdf;
