@@ -1093,3 +1093,21 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   background:#ffe9ea;
   color:#d34a52;
 }
+
+.pdf-render-fixed {
+  width: 700px !important;
+  max-width: 700px !important;
+  min-width: 700px !important;
+  box-shadow: none !important;
+  transform: none !important;
+  zoom: 1 !important;
+}
+
+.pdf-render-fixed .via {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.pdf-render-fixed * {
+  box-sizing: border-box;
+}
