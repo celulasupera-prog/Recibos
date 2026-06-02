@@ -2125,47 +2125,91 @@ function trRow(cod, desc, ref, venc, descVal) {
 
 // ── PDF ──
 async function gerarPDF() {
-  const el = document.getElementById('recibo-doc');
-  if (!el) { toast('Nada para gerar!', 'err'); return; }
-  toast('Gerando PDF...');
-
-  const canvas = await html2canvas(printWrap, {
-  scale: 3,
-  useCORS: true,
-  backgroundColor: '#ffffff',
-  logging: false,
-  scrollX: 0,
-  scrollY: 0
-});
-
-  const imgData = canvas.toDataURL('image/png');
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
-
-  const W = 210;
-  const H = 297;
-  const imgW = W;
-  const imgH = canvas.height * W / canvas.width;
-
-  // se cabe numa página
-  if (imgH <= H) {
-    doc.addImage(imgData, 'PNG', 0, 0, imgW, imgH);
-  } else {
-    // divide em páginas se necessário
-    let yPos = 0;
-    while (yPos < imgH) {
-      if (yPos > 0) doc.addPage();
-      doc.addImage(imgData, 'PNG', 0, -yPos, imgW, imgH);
-      yPos += H;
-    }
+  const original = document.getElementById('recibo-doc');
+  if (!original) {
+    toast('Nada para gerar!', 'err');
+    return;
   }
 
-  const d = getData();
-  const fname = `recibo-${(d.func||'funcionario').replace(/ /g,'-').toLowerCase()}-${(d.comp||'').replace(/ /g,'-')}.pdf`;
-  doc.save(fname);
-  toast('PDF gerado!');
-}
+  toast('Gerando PDF...');
 
+  syncDOMtoVerbas();
+  const d = getData();
+
+  const printWrap = document.createElement('div');
+  printWrap.className = 'recibo-doc pdf-render-fixed';
+  printWrap.innerHTML = buildViaHTML(d, 'EMPRESA') + buildViaHTML(d, 'FUNCIONÁRIO');
+
+  Object.assign(printWrap.style, {
+    position: 'fixed',
+    left: '-10000px',
+    top: '0',
+    width: '700px',
+    maxWidth: '700px',
+    minWidth: '700px',
+    background: '#ffffff',
+    padding: '28px 18px 0px 18px',
+    boxSizing: 'border-box',
+    fontFamily: 'Arial, Helvetica, sans-serif',
+    fontSize: '8pt',
+    color: '#000',
+    border: '1px solid #bbb',
+    borderBottom: 'none',
+    boxShadow: 'none',
+    transform: 'none',
+    zoom: '1'
+  });
+
+  document.body.appendChild(printWrap);
+
+  try {
+    const canvas = await html2canvas(printWrap, {
+      scale: 3,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      logging: false,
+      width: 700,
+      windowWidth: 700,
+      scrollX: 0,
+      scrollY: 0
+    });
+
+    const imgData = canvas.toDataURL('image/png');
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+
+    const pageW = 210;
+    const pageH = 297;
+
+    const marginX = 5;
+    const marginY = 5;
+    const imgW = pageW - marginX * 2;
+    const imgH = canvas.height * imgW / canvas.width;
+
+    if (imgH <= pageH - marginY * 2) {
+      doc.addImage(imgData, 'PNG', marginX, marginY, imgW, imgH);
+    } else {
+      let yPos = 0;
+      const printableH = pageH - marginY * 2;
+
+      while (yPos < imgH) {
+        if (yPos > 0) doc.addPage();
+        doc.addImage(imgData, 'PNG', marginX, marginY - yPos, imgW, imgH);
+        yPos += printableH;
+      }
+    }
+
+    const fname = `recibo-${(d.func || 'funcionario').replace(/ /g, '-').toLowerCase()}-${(d.comp || '').replace(/ /g, '-')}.pdf`;
+    doc.save(fname);
+
+    toast('PDF gerado!');
+  } catch (e) {
+    console.error('Erro ao gerar PDF:', e);
+    toast('Erro ao gerar PDF!', 'err');
+  } finally {
+    printWrap.remove();
+  }
+}
 // ── SUPABASE ──
 const SB_URL = 'https://vexaeculstthppbqmxqj.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZleGFlY3Vsc3R0aHBwYnFteHFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwMzM0NzIsImV4cCI6MjA4OTYwOTQ3Mn0.u-FLKKFarm_oqQeLhdOxx_zVDvDey2cQT209jdU1oQs';
