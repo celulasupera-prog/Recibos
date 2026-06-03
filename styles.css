@@ -88,8 +88,8 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   justify-content: center;
   flex: none;
   color: #ffffff;
-  background: linear-gradient(135deg, #6f96ff, #2e6de6);
-  box-shadow: 0 6px 14px rgba(46, 109, 230, .28);
+  background: linear-gradient(135deg, #cbd5e1, #64748b);
+  box-shadow: 0 6px 14px rgba(100, 116, 139, .20);
 }
 
 .sec-icon .ico {
@@ -1235,9 +1235,4 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .header-menu-item.admin:hover {
   background: #fff7ed;
   color: #92400e;
-}
-
-.sec-icon-muted {
-  background: linear-gradient(135deg, #9ca3af, #4b5563) !important;
-  box-shadow: 0 6px 14px rgba(75, 85, 99, .22) !important;
 }
