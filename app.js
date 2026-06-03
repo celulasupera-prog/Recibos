@@ -1832,7 +1832,7 @@ function getData() {
 
   const verbasTotais = getVerbasParaTotais();
   let totVenc = verbasTotais.reduce((s,v)=>s+(v.venc||0),0);
-  let totDesc = verbasTotais.reduce((s,v)=>s+(v.desc2||0)+(v.tipo==='desc'&&v.auto?parseN(v.ref)||0:0),0);
+  let totDesc = verbasTotais.reduce((s, v) => s + getValorDescontoVerba(v), 0);
 
   const inssBase = calcBaseINSSAutomatica();
   const inssAuto = calcINSSProgressivo(inssBase);
