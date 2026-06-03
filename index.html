@@ -48,18 +48,18 @@
   </button>
 
   <div class="header-menu-wrap" id="header-menu-wrap" style="display:none">
-    <button class="hbtn ghost header-menu-trigger" type="button" onclick="toggleHeaderMenu(event)" title="Configurações">
-      <svg class="ico"><use href="#i-gear"/></svg>
-    </button>
-
-    <button class="hbtn ghost" onclick="showEmpresas()" id="btn-empresas" style="display:none">
+  <button class="hbtn ghost header-menu-trigger" type="button" onclick="toggleHeaderMenu(event)" title="Configurações">
+    <svg class="ico"><use href="#i-gear"/></svg>
+  </button>
+  
+  <div class="header-menu" id="header-menu">
+    <button class="header-menu-item" onclick="showEmpresas(); closeHeaderMenu()" id="btn-empresas" style="display:none">
       <svg class="ico"><use href="#i-building"/></svg> Empresas
     </button>
-    
-    <div class="header-menu" id="header-menu">
-      <button class="header-menu-item" onclick="showFeriados(); closeHeaderMenu()">
-        <svg class="ico"><use href="#i-calendar"/></svg> Feriados
-      </button>
+
+    <button class="header-menu-item" onclick="showFeriados(); closeHeaderMenu()">
+      <svg class="ico"><use href="#i-calendar"/></svg> Feriados
+    </button>
 
       <button class="header-menu-item" onclick="showConfig(); closeHeaderMenu()" id="btn-formulas" style="display:none">
         <svg class="ico"><use href="#i-gear"/></svg> Fórmulas
