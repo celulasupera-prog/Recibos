@@ -123,7 +123,7 @@
       <div class="fg fg2" style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
         <div class="field" style="grid-column:span 2">
           <label>Razão Social *</label>
-          <input type="text" id="new-emp-nome" placeholder="Ex: Transportes ABC Ltda">
+          <input type="text" id="new-emp-nome" placeholder="Ex: Jaguar Contabilidade Ltda" onblur="this.value = toTitleCaseWords(this.value)">
         </div>
         <div class="field" id="new-emp-user-wrap" style="grid-column:span 2;display:none">
           <label>Usuário responsável *</label>
@@ -135,7 +135,7 @@
         </div>
         <div class="field">
           <label>Cidade</label>
-          <input type="text" id="new-emp-cidade" list="cidades-sugestoes" placeholder="Ex: Curitiba - PR">
+          <input type="text" id="new-emp-cidade" list="cidades-sugestoes" placeholder="Ex: Jaguariaíva - PR">
           <datalist id="cidades-sugestoes"></datalist>
         </div>
       </div>
@@ -197,7 +197,7 @@
         </div>
         <div class="field" style="grid-column:span 2">
           <label>Razão Social *</label>
-          <input type="text" id="f-emp" placeholder="Ex: José Henrique Almeida da Silva" oninput="calc()">
+          <input type="text" id="f-emp" placeholder="Ex: Jaguar Contabilidade Ltda" oninput="calc()" onblur="this.value = toTitleCaseWords(this.value); calc()">
         </div>
         <div class="field" style="grid-column:span 2">
           <label>CNPJ</label>
@@ -214,11 +214,11 @@
       <div class="fg fg2">
         <div class="field" style="grid-column:span 2">
           <label>Nome Completo *</label>
-          <input type="text" id="f-func" placeholder="Ex: Adilson Ramos Barbosa" oninput="calc()">
+          <input type="text" id="f-func" placeholder="Ex: João da Silva" oninput="calc()" onblur="this.value = toTitleCaseWords(this.value); calc()">
         </div>
         <div class="field">
           <label>Cargo / Função</label>
-          <input type="text" id="f-cargo" placeholder="Motorista Carreteiro" oninput="calc()">
+          <input type="text" id="f-cargo" placeholder="Contador" oninput="calc()" onblur="this.value = toTitleCaseWords(this.value); calc()">
         </div>
         <div class="field">
           <label>Data Admissão</label>
@@ -281,7 +281,7 @@
       <div class="fg fg3">
         <div class="field">
           <label>Salário Base (R$)</label>
-          <input type="text" id="f-sal" placeholder="R$ 3.100,00" inputmode="decimal" onfocus="prepareCurrencyField(this)" oninput="calc()" onblur="formatCurrencyField(this);calc()">
+          <input type="text" id="f-sal" placeholder="R$ 3.500,00" inputmode="decimal" onfocus="prepareCurrencyField(this)" oninput="calc()" onblur="formatCurrencyField(this);calc()">
         </div>
         <div class="field">
           <label>Dias Trabalhados</label>
