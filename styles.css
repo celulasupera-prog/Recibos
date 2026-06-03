@@ -1236,3 +1236,8 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   background: #fff7ed;
   color: #92400e;
 }
+
+.sec-icon-muted {
+  background: linear-gradient(135deg, #9ca3af, #4b5563) !important;
+  box-shadow: 0 6px 14px rgba(75, 85, 99, .22) !important;
+}
