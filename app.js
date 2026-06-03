@@ -410,17 +410,23 @@ async function fazerLogout() {
   currentUser = null;
   feriadosSyncReady = false;
   feriadosRemoteUnsupported = false;
+
   document.getElementById('pg-login').style.display = 'flex';
   document.getElementById('pg-main').style.display = 'none';
   document.getElementById('pg-feriados').style.display = 'none';
   document.getElementById('user-badge').style.display = 'none';
+
   document.getElementById('btn-recibo').style.display = 'none';
   document.getElementById('btn-logout').style.display = 'none';
   document.getElementById('btn-change-pass').style.display = 'none';
   document.getElementById('btn-empresas').style.display = 'none';
   document.getElementById('btn-formulas').style.display = 'none';
-}
 
+  document.getElementById('header-menu-wrap').style.display = 'none';
+
+  const btnAdmin = document.getElementById('btn-admin');
+  if (btnAdmin) btnAdmin.style.display = 'none';
+}
 async function initApp() {
   if (!currentUser) {
     document.getElementById('pg-login').style.display = 'flex';
@@ -434,8 +440,10 @@ async function initApp() {
   document.getElementById('user-badge').style.display = 'flex';
   document.getElementById('user-email-badge').textContent = currentUser.email;
   document.getElementById('btn-logout').style.display = 'block';
-  document.getElementById('btn-change-pass').style.display = 'block';
   document.getElementById('btn-empresas').style.display = 'block';
+  
+  document.getElementById('header-menu-wrap').style.display = 'inline-flex';
+  document.getElementById('btn-change-pass').style.display = 'flex';
 
   // verifica se é admin
   currentUser.isAdmin = await resolveIsAdmin(currentUser);
@@ -2460,6 +2468,26 @@ async function showHist() {
     toast('Usando histórico local (sem conexão)', 'err');
   }
 }
+
+function toggleHeaderMenu(event) {
+  event.stopPropagation();
+  const menu = document.getElementById('header-menu');
+  if (!menu) return;
+  menu.classList.toggle('open');
+}
+
+function closeHeaderMenu() {
+  const menu = document.getElementById('header-menu');
+  if (menu) menu.classList.remove('open');
+}
+
+document.addEventListener('click', (event) => {
+  const wrap = document.getElementById('header-menu-wrap');
+  if (!wrap) return;
+  if (!wrap.contains(event.target)) {
+    closeHeaderMenu();
+  }
+});
 
 function showMain() {
   document.getElementById('pg-main').style.display='block';
