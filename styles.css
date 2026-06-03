@@ -168,10 +168,10 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   color: #bf4f4f;
   transform: translateY(-1px);
 }
-.section-empresa .card{border-top-color:#5d86db;}
-.section-funcionario .card{border-top-color:#5d86db;}
-.section-competencia .card{border-top-color:#5d86db;}
-.section-base .card{border-top-color:#5d86db;}
+.section-empresa .card{border-top-color:#64748b;}
+.section-funcionario .card{border-top-color:#64748b;}
+.section-competencia .card{border-top-color:#64748b;}
+.section-base .card{border-top-color:#64748b;}
 .section-verbas .card{border-top-color:#dd7f7f;}
 .section-encargos .card{border-top-color:#64a89f;}
 .section-totais .card{border-top-color:#64748b;}
