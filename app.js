@@ -1743,8 +1743,8 @@ function renderVerbasList() {
     return;
   }
   list.innerHTML = getVerbasOrdenadasParaExibicao(verbas).map(v => {
-    const vencCls = v.auto && v.autoType !== 'adiant' ? 'auto' : '';
-    const descCls = v.auto && v.autoType === 'adiant' ? 'desc-auto' : '';
+    const vencCls = v.tipo === 'venc' ? 'auto' : '';
+    const descCls = v.tipo === 'desc' ? 'desc-auto' : '';
     const lockVenc = v.tipo === 'desc' || (v.auto && v.autoType!=='adiant');
     const lockDesc = v.tipo === 'venc' || (v.auto && v.autoType==='adiant');
     const cfgV = configVerbas.find(c=>c.id===v.autoType);
