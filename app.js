@@ -1858,9 +1858,9 @@ function getData() {
   const admFmt = admissao ? (() => { const [y,m,d]=admissao.split('-'); return `${d}/${m}/${y}`; })() : '';
 
   return {
-    emp: document.getElementById('f-emp').value,
+    emp: toTitleCaseWords(document.getElementById('f-emp').value),
     cnpj: document.getElementById('f-cnpj').value,
-    cidade: document.getElementById('f-cidade')?.value || '',
+    cidade: toTitleCaseWords(document.getElementById('f-cidade')?.value || ''),
     func: toTitleCaseWords(document.getElementById('f-func').value),
     cargo: toTitleCaseWords(document.getElementById('f-cargo').value),
     tipo: document.getElementById('f-tipo').value,
