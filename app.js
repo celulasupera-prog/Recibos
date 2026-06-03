@@ -414,6 +414,7 @@ async function fazerLogout() {
   document.getElementById('pg-main').style.display = 'none';
   document.getElementById('pg-feriados').style.display = 'none';
   document.getElementById('user-badge').style.display = 'none';
+  document.getElementById('btn-recibo').style.display = 'none';
   document.getElementById('btn-logout').style.display = 'none';
   document.getElementById('btn-change-pass').style.display = 'none';
   document.getElementById('btn-empresas').style.display = 'none';
@@ -429,6 +430,7 @@ async function initApp() {
 
   document.getElementById('pg-login').style.display = 'none';
   document.getElementById('pg-main').style.display = 'block';
+  document.getElementById('btn-recibo').style.display = 'block';
   document.getElementById('user-badge').style.display = 'flex';
   document.getElementById('user-email-badge').textContent = currentUser.email;
   document.getElementById('btn-logout').style.display = 'block';
