@@ -1073,20 +1073,126 @@ function renderQuickAddButtons() {
   container.innerHTML = html;
 }
 
+function getTipoFolhaSelecionado() {
+  return document.getElementById('f-folha')?.value || 'Folha Mensal';
+}
+
+function getTipoFolhaKey(tipoFolha = getTipoFolhaSelecionado()) {
+  const s = String(tipoFolha || '').trim().toLowerCase();
+
+  if (s.includes('pro labore') || s.includes('pró labore') || s.includes('pro-labore')) {
+    return 'prolabore';
+  }
+
+  return 'mensal';
+}
+
+function makeFolhaAutoVerba(def) {
+  return {
+    id: Date.now() + Math.random(),
+    cod: def.cod || '',
+    desc: def.desc || '',
+    ref: def.ref || '',
+    venc: 0,
+    desc2: 0,
+    auto: true,
+    autoType: def.autoType,
+    tipo: def.tipo || 'venc',
+    incideIRRF: def.incideIRRF !== false,
+    incideINSS: def.incideINSS !== false,
+    incideFGTS: def.incideFGTS !== false,
+    exibirNoRecibo: true
+  };
+}
+
+function getFolhaModelDefs(tipoFolha = getTipoFolhaSelecionado()) {
+  switch (getTipoFolhaKey(tipoFolha)) {
+    case 'prolabore':
+      return [
+        {
+          autoType: 'proLabore',
+          cod: '8781',
+          desc: 'PRO LABORE',
+          ref: '',
+          tipo: 'venc',
+          incideIRRF: true,
+          incideINSS: true,
+          incideFGTS: false
+        }
+      ];
+
+    default:
+      return [];
+  }
+}
+
+function syncFolhaModelVerbas() {
+  const tipoFolha = getTipoFolhaSelecionado();
+  const tipoKey = getTipoFolhaKey(tipoFolha);
+
+  const autoTypesControlados = new Set([
+    'diasnormais',
+    'dsrhe',
+    'proLabore'
+  ]);
+
+  if (tipoKey === 'prolabore') {
+    verbas = verbas.filter(v => {
+      if (!autoTypesControlados.has(v.autoType)) return true;
+      return v.autoType === 'proLabore';
+    });
+
+    const defs = getFolhaModelDefs(tipoFolha);
+    defs.forEach(def => {
+      if (!verbas.find(v => v.autoType === def.autoType)) {
+        verbas.push(makeFolhaAutoVerba(def));
+      }
+    });
+
+    const cargoEl = document.getElementById('f-cargo');
+    if (cargoEl && !cargoEl.value.trim()) {
+      cargoEl.value = 'Sócio(a)';
+    }
+
+    return;
+  }
+
+  // Folha Mensal padrão
+  verbas = verbas.filter(v => {
+    if (!autoTypesControlados.has(v.autoType)) return true;
+    return v.autoType === 'diasnormais' || v.autoType === 'dsrhe';
+  });
+}
+
+function applyTipoFolha() {
+  syncFolhaModelVerbas();
+  calc();
+}
+
 function ensureFixedVerbas() {
   const dedupeByAutoType = (autoType) => {
     const itens = verbas.filter(v => v.autoType === autoType);
     if (itens.length <= 1) return;
+
     let first = true;
     verbas = verbas.filter(v => {
       if (v.autoType !== autoType) return true;
-      if (first) { first = false; return true; }
+      if (first) {
+        first = false;
+        return true;
+      }
       return false;
     });
   };
 
-  dedupeByAutoType('diasnormais');
-  dedupeByAutoType('dsrhe');
+  ['diasnormais', 'dsrhe', 'proLabore'].forEach(dedupeByAutoType);
+
+  const tipoKey = getTipoFolhaKey();
+
+  if (tipoKey === 'prolabore') {
+    syncFolhaModelVerbas();
+    return;
+  }
 
   if (!verbas.find(v => v.autoType === 'diasnormais')) {
     addVerbaDiasNormais();
@@ -1105,7 +1211,8 @@ function ensureFixedVerbas() {
       incideFGTS: true,
       auto: true,
       autoType: 'dsrhe',
-      tipo: 'venc'
+      tipo: 'venc',
+      exibirNoRecibo: true
     });
   }
 }
@@ -1178,6 +1285,20 @@ function calcDeducaoBaseIRRF(inssVal) {
   const deducaoDependentes = roundFiscal(dependentes * 189.59);
   const deducaoLegal = roundFiscal((inssVal || 0) + deducaoDependentes);
   return roundFiscal(Math.max(607.20, deducaoLegal));
+}
+
+function calcINSSPorTipoFolha(base) {
+  const baseCalc = Math.max(parseN(base), 0);
+
+  if (getTipoFolhaKey() === 'prolabore') {
+    return {
+      aliq: 11,
+      deducao: 0,
+      valor: roundFiscal(baseCalc * 0.11)
+    };
+  }
+
+  return calcINSSProgressivo(baseCalc);
 }
 
 function calcINSSProgressivo(base) {
@@ -1483,10 +1604,10 @@ function calc() {
     const inssManual = parseFloat(document.getElementById('f-inss-manual').value);
     if (!isNaN(inssManual)) {
       inssVal = roundFiscal(inssManual);
-      const inssAuto = calcINSSProgressivo(inssBase);
+      const inssAuto = calcINSSPorTipoFolha(inssBase);
       document.getElementById('f-inss-aliq').value = fmtN(inssAuto.aliq);
     } else {
-      const inssAuto = calcINSSProgressivo(inssBase);
+      const inssAuto = calcINSSPorTipoFolha(inssBase);
       inssVal = inssAuto.valor;
       document.getElementById('f-inss-aliq').value = fmtN(inssAuto.aliq);
     }
@@ -1707,7 +1828,7 @@ function calcTotaisOnly() {
   if(encs.inss){
     const manual=parseFloat(document.getElementById('f-inss-manual').value);
     if(!isNaN(manual)) inssVal=roundFiscal(manual);
-    else inssVal=calcINSSProgressivo(inssBase).valor;
+    else inssVal=calcINSSPorTipoFolha(inssBase).valor;
     totDesc+=inssVal;
   }
   let fgtsBase=calcBaseFGTSAutomatica(), fgtsVal=0;
@@ -1837,7 +1958,7 @@ function getData() {
   let totDesc = verbasTotais.reduce((s, v) => s + getValorDescontoVerba(v), 0);
 
   const inssBase = calcBaseINSSAutomatica();
-  const inssAuto = calcINSSProgressivo(inssBase);
+  const inssAuto = calcINSSPorTipoFolha(inssBase);
   const inssAliqCampo = parseN(document.getElementById('f-inss-aliq')?.value);
   let inssAliq = inssAliqCampo > 0 ? inssAliqCampo : inssAuto.aliq;
   let inssVal=0, fgtsBase=calcBaseFGTSAutomatica(), fgtsVal=0, irrfBase=0, irrfVal=0, irrfFaixa=0;
@@ -1905,6 +2026,7 @@ function syncDOMtoVerbas() {
 }
 
 function buildViaHTML(d, viaLabel) {
+  const isProLabore = getTipoFolhaKey(d.folha) === 'prolabore';
   const TOTAL_ROWS = 17; // linhas fixas para caber em meia A4
 
   // montar linhas de verbas
@@ -2035,9 +2157,22 @@ if (d.encs.fgts && d.fgtsVal > 0) {
 
         <!-- LINHA 2: Cargo | Admissão | Sal Base -->
         <div class="rec-row2">
-          <div class="rc grow"><span class="rc-lbl">Cargo / Função</span><span class="rc-val">${d.cargo||'—'}</span></div>
-          <div class="rc"><span class="rc-lbl">Admissão</span><span class="rc-val">${d.admissao||'—'}</span></div>
-          <div class="rc" style="border-right:none;min-width:170px"><span class="rc-lbl">Salário Base</span><span class="rc-val">${mostrarSalarioBase ? `R$ ${fmtN2(d.sal)}` : '—'}</span></div>
+          <div class="rc grow">
+            <span class="rc-lbl">Cargo / Função</span>
+            <span class="rc-val">${d.cargo || (isProLabore ? 'Sócio(a)' : '—')}</span>
+          </div>
+        
+          ${isProLabore ? '' : `
+            <div class="rc">
+              <span class="rc-lbl">Admissão</span>
+              <span class="rc-val">${d.admissao || '—'}</span>
+            </div>
+          `}
+        
+          <div class="rc" style="border-right:none;min-width:170px">
+            <span class="rc-lbl">${isProLabore ? 'Valor Pro Labore' : 'Salário Base'}</span>
+            <span class="rc-val">R$ ${fmtN2(d.sal)}</span>
+          </div>
         </div>
 
         <!-- TABELA DE VERBAS -->
@@ -2106,6 +2241,7 @@ if (d.encs.fgts && d.fgtsVal > 0) {
 
 function fmtRef(v, tipo, dias) {
   if(tipo==='d') return String(dias)+',00';
+  if (v.autoType === 'proLabore') return '';
   if(isVerbaHoraExtra(v)) return formatHoraRefDisplay(v.ref);
   if(v.autoType==='adicfunc'||v.autoType==='premiotempo') return v.ref ? v.ref+',00' : '';
   return v.ref||'';
@@ -2995,6 +3131,9 @@ function calcVerba(v, sal, salDia, salHora, valDias) {
 
     case 'diasnormais':
       return { venc: roundFiscal(valDias), desc: 0 };
+
+    case 'proLabore':
+      return { venc: roundFiscal(sal), desc: 0 };  
 
     case 'he50':
       return { venc: roundFiscal(ref * salHoraCalc * (configParams.he50Mult||1.5)), desc: 0 };
