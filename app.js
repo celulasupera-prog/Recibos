@@ -440,9 +440,10 @@ async function initApp() {
   document.getElementById('user-badge').style.display = 'flex';
   document.getElementById('user-email-badge').textContent = currentUser.email;
   document.getElementById('btn-logout').style.display = 'block';
-  document.getElementById('btn-empresas').style.display = 'block';
+  
   
   document.getElementById('header-menu-wrap').style.display = 'inline-flex';
+  document.getElementById('btn-empresas').style.display = 'flex';
   document.getElementById('btn-change-pass').style.display = 'flex';
 
   // verifica se é admin
