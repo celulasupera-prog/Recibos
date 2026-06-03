@@ -80,21 +80,21 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 }
 
 .sec-icon {
-  width: 42px;
-  height: 42px;
-  border-radius: 14px;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex: none;
   color: #ffffff;
   background: linear-gradient(135deg, #6f96ff, #2e6de6);
-  box-shadow: 0 8px 18px rgba(46, 109, 230, .28);
+  box-shadow: 0 6px 14px rgba(46, 109, 230, .28);
 }
 
 .sec-icon .ico {
-  width: 20px;
-  height: 20px;
+  width: 17px;
+  height: 17px;
 }
 
 .sec-title-text {
