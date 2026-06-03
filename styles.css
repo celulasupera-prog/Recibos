@@ -103,10 +103,10 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   align-items: center;
   justify-content: center;
   flex: none;
-  color: #334155;
-  background: #f8fafc;
-  border: 1px solid #dbe3ee;
-  box-shadow: 0 4px 10px rgba(15, 23, 42, .06);
+  background: #d94b4b;
+  color: #ffffff;
+  border: 1px solid #d94b4b;
+  box-shadow: 0 4px 10px rgba(217, 75, 75, .18);
 }
 
 .sec-icon .ico {
@@ -147,9 +147,9 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 }
 .form-section .sec-title::after{display:none;}
 .sec-collapse-btn {
-  border: 1px solid #ead0d0;
+  border: 1px solid #f1caca;
   background: #ffffff;
-  color: #9f3434;
+  color: #d46a6a;
   border-radius: 999px;
   padding: .45rem .85rem;
   font-size: .76rem;
@@ -163,9 +163,9 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 }
 
 .sec-collapse-btn:hover {
-  background: #fff7f7;
-  border-color: #d8a8a8;
-  color: #7f2424;
+  background: #fff6f6;
+  border-color: #eab1b1;
+  color: #bf4f4f;
   transform: translateY(-1px);
 }
 .section-empresa .card{border-top-color:#5d86db;}
