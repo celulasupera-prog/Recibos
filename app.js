@@ -737,7 +737,9 @@ function renderCidadeSuggestions() {
 }
 
 async function salvarEmpresa() {
-  const nome = document.getElementById('new-emp-nome').value.trim();
+  const nomeInput = document.getElementById('new-emp-nome');
+  const nome = toTitleCaseWords(nomeInput.value.trim());
+  nomeInput.value = nome;
   const cnpj = document.getElementById('new-emp-cnpj').value.trim();
   const cidadeInput = document.getElementById('new-emp-cidade');
   const cidade = normalizeCidadeUF(cidadeInput.value);
