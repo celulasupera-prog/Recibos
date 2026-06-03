@@ -1252,3 +1252,50 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   background: #fff7ed;
   color: #92400e;
 }
+
+/* Correção final - botões do cabeçalho e botões principais */
+.hbtns {
+  display: flex;
+  gap: .45rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.hbtn.solid {
+  background: var(--accent) !important;
+  color: #fff !important;
+  box-shadow: 0 6px 16px rgba(196, 59, 59, .30) !important;
+}
+
+.hbtn.solid:hover {
+  background: #a83232 !important;
+  transform: translateY(-1px);
+}
+
+.abtn.primary {
+  background: var(--accent) !important;
+  color: #fff !important;
+}
+
+.abtn.primary:hover {
+  background: #a83232 !important;
+}
+
+.btn-preview.primary {
+  background: var(--accent) !important;
+  color: #fff !important;
+  box-shadow: 0 6px 14px rgba(196, 59, 59, .28) !important;
+}
+
+.btn-preview.primary:hover {
+  background: #a83232 !important;
+}
+
+.btn-login {
+  background: var(--accent) !important;
+  color: #fff !important;
+}
+
+.btn-login:hover {
+  background: #a83232 !important;
+}
