@@ -343,11 +343,14 @@
       </div>
     </div>
 
-    <div class="fg fg2 ferias-extra-fields" id="ferias-extra-fields" style="display:none;grid-column:1/-1">
-      <div class="field">
-        <label>Período Aquisitivo Início</label>
-        <input type="date" id="f-ferias-aq-ini" oninput="calc()">
-      </div>
+    <div class="field" style="grid-column:1/-1">
+        <label>Período Aquisitivo</label>
+        <input type="text" id="f-ferias-aq-range" placeholder="Selecione o início do período aquisitivo" readonly>
+        <div class="field-hint">Ao selecionar o início, o fim será preenchido automaticamente.</div>
+      
+        <input type="date" id="f-ferias-aq-ini" hidden>
+        <input type="date" id="f-ferias-aq-fim" hidden>
+    </div>
 
           <div class="field" style="grid-column:1/-1">
       <label>Período de Gozo das Férias</label>
