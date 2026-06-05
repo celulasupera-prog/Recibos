@@ -4168,6 +4168,38 @@ function applyFeriasPeriodoPorFaltas() {
   calc();
 }
 
+function getDiasNoMesDaData(dateObj) {
+  if (!(dateObj instanceof Date) || Number.isNaN(dateObj.getTime())) return 30;
+  return new Date(dateObj.getFullYear(), dateObj.getMonth() + 1, 0).getDate();
+}
+
+function calcValorPeriodoProporcionalPorMes(valorMensal, inicioStr, fimStr) {
+  const inicio = inputDateToDate(inicioStr);
+  const fim = inputDateToDate(fimStr);
+
+  if (!inicio || !fim || fim < inicio) return 0;
+
+  let total = 0;
+  let cursor = new Date(inicio.getFullYear(), inicio.getMonth(), inicio.getDate());
+
+  while (cursor <= fim) {
+    const ano = cursor.getFullYear();
+    const mes = cursor.getMonth();
+
+    const ultimoDiaMes = new Date(ano, mes + 1, 0);
+    const fimTrecho = ultimoDiaMes < fim ? ultimoDiaMes : fim;
+
+    const diasNoMes = getDiasNoMesDaData(cursor);
+    const diasTrecho = Math.round((fimTrecho - cursor) / 86400000) + 1;
+
+    total += (Number(valorMensal) || 0) / diasNoMes * diasTrecho;
+
+    cursor = new Date(ano, mes + 1, 1);
+  }
+
+  return roundFiscal(total);
+}
+
 function getFeriasData() {
   const sal = parseN(document.getElementById('f-sal')?.value) || 0;
 
@@ -4191,16 +4223,19 @@ function getFeriasData() {
   const abonoIni = document.getElementById('f-ferias-abono-ini')?.value || '';
   const abonoFim = document.getElementById('f-ferias-abono-fim')?.value || '';
   const abonoValido = temAbono && abonoEhValidoForaDoGozo(abonoIni, abonoFim);
-  const diasAbonoRaw = temAbono ? calcDiasEntreDatas(abonoIni, abonoFim) : 0;
+  const diasAbonoRaw = abonoValido ? calcDiasEntreDatas(abonoIni, abonoFim) : 0;
   const diasAbono = Math.min(Math.max(diasAbonoRaw, 0), 10);
   const salarioFamilia = parseN(document.getElementById('f-ferias-sal-familia')?.value);
 
   const totalBase = roundFiscal(sal + mediaHoras + mediaValores + outras);
 
-  const ferias = roundFiscal((totalBase / 30) * diasFeriasCalc);
+  const ferias = calcValorPeriodoProporcionalPorMes(totalBase, gozoIni, gozoFim);
   const tercoFerias = roundFiscal(ferias / 3);
-
-  const abono = roundFiscal((totalBase / 30) * diasAbono);
+  
+  const abono = abonoValido
+    ? calcValorPeriodoProporcionalPorMes(totalBase, abonoIni, abonoFim)
+    : 0;
+  
   const tercoAbono = roundFiscal(abono / 3);
 
   const totalProventos = roundFiscal(
