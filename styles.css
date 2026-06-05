@@ -1628,11 +1628,11 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   border-right: 1px solid #111;
   border-bottom: 1px solid #111;
   border-top: none;
-  min-height: 150px;
+  min-height: 92px;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 42px;
-  padding: 18px 14px 20px 14px;
+  padding: 10px 14px 14px 14px;
   box-sizing: border-box;
   align-items: end;
 }
