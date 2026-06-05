@@ -1564,7 +1564,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   border-right: 1px solid #111;
   border-bottom: 1px solid #111;
   border-top: none;
-  min-height: 165px;
+  min-height: 150px;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 40px;
@@ -1582,7 +1582,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 }
 
 .ferias-sign-label-top {
-  margin-bottom: 58px;
+  margin-bottom: 48px;
   font-size: 13px;
 }
 
