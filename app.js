@@ -2107,6 +2107,11 @@ function initFeriasRangePicker() {
       if (!selectedDates.length) {
         iniEl.value = '';
         fimEl.value = '';
+
+        if (feriasAbonoPicker) {
+          feriasAbonoPicker.redraw();
+        }
+
         calc();
         return;
       }
@@ -2118,57 +2123,63 @@ function initFeriasRangePicker() {
       iniEl.value = startStr;
       feriasRangePicker.set('minDate', start);
 
-      
       if (maxDate) {
         feriasRangePicker.set('maxDate', maxDate);
+      } else {
+        feriasRangePicker.set('maxDate', null);
       }
 
       if (selectedDates.length === 2) {
-  const end = selectedDates[1];
+        const end = selectedDates[1];
 
-  if (end < start) {
-    fimEl.value = '';
-    feriasRangePicker.setDate([start], false);
-    toast('A data fim das férias não pode ser anterior à data de início.', 'err');
-    calc();
-    return;
-  }
+        if (end < start) {
+          fimEl.value = '';
+          feriasRangePicker.setDate([start], false);
+          toast('A data fim das férias não pode ser anterior à data de início.', 'err');
+          calc();
+          return;
+        }
 
-  if (maxDate && end > maxDate) {
-    fimEl.value = '';
-    feriasRangePicker.setDate([start], false);
-    toast(`O período selecionado ultrapassa o limite de dias de férias. Escolha até ${formatDateBRFromInput(dateToInputValue(maxDate))}.`, 'err');
-    calc();
-    return;
-  }
+        if (maxDate && end > maxDate) {
+          fimEl.value = '';
+          feriasRangePicker.setDate([start], false);
+          toast(`O período selecionado ultrapassa o limite de dias de férias. Escolha até ${formatDateBRFromInput(dateToInputValue(maxDate))}.`, 'err');
+          calc();
+          return;
+        }
 
-  fimEl.value = dateToInputValue(end);
+        fimEl.value = dateToInputValue(end);
 
-  if (feriasAbonoPicker) {
-  feriasAbonoPicker.redraw();      
-} else {
+        if (feriasAbonoPicker) {
+          feriasAbonoPicker.redraw();
+        }
+      } else {
         fimEl.value = '';
+
+        if (feriasAbonoPicker) {
+          feriasAbonoPicker.redraw();
+        }
       }
 
       calc();
     },
 
     onOpen: function(selectedDates) {
-  const startStr = iniEl.value || (selectedDates[0] ? dateToInputValue(selectedDates[0]) : '');
-  const maxDate = getFeriasMaxDateByFaltas(startStr);
+      const startStr = iniEl.value || (selectedDates[0] ? dateToInputValue(selectedDates[0]) : '');
+      const maxDate = getFeriasMaxDateByFaltas(startStr);
 
-  if (startStr) {
-    feriasRangePicker.set('minDate', inputDateToDate(startStr));
-  } else {
-    feriasRangePicker.set('minDate', null);
-  }
+      if (startStr) {
+        feriasRangePicker.set('minDate', inputDateToDate(startStr));
+      } else {
+        feriasRangePicker.set('minDate', null);
+      }
 
-  if (maxDate) {
-    feriasRangePicker.set('maxDate', maxDate);
-  } else {
-    feriasRangePicker.set('maxDate', null);
-  }
-}
+      if (maxDate) {
+        feriasRangePicker.set('maxDate', maxDate);
+      } else {
+        feriasRangePicker.set('maxDate', null);
+      }
+    }
   });
 }
 
