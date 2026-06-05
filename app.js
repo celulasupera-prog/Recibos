@@ -1200,6 +1200,7 @@ function applyTipoFolha() {
   });
 
   syncFolhaModelVerbas();
+  toggleFeriasAbono();
   calc();
 }
 
@@ -2661,7 +2662,7 @@ function buildFeriasHTML(d) {
           <td>${escHtml(periodoAquisitivo)}</td>
           <td>${escHtml(periodoGozo)}</td>
           <td></td>
-          <td></td>
+          <td>${escHtml(periodoAbono)}</td>
         </tr>
       </table>
 
