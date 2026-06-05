@@ -1824,3 +1824,32 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   cursor: pointer;
   background: #fff;
 }
+
+/* Abono de férias - visual do calendário */
+.flatpickr-day.abono-dia-gozo-bloqueado,
+.flatpickr-day.abono-dia-gozo-bloqueado:hover {
+  background: #f1f5f9 !important;
+  color: #94a3b8 !important;
+  text-decoration: line-through;
+  cursor: not-allowed !important;
+  border-color: transparent !important;
+}
+
+.flatpickr-day.abono-dia-permitido:not(.selected):not(.startRange):not(.endRange):not(.inRange) {
+  background: #fff1f2 !important;
+  border-color: #fecdd3 !important;
+  color: #9f1239 !important;
+}
+
+.flatpickr-day.abono-dia-permitido:hover {
+  background: #ffe4e6 !important;
+  border-color: #fb7185 !important;
+  color: #9f1239 !important;
+}
+
+.flatpickr-day.abono-dia-fora-limite,
+.flatpickr-day.abono-dia-fora-limite:hover {
+  color: #cbd5e1 !important;
+  background: transparent !important;
+  cursor: not-allowed !important;
+}
