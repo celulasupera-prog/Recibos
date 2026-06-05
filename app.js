@@ -2118,6 +2118,15 @@ function initFeriasRangePicker() {
       iniEl.value = startStr;
       feriasRangePicker.set('minDate', start);
 
+      if (!abonoEhValidoForaDoGozo(startStr, startStr)) {
+        iniEl.value = '';
+        fimEl.value = '';
+        feriasAbonoPicker.clear();
+        toast('O período de abono não pode cair dentro do período de gozo das férias.', 'err');
+        calc();
+        return;
+      }
+      
       if (maxDate) {
         feriasRangePicker.set('maxDate', maxDate);
       }
@@ -2247,6 +2256,28 @@ function toggleFeriasAbono() {
   calc();
 }
 
+function periodosSeSobrepoem(iniA, fimA, iniB, fimB) {
+  if (!iniA || !fimA || !iniB || !fimB) return false;
+
+  const aIni = inputDateToDate(iniA);
+  const aFim = inputDateToDate(fimA);
+  const bIni = inputDateToDate(iniB);
+  const bFim = inputDateToDate(fimB);
+
+  if (!aIni || !aFim || !bIni || !bFim) return false;
+
+  return aIni <= bFim && bIni <= aFim;
+}
+
+function abonoEhValidoForaDoGozo(abonoIni, abonoFim) {
+  const gozoIni = document.getElementById('f-ferias-gozo-ini')?.value || '';
+  const gozoFim = document.getElementById('f-ferias-gozo-fim')?.value || '';
+
+  if (!abonoIni || !abonoFim || !gozoIni || !gozoFim) return true;
+
+  return !periodosSeSobrepoem(abonoIni, abonoFim, gozoIni, gozoFim);
+}
+
 function initFeriasAbonoPicker() {
   const rangeEl = document.getElementById('f-ferias-abono-range');
   const iniEl = document.getElementById('f-ferias-abono-ini');
@@ -2307,6 +2338,17 @@ function initFeriasAbonoPicker() {
           return;
         }
 
+      if (!abonoEhValidoForaDoGozo(startStr, endStr)) {
+          fimEl.value = '';
+          feriasAbonoPicker.setDate([start], false);
+          toast('O período de abono deve ficar totalmente antes ou totalmente depois do período de gozo das férias.', 'err');
+          calc();
+          return;
+        }
+      
+        fimEl.value = endStr;
+      }
+        
         fimEl.value = dateToInputValue(end);
       } else {
         fimEl.value = '';
@@ -4003,6 +4045,7 @@ function getFeriasData() {
   const temAbono = !!document.getElementById('f-ferias-tem-abono')?.checked;
   const abonoIni = document.getElementById('f-ferias-abono-ini')?.value || '';
   const abonoFim = document.getElementById('f-ferias-abono-fim')?.value || '';
+  const abonoValido = temAbono && abonoEhValidoForaDoGozo(abonoIni, abonoFim);
   const diasAbonoRaw = temAbono ? calcDiasEntreDatas(abonoIni, abonoFim) : 0;
   const diasAbono = Math.min(Math.max(diasAbonoRaw, 0), 10);
   const salarioFamilia = parseN(document.getElementById('f-ferias-sal-familia')?.value);
