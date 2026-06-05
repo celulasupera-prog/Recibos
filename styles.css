@@ -1564,11 +1564,11 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   border-right: 1px solid #111;
   border-bottom: 1px solid #111;
   border-top: none;
-  min-height: 210px;
+  min-height: 165px;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 40px;
-  padding: 18px 10px 22px 10px;
+  padding: 12px 10px 16px 10px;
   box-sizing: border-box;
   align-items: end;
 }
@@ -1582,13 +1582,13 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 }
 
 .ferias-sign-label-top {
-  margin-bottom: 88px;
+  margin-bottom: 58px;
   font-size: 13px;
 }
 
 .ferias-sign-date {
   text-align: right;
-  margin-bottom: 88px;
+  margin-bottom: 58px;
   font-size: 13px;
 }
 
