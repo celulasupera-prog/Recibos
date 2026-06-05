@@ -3609,7 +3609,6 @@ const irrfBase = Math.max(
   roundFiscal(totalProventos - salarioFamilia - deducaoBaseIRRF),
   0
 );
-const irrfCalc = calcIRRF(irrfBase, totalProventos);
   const irrfCalc = calcIRRF(irrfBase, totalProventos);
   const irrfVal = irrfCalc.val;
 
