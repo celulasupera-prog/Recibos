@@ -2478,27 +2478,31 @@ async function gerarPDF() {
     printWrap.innerHTML = buildViaHTML(d, 'EMPRESA') + buildViaHTML(d, 'FUNCIONÁRIO');
   }
 
-  const renderWidth = isFerias ? 794 : 700; // A4 aprox em px @96dpi
-  const renderHeight = isFerias ? 1123 : null;
+ const renderWidth = isFerias ? 794 : 700;
+const renderHeight = isFerias ? 1123 : null;
 
-  Object.assign(printWrap.style, {
-    position: 'fixed',
-    left: '-10000px',
-    top: '0',
-    width: `${renderWidth}px`,
-    maxWidth: `${renderWidth}px`,
-    minWidth: `${renderWidth}px`,
-    background: '#ffffff',
-    padding: '0',
-    margin: '0',
-    boxSizing: 'border-box',
-    fontFamily: 'Arial, Helvetica, sans-serif',
-    color: '#000',
-    border: 'none',
-    boxShadow: 'none',
-    transform: 'none',
-    zoom: '1'
-  });
+Object.assign(printWrap.style, {
+  position: 'fixed',
+  left: '-10000px',
+  top: '0',
+  width: `${renderWidth}px`,
+  maxWidth: `${renderWidth}px`,
+  minWidth: `${renderWidth}px`,
+  height: isFerias ? `${renderHeight}px` : 'auto',
+  maxHeight: isFerias ? `${renderHeight}px` : 'none',
+  minHeight: isFerias ? `${renderHeight}px` : 'auto',
+  background: '#ffffff',
+  padding: '0',
+  margin: '0',
+  boxSizing: 'border-box',
+  fontFamily: 'Arial, Helvetica, sans-serif',
+  color: '#000',
+  border: 'none',
+  boxShadow: 'none',
+  overflow: isFerias ? 'hidden' : 'visible',
+  transform: 'none',
+  zoom: '1'
+});
 
   document.body.appendChild(printWrap);
 
