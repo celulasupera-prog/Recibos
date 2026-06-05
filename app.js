@@ -2528,7 +2528,17 @@ Object.assign(printWrap.style, {
     const pageH = 297;
 
    if (isFerias) {
-  doc.addImage(imgData, 'PNG', 0, 0, 210, 297);
+  const marginX = 4;
+  const marginY = 4;
+
+  doc.addImage(
+    imgData,
+    'PNG',
+    marginX,
+    marginY,
+    210 - marginX * 2,
+    297 - marginY * 2
+  );
 } else {
   const marginX = 5;
   const marginY = 5;
