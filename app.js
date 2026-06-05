@@ -2297,8 +2297,8 @@ function buildFeriasHTML(d) {
     : '';
 
   const periodoGozo = (f.gozoIniFmt && f.gozoFimFmt)
-    ? `${f.gozoIniFmt} A ${f.gozoFimFmt}${f.diasGozo ? ` = ${f.diasGozo} Dias` : ''}`
-    : '';
+  ? `${f.gozoIniFmt} A ${f.gozoFimFmt}${f.diasFeriasCalc ? ` = ${f.diasFeriasCalc} Dias` : ''}`
+  : '';
 
   const valorLiquido = fmtN2(f.liquido || 0);
 
@@ -3586,6 +3586,17 @@ function calcDiasEntreDatas(inicio, fim) {
   return Math.max(diff, 0);
 }
 
+function getDiasFeriasPorFaltas(faltas) {
+  const n = Number(faltas) || 0;
+
+  if (n <= 5) return 30;
+  if (n <= 14) return 24;
+  if (n <= 23) return 18;
+  if (n <= 32) return 12;
+
+  return 0;
+}
+
 function getFeriasData() {
   const sal = parseN(document.getElementById('f-sal')?.value) || 0;
 
@@ -3594,9 +3605,12 @@ function getFeriasData() {
   const gozoIni = document.getElementById('f-ferias-gozo-ini')?.value || '';
   const gozoFim = document.getElementById('f-ferias-gozo-fim')?.value || '';
 
-  const diasGozo = calcDiasEntreDatas(gozoIni, gozoFim) || 30;
-
+  const diasInformadosGozo = calcDiasEntreDatas(gozoIni, gozoFim);
   const faltas = parseInt(document.getElementById('f-ferias-faltas')?.value, 10) || 0;
+  const diasDireitoFerias = getDiasFeriasPorFaltas(faltas);
+  const diasGozo = diasInformadosGozo || diasDireitoFerias;
+  const diasFeriasCalc = Math.min(diasGozo, diasDireitoFerias);
+
   const mediaHoras = parseN(document.getElementById('f-ferias-media-horas')?.value);
   const mediaValores = parseN(document.getElementById('f-ferias-media-valores')?.value);
   const outras = parseN(document.getElementById('f-ferias-outras')?.value);
@@ -3605,7 +3619,7 @@ function getFeriasData() {
 
   const totalBase = roundFiscal(sal + mediaHoras + mediaValores + outras);
 
-  const ferias = roundFiscal((totalBase / 30) * diasGozo);
+  const ferias = roundFiscal((totalBase / 30) * diasFeriasCalc);
   const tercoFerias = roundFiscal(ferias / 3);
 
   const tercoAbono = roundFiscal(abono / 3);
@@ -3646,6 +3660,8 @@ const irrfBase = Math.max(
     gozoIniFmt: formatDateBRFromInput(gozoIni),
     gozoFimFmt: formatDateBRFromInput(gozoFim),
     diasGozo,
+    diasDireitoFerias,
+    diasFeriasCalc,
 
     dataAviso: document.getElementById('f-ferias-aviso')?.value || '',
     dataAvisoFmt: formatDateBRFromInput(document.getElementById('f-ferias-aviso')?.value || ''),
