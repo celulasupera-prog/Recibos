@@ -1200,6 +1200,11 @@ function applyTipoFolha() {
   });
 
   syncFolhaModelVerbas();
+
+  if (tipoKey === 'ferias') {
+    preencherDatasPadraoFerias();
+  }
+  
   toggleFeriasAbono();
   calc();
 }
@@ -2166,6 +2171,8 @@ function initFeriasRangePicker() {
       iniEl.value = startStr;
       feriasRangePicker.set('minDate', start);
 
+      preencherDatasPadraoFerias();
+
       if (maxDate) {
         feriasRangePicker.set('maxDate', maxDate);
       } else {
@@ -2191,11 +2198,7 @@ function initFeriasRangePicker() {
           return;
         }
 
-        fimEl.value = dateToInputValue(end);
-
-        if (feriasAbonoPicker) {
-          feriasAbonoPicker.redraw();
-        }
+       fimEl.value = dateTo
       } else {
         fimEl.value = '';
 
@@ -2500,6 +2503,47 @@ function initFeriasAbonoPicker() {
       }
     }
   });
+}
+
+function hojeInputDate() {
+  return dateToInputValue(new Date());
+}
+
+function isFimDeSemana(dateObj) {
+  const dia = dateObj.getDay();
+  return dia === 0 || dia === 6; // domingo ou sábado
+}
+
+function subtractDiasUteisInput(dateStr, qtdDiasUteis) {
+  const dt = inputDateToDate(dateStr);
+  if (!dt) return '';
+
+  let diasRestantes = Number(qtdDiasUteis) || 0;
+  const cursor = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
+
+  while (diasRestantes > 0) {
+    cursor.setDate(cursor.getDate() - 1);
+
+    if (!isFimDeSemana(cursor)) {
+      diasRestantes--;
+    }
+  }
+
+  return dateToInputValue(cursor);
+}
+
+function preencherDatasPadraoFerias(forcar = false) {
+  const avisoEl = document.getElementById('f-ferias-aviso');
+  const reciboEl = document.getElementById('f-ferias-recibo');
+  const gozoIniEl = document.getElementById('f-ferias-gozo-ini');
+
+  if (avisoEl && (forcar || !avisoEl.value)) {
+    avisoEl.value = hojeInputDate();
+  }
+
+  if (reciboEl && gozoIniEl?.value && (forcar || !reciboEl.value)) {
+    reciboEl.value = subtractDiasUteisInput(gozoIniEl.value, 2);
+  }
 }
 
 function resetFeriasRangePickerLimit() {
