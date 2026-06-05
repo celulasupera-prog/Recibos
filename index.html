@@ -362,6 +362,23 @@
         <input type="date" id="f-ferias-gozo-fim" hidden>
       </div>
 
+      <div class="field" style="grid-column:1/-1">
+        <label style="display:flex;align-items:center;gap:.45rem;text-transform:none;font-size:.8rem;letter-spacing:0;color:var(--ink)">
+          <input type="checkbox" id="f-ferias-tem-abono" onchange="toggleFeriasAbono()">
+          Terá abono de férias
+        </label>
+        <div class="field-hint">Marque para selecionar o período do abono.</div>
+      </div>
+      
+      <div class="field" id="ferias-abono-range-wrap" style="display:none;grid-column:1/-1">
+        <label>Período de Abono</label>
+        <input type="text" id="f-ferias-abono-range" placeholder="Selecione o período de abono" readonly>
+        <div class="field-hint">O período de abono pode ter no máximo 10 dias.</div>
+      
+        <input type="date" id="f-ferias-abono-ini" hidden>
+        <input type="date" id="f-ferias-abono-fim" hidden>
+      </div>
+      
       <div class="field">
         <label>Data do Aviso</label>
         <input type="date" id="f-ferias-aviso" oninput="calc()">
@@ -470,10 +487,6 @@
         <input type="text" id="f-ferias-outras" inputmode="decimal" placeholder="R$ 0,00" onfocus="prepareCurrencyField(this)" oninput="calc()" onblur="formatCurrencyField(this);calc()">
       </div>
 
-      <div class="field">
-        <label>Abono de Férias (R$)</label>
-        <input type="text" id="f-ferias-abono" inputmode="decimal" placeholder="R$ 0,00" onfocus="prepareCurrencyField(this)" oninput="calc()" onblur="formatCurrencyField(this);calc()">
-      </div>
 
       <div class="field">
         <label>Salário Família (R$)</label>
