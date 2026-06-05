@@ -470,6 +470,11 @@ async function initApp() {
   renderQuickAddButtons();
   addVerbaDiasNormais();
   calc();
+
+  setTimeout(() => {
+  initFeriasAquisitivoPicker();
+  initFeriasRangePicker();
+}, 0);
 }
 // ── EMPRESAS ──
 async function carregarEmpresas() {
@@ -2037,6 +2042,7 @@ function getData() {
 }
 
 let feriasRangePicker = null;
+let feriasAquisitivoPicker = null;
 
 function formatDateBRFromInput(dateStr) {
   if (!dateStr) return '';
@@ -2144,6 +2150,57 @@ function initFeriasRangePicker() {
   });
 }
 
+function addAnosMenosUmDiaInput(dateStr, anos = 1) {
+  const dt = inputDateToDate(dateStr);
+  if (!dt) return '';
+
+  dt.setFullYear(dt.getFullYear() + anos);
+  dt.setDate(dt.getDate() - 1);
+
+  return dateToInputValue(dt);
+}
+
+function initFeriasAquisitivoPicker() {
+  const rangeEl = document.getElementById('f-ferias-aq-range');
+  const iniEl = document.getElementById('f-ferias-aq-ini');
+  const fimEl = document.getElementById('f-ferias-aq-fim');
+
+  if (!rangeEl || !iniEl || !fimEl || typeof flatpickr === 'undefined') return;
+
+  if (feriasAquisitivoPicker) {
+    feriasAquisitivoPicker.destroy();
+  }
+
+  feriasAquisitivoPicker = flatpickr(rangeEl, {
+    locale: 'pt',
+    dateFormat: 'd/m/Y',
+    showMonths: 2,
+    disableMobile: true,
+    allowInput: false,
+
+    onChange: function(selectedDates) {
+      if (!selectedDates.length) {
+        iniEl.value = '';
+        fimEl.value = '';
+        rangeEl.value = '';
+        calc();
+        return;
+      }
+
+      const inicio = selectedDates[0];
+      const inicioStr = dateToInputValue(inicio);
+      const fimStr = addAnosMenosUmDiaInput(inicioStr, 1);
+
+      iniEl.value = inicioStr;
+      fimEl.value = fimStr;
+
+      rangeEl.value = `${formatDateBRFromInput(inicioStr)} até ${formatDateBRFromInput(fimStr)}`;
+
+      calc();
+    }
+  });
+}
+  
 function resetFeriasRangePickerLimit() {
   const iniEl = document.getElementById('f-ferias-gozo-ini');
   const fimEl = document.getElementById('f-ferias-gozo-fim');
@@ -3898,5 +3955,6 @@ const irrfBase = Math.max(
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  initFeriasAquisitivoPicker();
   initFeriasRangePicker();
 });
