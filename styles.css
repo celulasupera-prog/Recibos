@@ -1547,8 +1547,10 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 }
 
 .ferias-text-block {
-  border: 1px solid #111;
+  border-left: 1px solid #111;
+  border-right: 1px solid #111;
   border-top: none;
+  border-bottom: none;
   min-height: 78px;
   padding: 10px 12px;
   font-size: 12px;
@@ -1558,7 +1560,9 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 }
 
 .ferias-sign-box {
-  border: 1px solid #111;
+  border-left: 1px solid #111;
+  border-right: 1px solid #111;
+  border-bottom: 1px solid #111;
   border-top: none;
   min-height: 210px;
   display: grid;
@@ -1607,8 +1611,10 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 }
 
 .ferias-recibo-text {
-  border: 1px solid #111;
+  border-left: 1px solid #111;
+  border-right: 1px solid #111;
   border-top: none;
+  border-bottom: none;
   min-height: 130px;
   padding: 26px 14px 12px 14px;
   font-size: 12px;
@@ -1618,7 +1624,9 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 }
 
 .ferias-recibo-signatures {
-  border: 1px solid #111;
+  border-left: 1px solid #111;
+  border-right: 1px solid #111;
+  border-bottom: 1px solid #111;
   border-top: none;
   min-height: 150px;
   display: grid;
