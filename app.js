@@ -2113,24 +2113,33 @@ function initFeriasRangePicker() {
       const maxDate = getFeriasMaxDateByFaltas(startStr);
 
       iniEl.value = startStr;
+      feriasRangePicker.set('minDate', start);
 
       if (maxDate) {
         feriasRangePicker.set('maxDate', maxDate);
       }
 
       if (selectedDates.length === 2) {
-        const end = selectedDates[1];
+  const end = selectedDates[1];
 
-        if (maxDate && end > maxDate) {
-          fimEl.value = '';
-          feriasRangePicker.setDate([start], false);
-          toast(`O período selecionado ultrapassa o limite de dias de férias. Escolha até ${formatDateBRFromInput(dateToInputValue(maxDate))}.`, 'err');
-          calc();
-          return;
-        }
+  if (end < start) {
+    fimEl.value = '';
+    feriasRangePicker.setDate([start], false);
+    toast('A data fim das férias não pode ser anterior à data de início.', 'err');
+    calc();
+    return;
+  }
 
-        fimEl.value = dateToInputValue(end);
-      } else {
+  if (maxDate && end > maxDate) {
+    fimEl.value = '';
+    feriasRangePicker.setDate([start], false);
+    toast(`O período selecionado ultrapassa o limite de dias de férias. Escolha até ${formatDateBRFromInput(dateToInputValue(maxDate))}.`, 'err');
+    calc();
+    return;
+  }
+
+  fimEl.value = dateToInputValue(end);
+} else {
         fimEl.value = '';
       }
 
@@ -2138,15 +2147,21 @@ function initFeriasRangePicker() {
     },
 
     onOpen: function(selectedDates) {
-      const startStr = iniEl.value || (selectedDates[0] ? dateToInputValue(selectedDates[0]) : '');
-      const maxDate = getFeriasMaxDateByFaltas(startStr);
+  const startStr = iniEl.value || (selectedDates[0] ? dateToInputValue(selectedDates[0]) : '');
+  const maxDate = getFeriasMaxDateByFaltas(startStr);
 
-      if (maxDate) {
-        feriasRangePicker.set('maxDate', maxDate);
-      } else {
-        feriasRangePicker.set('maxDate', null);
-      }
-    }
+  if (startStr) {
+    feriasRangePicker.set('minDate', inputDateToDate(startStr));
+  } else {
+    feriasRangePicker.set('minDate', null);
+  }
+
+  if (maxDate) {
+    feriasRangePicker.set('maxDate', maxDate);
+  } else {
+    feriasRangePicker.set('maxDate', null);
+  }
+}
   });
 }
 
@@ -2217,6 +2232,7 @@ function resetFeriasRangePickerLimit() {
     iniEl.value = '';
     fimEl.value = '';
     feriasRangePicker.clear();
+    feriasRangePicker.set('minDate', null);
     feriasRangePicker.set('maxDate', null);
     toast('Com mais de 32 faltas injustificadas, há perda do direito às férias.', 'err');
     calc();
@@ -2224,8 +2240,9 @@ function resetFeriasRangePickerLimit() {
   }
 
   if (iniEl.value) {
-    const maxDate = getFeriasMaxDateByFaltas(iniEl.value);
-    feriasRangePicker.set('maxDate', maxDate);
+  const maxDate = getFeriasMaxDateByFaltas(iniEl.value);
+  feriasRangePicker.set('minDate', inputDateToDate(iniEl.value));
+  feriasRangePicker.set('maxDate', maxDate);
 
     if (fimEl.value && maxDate && inputDateToDate(fimEl.value) > maxDate) {
       fimEl.value = '';
