@@ -1415,11 +1415,18 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 
 .ferias-table th,
 .ferias-table td {
-  border: 1px solid #111;
+  border-left: 1px solid #111;
+  border-right: 1px solid #111;
+  border-top: none;
+  border-bottom: none;
   padding: 4px 8px;
   text-align: left;
   vertical-align: top;
   word-break: break-word;
+}
+
+.ferias-table {
+  border: 1px solid #111;
 }
 
 .ferias-table th {
