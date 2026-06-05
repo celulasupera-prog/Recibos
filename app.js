@@ -3611,8 +3611,12 @@ function getFeriasData() {
   const inssCalc = calcINSSProgressivo(totalProventos);
   const inssVal = inssCalc.valor;
 
-  const deducaoBaseIRRF = Math.max(607.20, inssVal);
-  const irrfBase = Math.max(roundFiscal(totalProventos - salarioFamilia - inssVal - deducaoBaseIRRF), 0);
+ const deducaoBaseIRRF = calcDeducaoBaseIRRF(inssVal);
+const irrfBase = Math.max(
+  roundFiscal(totalProventos - salarioFamilia - deducaoBaseIRRF),
+  0
+);
+const irrfCalc = calcIRRF(irrfBase, totalProventos);
   const irrfCalc = calcIRRF(irrfBase, totalProventos);
   const irrfVal = irrfCalc.val;
 
