@@ -1186,13 +1186,6 @@ function syncFolhaModelVerbas() {
   });
 }
 
-  // Folha Mensal padrão
-  verbas = verbas.filter(v => {
-    if (!autoTypesControlados.has(v.autoType)) return true;
-    return v.autoType === 'diasnormais' || v.autoType === 'dsrhe';
-  });
-}
-
 function applyTipoFolha() {
   const tipoKey = getTipoFolhaKey();
 
