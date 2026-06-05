@@ -3597,6 +3597,70 @@ function getDiasFeriasPorFaltas(faltas) {
   return 0;
 }
 
+function addDiasDateInput(dateStr, dias) {
+  if (!dateStr) return '';
+
+  const dt = new Date(dateStr + 'T00:00:00');
+  if (Number.isNaN(dt.getTime())) return '';
+
+  dt.setDate(dt.getDate() + dias);
+
+  const y = dt.getFullYear();
+  const m = String(dt.getMonth() + 1).padStart(2, '0');
+  const d = String(dt.getDate()).padStart(2, '0');
+
+  return `${y}-${m}-${d}`;
+}
+
+function applyFeriasPeriodoPorFaltas() {
+  if (getTipoFolhaKey() !== 'ferias') {
+    calc();
+    return;
+  }
+
+  const faltasEl = document.getElementById('f-ferias-faltas');
+  const gozoIniEl = document.getElementById('f-ferias-gozo-ini');
+  const gozoFimEl = document.getElementById('f-ferias-gozo-fim');
+
+  if (!faltasEl || !gozoIniEl || !gozoFimEl) {
+    calc();
+    return;
+  }
+
+  const faltas = parseInt(faltasEl.value, 10) || 0;
+  const diasDireito = getDiasFeriasPorFaltas(faltas);
+  const inicio = gozoIniEl.value;
+
+  gozoFimEl.removeAttribute('min');
+  gozoFimEl.removeAttribute('max');
+
+  if (diasDireito <= 0) {
+    gozoFimEl.value = '';
+    gozoFimEl.disabled = true;
+    toast('Com mais de 32 faltas injustificadas, há perda do direito às férias.', 'err');
+    calc();
+    return;
+  }
+
+  gozoFimEl.disabled = false;
+
+  if (inicio) {
+    const fimMaximo = addDiasDateInput(inicio, diasDireito - 1);
+
+    gozoFimEl.min = inicio;
+    gozoFimEl.max = fimMaximo;
+
+    if (gozoFimEl.value) {
+      if (gozoFimEl.value < inicio || gozoFimEl.value > fimMaximo) {
+        gozoFimEl.value = '';
+        toast(`Data fim inválida. Para ${diasDireito} dias de direito, escolha até ${formatDateBRFromInput(fimMaximo)}.`, 'err');
+      }
+    }
+  }
+
+  calc();
+}
+
 function getFeriasData() {
   const sal = parseN(document.getElementById('f-sal')?.value) || 0;
 
