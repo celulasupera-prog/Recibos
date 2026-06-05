@@ -2020,7 +2020,16 @@ function renderPreview() {
   syncDOMtoVerbas();
   const d = getData();
 
-  document.getElementById('recibo-doc').innerHTML =
+  const reciboDoc = document.getElementById('recibo-doc');
+
+  if (getTipoFolhaKey(d.folha) === 'ferias') {
+    reciboDoc.innerHTML = buildFeriasHTML(d);
+    reciboDoc.classList.add('recibo-ferias-doc');
+    return;
+  }
+
+  reciboDoc.classList.remove('recibo-ferias-doc');
+  reciboDoc.innerHTML =
     buildViaHTML(d, 'EMPRESA') + buildViaHTML(d, 'FUNCIONÁRIO');
 }
 
