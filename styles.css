@@ -1853,3 +1853,39 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   background: transparent !important;
   cursor: not-allowed !important;
 }
+
+.ferias-check-label {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  margin-top: .15rem;
+  color: var(--ink);
+  font-size: .88rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: none;
+  cursor: pointer;
+}
+
+.ferias-check-label input {
+  width: 16px;
+  height: 16px;
+  accent-color: #dc3f45;
+  cursor: pointer;
+}
+
+.ferias-abono-field {
+  margin-top: -.35rem;
+}
+
+.ferias-abono-field input#f-ferias-abono-range {
+  width: 100%;
+  min-height: 44px;
+  display: block;
+  cursor: pointer;
+  background: #fff;
+}
+
+.ferias-abono-field .field-hint {
+  margin-top: .35rem;
+}
