@@ -2103,6 +2103,15 @@ function getPeriodoConcessivoPorAquisitivo(aqFimStr) {
   };
 }
 
+function subtractDiasCorridosInput(dateStr, qtdDias) {
+  const dt = inputDateToDate(dateStr);
+  if (!dt) return '';
+
+  dt.setDate(dt.getDate() - (Number(qtdDias) || 0));
+
+  return dateToInputValue(dt);
+}
+
 function atualizarPeriodoConcessivoFerias() {
   const aqFimEl = document.getElementById('f-ferias-aq-fim');
   const concIniEl = document.getElementById('f-ferias-concessivo-ini');
@@ -2537,9 +2546,9 @@ function preencherDatasPadraoFerias(forcar = false) {
   const reciboEl = document.getElementById('f-ferias-recibo');
   const gozoIniEl = document.getElementById('f-ferias-gozo-ini');
 
-  if (avisoEl && (forcar || !avisoEl.value)) {
-    avisoEl.value = hojeInputDate();
-  }
+ if (avisoEl && gozoIniEl?.value && (forcar || !avisoEl.value)) {
+  avisoEl.value = subtractDiasCorridosInput(gozoIniEl.value, 30);
+}
 
   if (reciboEl && gozoIniEl?.value && (forcar || !reciboEl.value)) {
     reciboEl.value = subtractDiasUteisInput(gozoIniEl.value, 2);
