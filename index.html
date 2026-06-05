@@ -289,648 +289,199 @@
   </div>
 
   <!-- COMPETÊNCIA -->
-  <div class="form-section section-competencia">
-    <div class="sec-title">
-  <div class="sec-title-left">
-    <span class="sec-icon">
-      <svg class="ico"><use href="#i-calendar"/></svg>
-    </span>
-    <span class="sec-title-text">Competência</span>
+<div class="form-section section-competencia">
+  <div class="sec-title">
+    <div class="sec-title-left">
+      <span class="sec-icon">
+        <svg class="ico"><use href="#i-calendar"/></svg>
+      </span>
+      <span class="sec-title-text">Competência</span>
+    </div>
+    <button type="button" class="sec-collapse-btn" onclick="toggleSection(this)">
+      Recolher
+    </button>
   </div>
-  <button type="button" class="sec-collapse-btn" onclick="toggleSection(this)">
-    Recolher
-  </button>
-</div>
-    <div class="card fg fg2">
+
+  <div class="card fg fg2">
+    <div class="field">
+      <label>Mês / Ano</label>
+      <input type="month" id="f-comp" oninput="applyAutoDiasHE();calc()">
+      <div class="field-hint">Por padrão, considera o mês inteiro da competência.</div>
+    </div>
+
+    <div class="field">
+      <label>Tipo de Folha</label>
+      <select id="f-folha" onchange="applyTipoFolha()">
+        <option>Folha Mensal</option>
+        <option>Pro Labore</option>
+        <option>Adiantamento</option>
+        <option>13º Salário</option>
+        <option>Férias</option>
+        <option>Rescisão</option>
+      </select>
+    </div>
+
+    <div class="field" style="grid-column:1/-1">
+      <label style="display:flex;align-items:center;gap:.45rem;text-transform:none;font-size:.8rem;letter-spacing:0;color:var(--ink)">
+        <input type="checkbox" id="f-periodo-parcial" onchange="togglePeriodoParcial()">
+        Funcionário iniciou no meio do mês (calcular por intervalo de dias)
+      </label>
+    </div>
+
+    <div class="fg fg2" id="f-periodo-parcial-wrap" style="display:none;grid-column:1/-1">
       <div class="field">
-        <label>Mês / Ano</label>
-        <input type="month" id="f-comp" oninput="applyAutoDiasHE();calc()">
-        <div class="field-hint">Por padrão, considera o mês inteiro da competência.</div>
+        <label>Data início</label>
+        <input type="date" id="f-periodo-inicio" oninput="applyAutoDiasHE();calc()">
       </div>
+
       <div class="field">
-        <label>Tipo de Folha</label>
-        <select id="f-folha" onchange="applyTipoFolha()">
-          <option>Folha Mensal</option>
-          <option>Pro Labore</option>
-          <option>Adiantamento</option>
-          <option>13º Salário</option>
-          <option>Férias</option>
-          <option>Rescisão</option>
-        </select>
+        <label>Data fim</label>
+        <input type="date" id="f-periodo-fim" oninput="applyAutoDiasHE();calc()">
       </div>
-      <div class="field" style="grid-column:1/-1">
-        <label style="display:flex;align-items:center;gap:.45rem;text-transform:none;font-size:.8rem;letter-spacing:0;color:var(--ink)">
-          <input type="checkbox" id="f-periodo-parcial" onchange="togglePeriodoParcial()">
-          Funcionário iniciou no meio do mês (calcular por intervalo de dias)
-        </label>
+    </div>
+
+    <div class="fg fg2 ferias-extra-fields" id="ferias-extra-fields" style="display:none;grid-column:1/-1">
+      <div class="field">
+        <label>Período Aquisitivo Início</label>
+        <input type="date" id="f-ferias-aq-ini" oninput="calc()">
       </div>
-      <div class="fg fg2" id="f-periodo-parcial-wrap" style="display:none;grid-column:1/-1">
-        <div class="field">
-          <label>Data início</label>
-          <input type="date" id="f-periodo-inicio" oninput="applyAutoDiasHE();calc()">
-        </div>
-        <div class="field">
-          <label>Data fim</label>
-          <input type="date" id="f-periodo-fim" oninput="applyAutoDiasHE();calc()">
-        </div>
+
+      <div class="field">
+        <label>Período Aquisitivo Fim</label>
+        <input type="date" id="f-ferias-aq-fim" oninput="calc()">
       </div>
-  <div class="fg fg2 ferias-extra-fields" id="ferias-extra-fields" style="display:none;grid-column:1/-1">
-  <div class="field">
-    <label>Período Aquisitivo Início</label>
-    <input type="date" id="f-ferias-aq-ini" oninput="calc()">
-  </div>
 
-  <div class="field">
-    <label>Período Aquisitivo Fim</label>
-    <input type="date" id="f-ferias-aq-fim" oninput="calc()">
-  </div>
+      <div class="field">
+        <label>Início das Férias</label>
+        <input type="date" id="f-ferias-gozo-ini" oninput="calc()">
+      </div>
 
-  <div class="field">
-    <label>Início das Férias</label>
-    <input type="date" id="f-ferias-gozo-ini" oninput="calc()">
-  </div>
+      <div class="field">
+        <label>Fim das Férias</label>
+        <input type="date" id="f-ferias-gozo-fim" oninput="calc()">
+      </div>
 
-  <div class="field">
-    <label>Fim das Férias</label>
-    <input type="date" id="f-ferias-gozo-fim" oninput="calc()">
-  </div>
+      <div class="field">
+        <label>Data do Aviso</label>
+        <input type="date" id="f-ferias-aviso" oninput="calc()">
+      </div>
 
-  <div class="field">
-    <label>Data do Aviso</label>
-    <input type="date" id="f-ferias-aviso" oninput="calc()">
-  </div>
+      <div class="field">
+        <label>Data do Recibo/Pagamento</label>
+        <input type="date" id="f-ferias-recibo" oninput="calc()">
+      </div>
 
-  <div class="field">
-    <label>Data do Recibo/Pagamento</label>
-    <input type="date" id="f-ferias-recibo" oninput="calc()">
-  </div>
+      <div class="field">
+        <label>Carteira Profissional</label>
+        <input type="text" id="f-ferias-carteira" placeholder="Ex: 00049665" oninput="calc()">
+      </div>
 
-  <div class="field">
-    <label>Carteira Profissional</label>
-    <input type="text" id="f-ferias-carteira" placeholder="Ex: 00049665" oninput="calc()">
-  </div>
-
-  <div class="field">
-    <label>Série</label>
-    <input type="text" id="f-ferias-serie" placeholder="Ex: 00005" oninput="calc()">
+      <div class="field">
+        <label>Série</label>
+        <input type="text" id="f-ferias-serie" placeholder="Ex: 00005" oninput="calc()">
+      </div>
+    </div>
   </div>
 </div>
 
-  <!-- BASE DE CÁLCULO -->
-  <div class="form-section section-base">
-    <div class="sec-title">
-  <div class="sec-title-left">
-    <span class="sec-icon">
-      <svg class="ico"><use href="#i-gear"/></svg>
-    </span>
-    <span class="sec-title-text">Base de Cálculo</span>
+<!-- BASE DE CÁLCULO -->
+<div class="form-section section-base">
+  <div class="sec-title">
+    <div class="sec-title-left">
+      <span class="sec-icon">
+        <svg class="ico"><use href="#i-gear"/></svg>
+      </span>
+      <span class="sec-title-text">Base de Cálculo</span>
+    </div>
+    <button type="button" class="sec-collapse-btn" onclick="toggleSection(this)">
+      Recolher
+    </button>
   </div>
-  <button type="button" class="sec-collapse-btn" onclick="toggleSection(this)">
-    Recolher
-  </button>
-</div>
-    <div class="card fg">
-      <div class="fg fg3">
-        <div class="field">
-          <label>Salário Base (R$)</label>
-          <input type="text" id="f-sal" placeholder="R$ 3.500,00" inputmode="decimal" onfocus="prepareCurrencyField(this)" oninput="calc()" onblur="formatCurrencyField(this);calc()">
-        </div>
-        <div class="field">
-          <label>Dias Trabalhados</label>
-          <input type="number" id="f-dias" placeholder="28" min="1" max="31" oninput="calc()">
-        </div>
-        <div class="field">
-          <label>Dias no Mês</label>
-          <input type="number" id="f-diasmes" placeholder="28" min="28" max="31" oninput="calc()">
-          <div class="field-hint">Auto pelo mês selecionado</div>
-        </div>
+
+  <div class="card fg">
+    <div class="fg fg3">
+      <div class="field">
+        <label>Salário Base (R$)</label>
+        <input type="text" id="f-sal" placeholder="R$ 3.500,00" inputmode="decimal" onfocus="prepareCurrencyField(this)" oninput="calc()" onblur="formatCurrencyField(this);calc()">
       </div>
-      <div class="fg fg2" style="margin-top:.5rem">
-        <div class="field">
-          <label>Dias Úteis (HE)</label>
-          <input type="number" id="f-diasuteis" placeholder="24" min="0" max="31" oninput="calc()">
-          <div class="field-hint">Usado em fórmulas como <code>diasUteis</code></div>
-        </div>
-        <div class="field">
-          <label>Dias DSR (HE)</label>
-          <input type="number" id="f-diasdsr" placeholder="6" min="0" max="31" oninput="calc()">
-          <div class="field-hint">Usado em fórmulas como <code>diasDSR</code></div>
-        </div>
+
+      <div class="field">
+        <label>Dias Trabalhados</label>
+        <input type="number" id="f-dias" placeholder="28" min="1" max="31" oninput="calc()">
       </div>
-      <div class="fg fg3" style="margin-top:.5rem">
-        <div class="field">
-          <label>Salário/Dia (R$)</label>
-          <input type="text" id="f-saldia" class="calc" readonly>
-        </div>
-        <div class="field">
-          <label>Salário/Hora (R$)</label>
-          <input type="text" id="f-salhora" class="calc" readonly>
-        </div>
-        <div class="field">
-          <label>Valor Dias Trabalhados</label>
-          <input type="text" id="f-valdias" class="calc" readonly>
-        </div>
+
+      <div class="field">
+        <label>Dias no Mês</label>
+        <input type="number" id="f-diasmes" placeholder="28" min="28" max="31" oninput="calc()">
+        <div class="field-hint">Auto pelo mês selecionado</div>
       </div>
+    </div>
+
+    <div class="fg fg2" style="margin-top:.5rem">
+      <div class="field">
+        <label>Dias Úteis (HE)</label>
+        <input type="number" id="f-diasuteis" placeholder="24" min="0" max="31" oninput="calc()">
+        <div class="field-hint">Usado em fórmulas como <code>diasUteis</code></div>
+      </div>
+
+      <div class="field">
+        <label>Dias DSR (HE)</label>
+        <input type="number" id="f-diasdsr" placeholder="6" min="0" max="31" oninput="calc()">
+        <div class="field-hint">Usado em fórmulas como <code>diasDSR</code></div>
+      </div>
+    </div>
+
+    <div class="fg fg3" style="margin-top:.5rem">
+      <div class="field">
+        <label>Salário/Dia (R$)</label>
+        <input type="text" id="f-saldia" class="calc" readonly>
+      </div>
+
+      <div class="field">
+        <label>Salário/Hora (R$)</label>
+        <input type="text" id="f-salhora" class="calc" readonly>
+      </div>
+
+      <div class="field">
+        <label>Valor Dias Trabalhados</label>
+        <input type="text" id="f-valdias" class="calc" readonly>
+      </div>
+    </div>
+
     <div class="fg fg3 ferias-extra-fields" id="ferias-base-extra-fields" style="display:none;grid-column:1/-1;margin-top:.5rem">
-  <div class="field">
-    <label>Faltas não justificadas</label>
-    <input type="number" id="f-ferias-faltas" min="0" step="1" placeholder="0" oninput="calc()">
-  </div>
-
-  <div class="field">
-    <label>Média Horas (R$)</label>
-    <input type="text" id="f-ferias-media-horas" inputmode="decimal" placeholder="R$ 0,00" onfocus="prepareCurrencyField(this)" oninput="calc()" onblur="formatCurrencyField(this);calc()">
-  </div>
-
-  <div class="field">
-    <label>Média Valores (R$)</label>
-    <input type="text" id="f-ferias-media-valores" inputmode="decimal" placeholder="R$ 0,00" onfocus="prepareCurrencyField(this)" oninput="calc()" onblur="formatCurrencyField(this);calc()">
-  </div>
-
-  <div class="field">
-    <label>Outras Vantagens (R$)</label>
-    <input type="text" id="f-ferias-outras" inputmode="decimal" placeholder="R$ 0,00" onfocus="prepareCurrencyField(this)" oninput="calc()" onblur="formatCurrencyField(this);calc()">
-  </div>
-
-  <div class="field">
-    <label>Abono de Férias (R$)</label>
-    <input type="text" id="f-ferias-abono" inputmode="decimal" placeholder="R$ 0,00" onfocus="prepareCurrencyField(this)" oninput="calc()" onblur="formatCurrencyField(this);calc()">
-  </div>
-
-  <div class="field">
-    <label>Salário Família (R$)</label>
-    <input type="text" id="f-ferias-sal-familia" inputmode="decimal" placeholder="R$ 0,00" onfocus="prepareCurrencyField(this)" oninput="calc()" onblur="formatCurrencyField(this);calc()">
-  </div>
-</div>
-    <input type="text" id="f-ferias-media-horas" inputmode="decimal" placeholder="R$ 0,00" onfocus="prepareCurrencyField(this)" oninput="calc()" onblur="formatCurrencyField(this);calc()">
-  </div>
-
-  <div class="field">
-    <label>Média Valores (R$)</label>
-    <input type="text" id="f-ferias-media-valores" inputmode="decimal" placeholder="R$ 0,00" onfocus="prepareCurrencyField(this)" oninput="calc()" onblur="formatCurrencyField(this);calc()">
-  </div>
-
-  <div class="field">
-    <label>Outras Vantagens (R$)</label>
-    <input type="text" id="f-ferias-outras" inputmode="decimal" placeholder="R$ 0,00" onfocus="prepareCurrencyField(this)" oninput="calc()" onblur="formatCurrencyField(this);calc()">
-  </div>
-
-  <div class="field">
-    <label>Abono de Férias (R$)</label>
-    <input type="text" id="f-ferias-abono" inputmode="decimal" placeholder="R$ 0,00" onfocus="prepareCurrencyField(this)" oninput="calc()" onblur="formatCurrencyField(this);calc()">
-  </div>
-
-  <div class="field">
-    <label>Salário Família (R$)</label>
-    <input type="text" id="f-ferias-sal-familia" inputmode="decimal" placeholder="R$ 0,00" onfocus="prepareCurrencyField(this)" oninput="calc()" onblur="formatCurrencyField(this);calc()">
-  </div>
-</div>
-  </div>
-
-  <!-- VERBAS -->
-  <div class="form-section section-verbas">
-    <div class="sec-title">
-  <div class="sec-title-left">
-    <span class="sec-icon">
-      <svg class="ico"><use href="#i-plus"/></svg>
-    </span>
-    <span class="sec-title-text">Verbas / Lançamentos</span>
-  </div>
-  <button type="button" class="sec-collapse-btn" onclick="toggleSection(this)">
-    Recolher
-  </button>
-</div>
-    <div class="card">
-      <div class="verbas-header">
-        <span>Código</span><span>Descrição</span><span>Referência</span>
-        <span>Vencimentos</span><span>Descontos</span><span></span><span></span>
-      </div>
-      <div id="verbas-list"></div>
-
-      <div style="display:flex;gap:.5rem;margin-top:.6rem;flex-wrap:wrap;">
-        <button class="btn-add-verba" onclick="addVerba('venc')" style="flex:1">+ Vencimento</button>
-        <button class="btn-add-verba" onclick="addVerba('desc')" style="flex:1;border-color:#ffb0a8;color:var(--red)">+ Desconto</button>
-      </div>
-
-      <!-- Lançamentos rápidos -->
-      <div style="margin-top:.75rem;padding-top:.75rem;border-top:1px dashed var(--border);">
-        <div style="font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:.5rem;">Adicionar rapidamente:</div>
-        <div class="hcbtns-quick quick-rubricas-grid">
-          <!-- preenchido dinamicamente por renderQuickAddButtons() -->
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- OPCIONAIS: INSS/FGTS/IRRF -->
-  <div class="form-section section-encargos">
-   <div class="sec-title">
-  <div class="sec-title-left">
-    <span class="sec-icon">
-      <svg class="ico"><use href="#i-shield"/></svg>
-    </span>
-    <span class="sec-title-text">Encargos</span>
-  </div>
-  <button type="button" class="sec-collapse-btn" onclick="toggleSection(this)">
-    Recolher
-  </button>
-</div>
-    <div class="card">
-      <div class="toggle-row" onclick="toggleEnc('inss')">
-        <span class="toggle-label">INSS</span>
-        <span class="toggle-badge off" id="badge-inss">Desativado</span>
-      </div>
-      <div class="toggle-content" id="tc-inss">
-        <div class="fg" style="margin-top:.5rem;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.75rem">
-          <div class="field">
-            <label>Alíquota INSS (%)</label>
-            <input type="text" id="f-inss-aliq" class="calc" placeholder="Auto" readonly>
-          </div>
-          <div class="field">
-            <label>INSS Manual (R$)</label>
-            <input type="number" id="f-inss-manual" placeholder="Opcional" step="0.01" oninput="calc()">
-            <div class="field-hint">Se preenchido, substitui o cálculo por alíquota</div>
-          </div>
-          <div class="field">
-            <label>Valor INSS (R$)</label>
-            <input type="text" id="f-inss-val" class="calc" readonly>
-          </div>
-        </div>
-      </div>
-
-      <div class="toggle-row" onclick="toggleEnc('fgts')" style="margin-top:.5rem">
-        <span class="toggle-label">FGTS</span>
-        <span class="toggle-badge off" id="badge-fgts">Desativado</span>
-      </div>
-      <div class="toggle-content" id="tc-fgts">
-        <div class="fg" style="margin-top:.5rem;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.75rem">
-          <div class="field">
-            <label>Base FGTS (R$)</label>
-            <input type="number" id="f-fgts-base" placeholder="Auto" step="0.01" oninput="calc()">
-            <div class="field-hint">Deixe vazio para usar total de vencimentos</div>
-          </div>
-          <div class="field">
-            <label>FGTS do Mês (R$)</label>
-            <input type="text" id="f-fgts-val" class="calc" readonly>
-            <div class="field-hint">8% sobre a base</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="toggle-row" onclick="toggleEnc('irrf')" style="margin-top:.5rem">
-        <span class="toggle-label">IRRF</span>
-        <span class="toggle-badge off" id="badge-irrf">Desativado</span>
-      </div>
-      <div class="toggle-content" id="tc-irrf">
-        <div class="fg fg2" style="margin-top:.5rem">
-          <div class="field">
-            <label>Base IRRF (R$)</label>
-            <input type="number" id="f-irrf-base" placeholder="Auto" step="0.01" oninput="calc()">
-            <div class="field-hint">Auto = Base tributável - maior dedução entre simplificado e (INSS + dependentes)</div>
-          </div>
-          <div class="field">
-            <label>Faixa (%)</label>
-            <input type="text" id="f-irrf-faixa" class="calc" readonly>
-          </div>
-        </div>
-        <div class="fg" style="margin-top:.5rem;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.75rem">
-          <div class="field">
-            <label>Dependentes (IRRF)</label>
-            <input type="number" id="f-irrf-dependentes" min="0" step="1" placeholder="0" oninput="calc()">
-          </div>
-          <div class="field">
-            <label>Dedução Base IRRF (R$)</label>
-            <input type="text" id="f-irrf-deducao" class="calc" readonly>
-          </div>
-          <div class="field">
-            <label>Valor IRRF (R$)</label>
-            <input type="text" id="f-irrf-val" class="calc" readonly>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-
-
-  <div class="action-bar">
-    <button class="abtn outline" onclick="novoRecibo()">Limpar</button>
-    <button class="abtn secondary" onclick="salvar()"><svg class="ico"><use href="#i-save"/></svg> Salvar</button>
-    <button class="abtn primary" onclick="gerarPDF()"><svg class="ico"><use href="#i-download"/></svg> PDF</button>
-  </div>
-
-</div><!-- /form-side -->
-
-<!-- ── PREVIEW ── -->
-<div class="preview-side">
-  <div class="preview-toolbar">
-    <span class="preview-label">Pré-visualização</span>
-    <div class="preview-actions">
-      <button class="btn-preview secondary" onclick="salvar()"><svg class="ico"><use href="#i-save"/></svg> Salvar</button>
-      <button class="btn-preview ghost" onclick="novoRecibo()"><svg class="ico"><use href="#i-clear"/></svg> Limpar</button>
-      <button class="btn-preview primary" onclick="gerarPDF()"><svg class="ico"><use href="#i-download"/></svg> Baixar PDF</button>
-    </div>
-  </div>
-
-  <div class="recibo-doc" id="recibo-doc"></div>
-
-  <!-- TOTAIS -->
-  <div class="form-section section-totais">
-    <div class="sec-title">
-  <div class="sec-title-left">
-    <span class="sec-icon sec-icon-muted">
-      <svg class="ico"><use href="#i-gear"/></svg>
-    </span>
-    <span class="sec-title-text">Totais</span>
-  </div>
-  <button type="button" class="sec-collapse-btn" onclick="toggleSection(this)">
-    Recolher
-  </button>
-</div>
-    <div class="card">
-      <div class="totals-grid">
-        <div class="total-box green">
-          <label>Total Vencimentos</label>
-          <div class="val" id="t-venc">R$ 0,00</div>
-        </div>
-        <div class="total-box red">
-          <label>Total Descontos</label>
-          <div class="val" id="t-desc">R$ 0,00</div>
-        </div>
-        <div class="total-box highlight" style="grid-column:span 2">
-          <label>Valor Líquido</label>
-          <div class="val" id="t-liq">R$ 0,00</div>
-        </div>
-        <div class="total-box">
-          <label>Sal. Base</label>
-          <div class="val" id="t-salbase">R$ 0,00</div>
-        </div>
-        <div class="total-box">
-          <label>Sal. Contr. INSS</label>
-          <div class="val" id="t-salinss">R$ 0,00</div>
-        </div>
-        <div class="total-box">
-          <label>Base Cálc. FGTS</label>
-          <div class="val" id="t-basefgts">R$ 0,00</div>
-        </div>
-        <div class="total-box">
-          <label>FGTS do Mês</label>
-          <div class="val" id="t-fgts">R$ 0,00</div>
-        </div>
-        <div class="total-box">
-          <label>Base Cálc. IRRF</label>
-          <div class="val" id="t-baseirrf">R$ 0,00</div>
-        </div>
-        <div class="total-box">
-          <label>Faixa IRRF</label>
-          <div class="val" id="t-faixairrf">—</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-</div><!-- /workspace -->
-</div><!-- /pg-main -->
-
-<!-- HOLIDAYS -->
-<div id="pg-feriados" class="fer-page" style="display:none">
-  <div class="fer-header">
-    <div class="fer-title">Feriados</div>
-    <button class="fer-back-btn" onclick="showMain()"><svg class="ico"><use href="#i-back"/></svg> Voltar</button>
-  </div>
-
-  <div class="fer-card">
-    <div class="fer-card-label">Cadastrar feriado</div>
-    <div class="fer-grid fer-grid-top">
-      <div class="field fer-field">
-        <label>Contexto</label>
-        <select id="fer-scope" onchange="renderFeriadosPage()">
-          <option value="global">Geral (todos)</option>
-          <option value="cidade">Por cidade</option>
-          <option value="empresa">Por empresa</option>
-        </select>
-      </div>
-      <div class="field fer-field" id="fer-cidade-wrap" style="display:none">
-        <label>Cidade</label>
-        <select id="fer-cidade" onchange="renderFeriadosPage()">
-          <option value="">Selecione a cidade</option>
-        </select>
-      </div>
-      <div class="field fer-field" id="fer-empresa-wrap" style="display:none">
-        <label>Empresa</label>
-        <select id="fer-empresa" onchange="renderFeriadosPage()"></select>
-      </div>
-    </div>
-    <div class="fer-grid fer-grid-bottom">
-      <div class="field fer-field">
-        <label>Data</label>
-        <input type="date" id="fer-data">
-      </div>
-      <div class="field fer-field">
-        <label>Descrição</label>
-        <input id="fer-desc" placeholder="Ex: Tiradentes / Carnaval / Municipal">
-      </div>
-      <button class="fer-add-btn" onclick="addFeriado()">+ Adicionar</button>
-    </div>
-  </div>
-
-  <div class="fer-card">
-    <div class="fer-list-head">
-      <div>Feriados cadastrados — <span id="fer-context-label">Geral</span></div>
-      <span class="fer-badge" id="fer-count-badge">0 feriados</span>
-    </div>
-    <div id="feriados-list" class="fer-list"></div>
-    <div class="fer-note">Os feriados impactam o cálculo automático de Dias Úteis e Dias DSR da competência selecionada.</div>
-  </div>
-
-  <div class="fer-edit-modal" id="fer-edit-modal" style="display:none" onclick="if(event.target===this)cancelarEdicaoFeriado()">
-    <div class="fer-edit-card" id="fer-edit-card">
-      <div class="fer-edit-title">Editar feriado</div>
-      <div class="field fer-field">
-        <label>Data</label>
-        <input type="date" id="fer-edit-data">
-      </div>
-      <div class="field fer-field">
-        <label>Descrição</label>
-        <input id="fer-edit-desc" placeholder="Descrição do feriado">
-      </div>
-      <div class="fer-edit-actions">
-        <button class="fer-edit-btn fer-edit-save" onclick="salvarEdicaoFeriado()">Salvar</button>
-        <button class="fer-edit-btn fer-edit-cancel" onclick="cancelarEdicaoFeriado()">Cancelar</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- HISTORY -->
-<div id="pg-hist">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
-    <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800">Histórico de Recibos</div>
-      <button class="hbtn solid" onclick="novoRecibo();showMain()"><svg class="ico"><use href="#i-plus"/></svg> Novo Recibo</button>
-  </div>
-  <div class="hist-grid" id="hist-grid"></div>
-</div>
-
-<!-- CONFIG PAGE -->
-<div id="pg-config">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
-    <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800"><svg class="ico"><use href="#i-gear"/></svg> Configuração de Fórmulas</div>
-    <div style="display:flex;gap:.5rem">
-      <button class="hbtn ghost" style="background:var(--ink);color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.2)" onclick="showSenhaTab()"><svg class="ico"><use href="#i-lock"/></svg> Alterar Senha</button>
-      <button class="hbtn solid" onclick="showMain_config()"><svg class="ico"><use href="#i-back"/></svg> Voltar</button>
-    </div>
-  </div>
-
-  <div class="config-grid">
-
-    <!-- VERBAS PADRÃO -->
-    <div class="config-card config-full">
-      <div class="config-card-title">
-        Verbas Cadastradas
-        <button class="btn-add-config" style="width:auto;padding:.35rem 1rem" onclick="addConfigVerba()">+ Nova Verba</button>
-      </div>
-      <div class="formula-hint formula-vars-hint" style="line-height:1.5;background:#f3f6ff;border:1px solid #dbe7ff;padding:.45rem .55rem;border-radius:6px">
-        <b style="color:var(--accent)">Variáveis de fórmula:</b>
-        <div class="formula-vars-list">
-          <span class="formula-var-pill">sal</span>
-          <span class="formula-var-pill">salHora</span>
-          <span class="formula-var-pill">salDia</span>
-          <span class="formula-var-pill">ref</span>
-          <span class="formula-var-pill">diasTrab</span>
-          <span class="formula-var-pill">diasMes</span>
-          <span class="formula-var-pill">diasUteis</span>
-          <span class="formula-var-pill">diasDSR</span>
-          <span class="formula-var-pill">totalHE</span>
-        </div>
-        <div style="margin-top:.2rem">Para incluir uma nova rubrica (ex.: HE 60%) no DSR, marque <b>Compõe HE/DSR</b>. Use <b>Compõe IRRF</b> para controlar a base do imposto.</div>
-      </div>
-      <div class="config-table-wrap">
-      <table class="config-table config-verbas-table" style="margin-top:.75rem">
-        <thead><tr>
-          <th style="width:42px"></th>
-          <th style="width:60px">Código</th>
-          <th>Descrição</th>
-          <th style="width:80px">Tipo</th>
-          <th style="width:80px">Ref.</th>
-          <th style="width:95px">Compõe HE/DSR</th>
-          <th style="width:85px">Compõe IRRF</th>
-          <th style="width:85px">Compõe INSS</th>
-          <th style="width:85px">Compõe FGTS</th>
-          <th>Fórmula (Vencimento)</th>
-          <th>Fórmula (Desconto)</th>
-          <th style="width:30px"></th>
-        </tr></thead>
-        <tbody id="config-verbas-body"></tbody>
-      </table>
-      </div>
-    </div>
-
-    <!-- PARÂMETROS GERAIS -->
-    <div class="config-card">
-      <div class="config-card-title">Parâmetros Gerais</div>
-      <table class="config-table">
-        <tbody>
-          <tr><td style="color:var(--ink2);font-size:.78rem">Horas mensais (divisor hora)</td><td><input type="number" id="cfg-horas-mes" value="220" oninput="saveConfig()"></td></tr>
-          <tr><td style="color:var(--ink2);font-size:.78rem">Multiplicador HE 50%</td><td><input type="number" id="cfg-he50-mult" value="1.5" step="0.01" oninput="saveConfig()"></td></tr>
-          <tr><td style="color:var(--ink2);font-size:.78rem">Multiplicador HE 100%</td><td><input type="number" id="cfg-he100-mult" value="2.0" step="0.01" oninput="saveConfig()"></td></tr>
-          <tr><td style="color:var(--ink2);font-size:.78rem">Alíquota FGTS (%)</td><td><input type="number" id="cfg-fgts-aliq" value="8" step="0.01" oninput="saveConfig()"></td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- BOTÕES RÁPIDOS -->
-    <div class="config-card">
-      <div class="config-card-title">Botões Rápidos</div>
-      <div class="formula-hint" style="margin-bottom:.5rem">Verbas que aparecem como atalho no formulário</div>
-      <div id="config-quick-list" style="display:flex;flex-direction:column;gap:.4rem;"></div>
-    </div>
-
-    <!-- TABELA INSS 2026 -->
-    <div class="config-card">
-      <div class="config-card-title">Tabela INSS 2026 <span class="config-formula">progressiva</span></div>
-      <table class="config-table">
-        <thead><tr>
-          <th>Faixa Salarial</th>
-          <th style="width:80px;text-align:right">Alíquota</th>
-          <th style="width:110px;text-align:right">Parcela a Deduzir</th>
-        </tr></thead>
-        <tbody>
-          <tr><td>Até R$ 1.621,00</td><td style="text-align:right"><span class="config-badge venc">7,5%</span></td><td style="text-align:right;font-family:'Inconsolata',monospace">—</td></tr>
-          <tr><td>De R$ 1.621,01 até R$ 2.902,84</td><td style="text-align:right"><span class="config-badge venc">9%</span></td><td style="text-align:right;font-family:'Inconsolata',monospace">R$ 24,32</td></tr>
-          <tr><td>De R$ 2.902,85 até R$ 4.354,27</td><td style="text-align:right"><span class="config-badge venc">12%</span></td><td style="text-align:right;font-family:'Inconsolata',monospace">R$ 111,48</td></tr>
-          <tr><td>De R$ 4.354,28 até R$ 8.475,55</td><td style="text-align:right"><span class="config-badge venc">14%</span></td><td style="text-align:right;font-family:'Inconsolata',monospace">R$ 198,59</td></tr>
-        </tbody>
-      </table>
-      <div class="formula-hint" style="margin-top:.5rem">Teto do INSS 2026: R$ 8.475,55 · Máximo: R$ 988,09 · Mínimo: R$ 121,58</div>
-    </div>
-
-    <!-- TABELA IRRF 2026 -->
-    <div class="config-card">
-      <div class="config-card-title">Tabela IRRF 2026 <span class="config-formula">progressiva</span></div>
-      <table class="config-table">
-        <thead><tr>
-          <th>Base de Cálculo</th>
-          <th style="width:70px;text-align:right">Alíquota</th>
-          <th style="width:100px;text-align:right">Dedução</th>
-        </tr></thead>
-        <tbody>
-          <tr><td>Até R$ 2.428,80</td><td style="text-align:right"><span class="config-badge venc">Isento</span></td><td style="text-align:right;font-family:'Inconsolata',monospace">—</td></tr>
-          <tr><td>De R$ 2.428,81 até R$ 2.826,65</td><td style="text-align:right"><span class="config-badge venc">7,5%</span></td><td style="text-align:right;font-family:'Inconsolata',monospace">R$ 182,16</td></tr>
-          <tr><td>De R$ 2.826,66 até R$ 3.751,05</td><td style="text-align:right"><span class="config-badge venc">15%</span></td><td style="text-align:right;font-family:'Inconsolata',monospace">R$ 394,16</td></tr>
-          <tr><td>De R$ 3.751,06 até R$ 4.664,68</td><td style="text-align:right"><span class="config-badge venc">22,5%</span></td><td style="text-align:right;font-family:'Inconsolata',monospace">R$ 675,49</td></tr>
-          <tr><td>Acima de R$ 4.664,68</td><td style="text-align:right"><span class="config-badge desc">27,5%</span></td><td style="text-align:right;font-family:'Inconsolata',monospace">R$ 908,73</td></tr>
-        </tbody>
-      </table>
-      <div class="formula-hint" style="margin-top:.5rem">
-        Rendimentos tributáveis até R$ 5.000,00 possuem redução para zerar o imposto (limite de redução: R$ 312,89). De R$ 5.000,01 até R$ 7.350,00, a redução é decrescente linear até zerar.
-        <div style="margin-top:.2rem">
-          <b>Fórmula usada na redução:</b>
-          <code>redução = 978,62 - (0,133145 × base IRRF)</code> ·
-          <code>IRRF_final = IRRF_base - redução</code>.
-        </div>
-        <div style="margin-top:.2rem">Dedução por dependente: R$ 189,59 · Limite mensal do desconto simplificado: R$ 607,20 · Rendimentos previdenciários isentos (65+): R$ 1.903,98.</div>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<!-- ALTERAR SENHA PAGE -->
-<div id="pg-senha" style="display:none;padding:1.5rem;max-width:680px;margin:0 auto;">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
-    <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800"><svg class="ico"><use href="#i-lock"/></svg> Alterar Senha</div>
-    <button class="hbtn solid" onclick="showMain()"><svg class="ico"><use href="#i-back"/></svg> Voltar</button>
-  </div>
-  <div class="card" style="padding:1rem">
-    <div class="fg" style="display:grid;gap:.75rem">
       <div class="field">
-        <label>Senha atual</label>
-        <input type="password" id="senha-atual" placeholder="Digite a senha atual">
+        <label>Faltas não justificadas</label>
+        <input type="number" id="f-ferias-faltas" min="0" step="1" placeholder="0" oninput="calc()">
       </div>
+
       <div class="field">
-        <label>Nova senha</label>
-        <input type="password" id="senha-nova" placeholder="Digite a nova senha">
+        <label>Média Horas (R$)</label>
+        <input type="text" id="f-ferias-media-horas" inputmode="decimal" placeholder="R$ 0,00" onfocus="prepareCurrencyField(this)" oninput="calc()" onblur="formatCurrencyField(this);calc()">
       </div>
+
       <div class="field">
-        <label>Confirmar nova senha</label>
-        <input type="password" id="senha-confirma" placeholder="Confirme a nova senha">
+        <label>Média Valores (R$)</label>
+        <input type="text" id="f-ferias-media-valores" inputmode="decimal" placeholder="R$ 0,00" onfocus="prepareCurrencyField(this)" oninput="calc()" onblur="formatCurrencyField(this);calc()">
       </div>
-      <div style="display:flex;gap:.5rem;margin-top:.25rem">
-        <button class="abtn primary" onclick="salvarNovaSenha()">Salvar senha</button>
-        <button class="abtn outline" onclick="showMain()">Cancelar</button>
+
+      <div class="field">
+        <label>Outras Vantagens (R$)</label>
+        <input type="text" id="f-ferias-outras" inputmode="decimal" placeholder="R$ 0,00" onfocus="prepareCurrencyField(this)" oninput="calc()" onblur="formatCurrencyField(this);calc()">
+      </div>
+
+      <div class="field">
+        <label>Abono de Férias (R$)</label>
+        <input type="text" id="f-ferias-abono" inputmode="decimal" placeholder="R$ 0,00" onfocus="prepareCurrencyField(this)" oninput="calc()" onblur="formatCurrencyField(this);calc()">
+      </div>
+
+      <div class="field">
+        <label>Salário Família (R$)</label>
+        <input type="text" id="f-ferias-sal-familia" inputmode="decimal" placeholder="R$ 0,00" onfocus="prepareCurrencyField(this)" oninput="calc()" onblur="formatCurrencyField(this);calc()">
       </div>
     </div>
   </div>
 </div>
-
-<div class="toast" id="toast"></div>
-
-<script src="app.js?v=20260406-02"></script>
-
-</body>
-</html>
-
+ 
   <!-- VERBAS -->
   <div class="form-section section-verbas">
     <div class="sec-title">
