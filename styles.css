@@ -1615,8 +1615,8 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   border-right: 1px solid #111;
   border-top: none;
   border-bottom: none;
-  min-height: 130px;
-  padding: 26px 14px 12px 14px;
+  min-height: 82px;
+  padding: 20px 14px 8px 14px;
   font-size: 12px;
   line-height: 1.14;
   text-align: justify;
