@@ -2036,6 +2036,149 @@ function getData() {
   };
 }
 
+let feriasRangePicker = null;
+
+function formatDateBRFromInput(dateStr) {
+  if (!dateStr) return '';
+  const [y, m, d] = dateStr.split('-');
+  if (!y || !m || !d) return '';
+  return `${d}/${m}/${y}`;
+}
+
+function inputDateToDate(dateStr) {
+  if (!dateStr) return null;
+  const dt = new Date(dateStr + 'T00:00:00');
+  return Number.isNaN(dt.getTime()) ? null : dt;
+}
+
+function dateToInputValue(dt) {
+  if (!(dt instanceof Date) || Number.isNaN(dt.getTime())) return '';
+  const y = dt.getFullYear();
+  const m = String(dt.getMonth() + 1).padStart(2, '0');
+  const d = String(dt.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+function addDiasDateInput(dateStr, dias) {
+  const dt = inputDateToDate(dateStr);
+  if (!dt) return '';
+  dt.setDate(dt.getDate() + dias);
+  return dateToInputValue(dt);
+}
+
+function getFeriasMaxDateByFaltas(startDateStr) {
+  const faltas = parseInt(document.getElementById('f-ferias-faltas')?.value, 10) || 0;
+  const diasDireito = getDiasFeriasPorFaltas(faltas);
+
+  if (!startDateStr || diasDireito <= 0) return null;
+
+  return inputDateToDate(addDiasDateInput(startDateStr, diasDireito - 1));
+}
+
+function initFeriasRangePicker() {
+  const rangeEl = document.getElementById('f-ferias-range');
+  const iniEl = document.getElementById('f-ferias-gozo-ini');
+  const fimEl = document.getElementById('f-ferias-gozo-fim');
+
+  if (!rangeEl || !iniEl || !fimEl || typeof flatpickr === 'undefined') return;
+
+  if (feriasRangePicker) {
+    feriasRangePicker.destroy();
+  }
+
+  feriasRangePicker = flatpickr(rangeEl, {
+    mode: 'range',
+    locale: 'pt',
+    dateFormat: 'd/m/Y',
+    showMonths: 2,
+    disableMobile: true,
+    allowInput: false,
+
+    onChange: function(selectedDates) {
+      if (!selectedDates.length) {
+        iniEl.value = '';
+        fimEl.value = '';
+        calc();
+        return;
+      }
+
+      const start = selectedDates[0];
+      const startStr = dateToInputValue(start);
+      const maxDate = getFeriasMaxDateByFaltas(startStr);
+
+      iniEl.value = startStr;
+
+      if (maxDate) {
+        feriasRangePicker.set('maxDate', maxDate);
+      }
+
+      if (selectedDates.length === 2) {
+        const end = selectedDates[1];
+
+        if (maxDate && end > maxDate) {
+          fimEl.value = '';
+          feriasRangePicker.setDate([start], false);
+          toast(`O período selecionado ultrapassa o limite de dias de férias. Escolha até ${formatDateBRFromInput(dateToInputValue(maxDate))}.`, 'err');
+          calc();
+          return;
+        }
+
+        fimEl.value = dateToInputValue(end);
+      } else {
+        fimEl.value = '';
+      }
+
+      calc();
+    },
+
+    onOpen: function(selectedDates) {
+      const startStr = iniEl.value || (selectedDates[0] ? dateToInputValue(selectedDates[0]) : '');
+      const maxDate = getFeriasMaxDateByFaltas(startStr);
+
+      if (maxDate) {
+        feriasRangePicker.set('maxDate', maxDate);
+      } else {
+        feriasRangePicker.set('maxDate', null);
+      }
+    }
+  });
+}
+
+function resetFeriasRangePickerLimit() {
+  const iniEl = document.getElementById('f-ferias-gozo-ini');
+  const fimEl = document.getElementById('f-ferias-gozo-fim');
+
+  if (!feriasRangePicker || !iniEl || !fimEl) {
+    calc();
+    return;
+  }
+
+  const faltas = parseInt(document.getElementById('f-ferias-faltas')?.value, 10) || 0;
+  const diasDireito = getDiasFeriasPorFaltas(faltas);
+
+  if (diasDireito <= 0) {
+    iniEl.value = '';
+    fimEl.value = '';
+    feriasRangePicker.clear();
+    feriasRangePicker.set('maxDate', null);
+    toast('Com mais de 32 faltas injustificadas, há perda do direito às férias.', 'err');
+    calc();
+    return;
+  }
+
+  if (iniEl.value) {
+    const maxDate = getFeriasMaxDateByFaltas(iniEl.value);
+    feriasRangePicker.set('maxDate', maxDate);
+
+    if (fimEl.value && maxDate && inputDateToDate(fimEl.value) > maxDate) {
+      fimEl.value = '';
+      feriasRangePicker.setDate([inputDateToDate(iniEl.value)], false);
+      toast(`Com ${faltas} faltas, o limite é ${diasDireito} dias. Selecione uma data fim até ${formatDateBRFromInput(dateToInputValue(maxDate))}.`, 'err');
+    }
+  }
+
+  calc();
+}
 // ── PREVIEW ──
 function renderPreview() {
   syncDOMtoVerbas();
@@ -3753,3 +3896,7 @@ const irrfBase = Math.max(
     liquido
   };
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  initFeriasRangePicker();
+});
