@@ -1542,3 +1542,133 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   min-width: 780px !important;
   padding: 0 !important;
 }
+
+.recibo-ferias-doc {
+  width: 210mm !important;
+  min-height: 297mm !important;
+  max-width: 210mm !important;
+  margin: 0 auto;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.ferias-doc {
+  width: 190mm;
+  min-height: 277mm;
+  margin: 0 auto;
+  padding: 8mm 10mm;
+  box-sizing: border-box;
+  background: #fff;
+  color: #000;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10px;
+  line-height: 1.25;
+}
+
+.ferias-doc h1 {
+  font-size: 16px;
+  text-align: center;
+  margin: 0 0 8px 0;
+}
+
+.ferias-box-title,
+.ferias-box-subtitle {
+  text-align: center;
+  font-weight: 700;
+  border: 1px solid #000;
+  padding: 4px 6px;
+  margin-top: 6px;
+  margin-bottom: 0;
+}
+
+.ferias-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0;
+  margin-bottom: 6px;
+  table-layout: fixed;
+}
+
+.ferias-table th,
+.ferias-table td {
+  border: 1px solid #000;
+  padding: 4px 5px;
+  font-size: 9px;
+  vertical-align: middle;
+  word-break: break-word;
+}
+
+.ferias-split-title {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-top: 8px;
+}
+
+.ferias-split-title > div {
+  border: 1px solid #000;
+  padding: 4px 6px;
+  text-align: center;
+  font-weight: 700;
+}
+
+.ferias-split-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.ferias-split-body > div {
+  border-left: 1px solid #000;
+  border-right: 1px solid #000;
+  border-bottom: 1px solid #000;
+  padding: 6px;
+}
+
+.ferias-split-body p,
+.ferias-linha {
+  display: grid;
+  grid-template-columns: 1fr auto 24px;
+  gap: 6px;
+  margin: 0 0 4px 0;
+  align-items: center;
+  font-size: 9px;
+}
+
+.ferias-linha.strong {
+  font-weight: 700;
+}
+
+.ferias-total-spacer {
+  height: 6px;
+}
+
+.ferias-texto {
+  margin-top: 10px;
+  text-align: justify;
+  font-size: 9.5px;
+  line-height: 1.35;
+}
+
+.ferias-assinaturas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.ferias-line {
+  border-bottom: 1px solid #000;
+  height: 22px;
+  margin-bottom: 4px;
+}
+
+.ferias-recibo-title {
+  margin-top: 16px;
+}
+
+.ferias-recibo-texto {
+  margin-top: 8px;
+}
+
+.ferias-assinaturas-recibo {
+  margin-top: 16px;
+}
