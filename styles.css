@@ -1642,3 +1642,15 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .ferias-recibo-employee {
   margin-top: 18px;
 }
+
+/* Preview menor apenas para o modelo de férias */
+.preview-side #recibo-doc.recibo-ferias-doc:not(.pdf-render-fixed) {
+  transform: scale(.82);
+  transform-origin: top center;
+  margin-bottom: -190px;
+}
+
+/* Evita precisar deslizar para o lado no preview */
+.preview-side {
+  overflow-x: hidden;
+}
