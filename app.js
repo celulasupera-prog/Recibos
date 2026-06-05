@@ -2286,36 +2286,39 @@ if (d.encs.fgts && d.fgtsVal > 0) {
 
 function buildFeriasHTML(d) {
   const f = d.ferias || {};
+
   const empresa = d.emp || 'Nome da Empresa';
   const cnpj = d.cnpj || '';
   const empregado = d.func || '—';
   const cidade = d.cidade || '';
 
-  const periodoAquisitivo = f.aqIniFmt && f.aqFimFmt
+  const periodoAquisitivo = (f.aqIniFmt && f.aqFimFmt)
     ? `${f.aqIniFmt} A ${f.aqFimFmt}`
     : '';
 
-  const periodoGozo = f.gozoIniFmt && f.gozoFimFmt
-    ? `${f.gozoIniFmt} A ${f.gozoFimFmt} = ${f.diasGozo || 0} Dias`
+  const periodoGozo = (f.gozoIniFmt && f.gozoFimFmt)
+    ? `${f.gozoIniFmt} A ${f.gozoFimFmt}${f.diasGozo ? ` = ${f.diasGozo} Dias` : ''}`
     : '';
+
+  const valorLiquido = fmtN2(f.liquido || 0);
 
   return `
     <div class="ferias-doc">
-      <div class="ferias-topo">
-        <div>${escHtml(empresa)}</div>
-        <div><strong>CNPJ: ${escHtml(cnpj)}</strong></div>
+      <div class="ferias-header-top">
+        <div class="ferias-empresa">${escHtml(empresa)}</div>
+        <div class="ferias-cnpj"><strong>CNPJ: ${escHtml(cnpj)}</strong></div>
       </div>
 
-      <h1>AVISO E RECIBO DE FÉRIAS</h1>
+      <div class="ferias-main-title">AVISO E RECIBO DE FÉRIAS</div>
 
-      <div class="ferias-box-title">AVISO PRÉVIO DE FÉRIAS</div>
-      <div class="ferias-box-title ferias-box-subtitle">NOTIFICAÇÃO</div>
+      <div class="ferias-bar">AVISO PRÉVIO DE FÉRIAS</div>
+      <div class="ferias-bar ferias-bar-sub">NOTIFICAÇÃO</div>
 
-      <table class="ferias-table">
+      <table class="ferias-table ferias-table-head">
         <tr>
           <th>Nome do empregado</th>
-          <th style="width:180px">Número Carteira Profissional</th>
-          <th style="width:90px">Série</th>
+          <th style="width:175px">Número Carteira Profissional</th>
+          <th style="width:80px">Série</th>
         </tr>
         <tr>
           <td>${escHtml(empregado)}</td>
@@ -2324,9 +2327,9 @@ function buildFeriasHTML(d) {
         </tr>
       </table>
 
-      <div class="ferias-box-title">PERÍODOS</div>
+      <div class="ferias-bar">PERÍODOS</div>
 
-      <table class="ferias-table">
+      <table class="ferias-table ferias-table-periodos">
         <tr>
           <th>De Aquisição</th>
           <th>De Gozo das Férias</th>
@@ -2337,38 +2340,38 @@ function buildFeriasHTML(d) {
           <td>${escHtml(periodoAquisitivo)}</td>
           <td>${escHtml(periodoGozo)}</td>
           <td></td>
-          <td>${f.abono > 0 ? 'Sim' : ''}</td>
+          <td></td>
         </tr>
       </table>
 
-      <div class="ferias-split-title">
+      <div class="ferias-grid-title">
         <div>BASE PARA CÁLCULO</div>
         <div>PROVENTOS E DESCONTOS</div>
       </div>
 
-      <div class="ferias-split-body">
-        <div>
-          <p><span>Faltas não justificadas:</span><b>${String(f.faltas || 0).padStart(2, '0')}</b></p>
-          <p><span>Salário Base:</span><b>${fmtN2(f.salarioBase)}</b></p>
-          <p><span>Média Horas:</span><b>${fmtN2(f.mediaHoras)}</b></p>
-          <p><span>Média Valores:</span><b>${fmtN2(f.mediaValores)}</b></p>
-          <p><span>Outras Vantagens:</span><b>${fmtN2(f.outras)}</b></p>
-          <p><span>TOTAL BASE CALCULO:</span><b>${fmtN2(f.totalBase)}</b></p>
+      <div class="ferias-grid-body">
+        <div class="ferias-col-base">
+          <div class="ferias-base-line"><span>Faltas não justificadas:</span><b>${String(f.faltas || 0).padStart(2, '0')}</b></div>
+          <div class="ferias-base-line"><span>Salário Base:</span><b>${fmtN2(f.salarioBase || 0)}</b></div>
+          <div class="ferias-base-line"><span>Média Horas:</span><b>${fmtN2(f.mediaHoras || 0)}</b></div>
+          <div class="ferias-base-line"><span>Média Valores:</span><b>${fmtN2(f.mediaValores || 0)}</b></div>
+          <div class="ferias-base-line"><span>Outras Vantagens:</span><b>${fmtN2(f.outras || 0)}</b></div>
+          <div class="ferias-base-line ferias-base-total"><span>TOTAL BASE CALCULO:</span><b>${fmtN2(f.totalBase || 0)}</b></div>
         </div>
 
-        <div>
+        <div class="ferias-col-proventos">
           ${feriasLinha('Férias:', f.ferias, 'P')}
           ${feriasLinha('1/3 das Férias:', f.tercoFerias, 'P')}
-          ${feriasLinha('Abono de Férias:', f.abono, 'P')}
-          ${feriasLinha('1/3 do Abono de Férias:', f.tercoAbono, 'P')}
+          ${feriasLinha('Abono de Férias:', f.abono, '')}
+          ${feriasLinha('1/3 do Abono de Férias:', f.tercoAbono, '')}
           ${feriasLinha('Adicional do Dobro das Férias:', 0, '')}
           ${feriasLinha('1/3 do Dobro das Férias:', 0, '')}
-          ${feriasLinha('Salário Família:', f.salarioFamilia, 'P')}
+          ${feriasLinha('Salário Família:', f.salarioFamilia, '')}
           ${feriasLinha('1ª Parcela 13º Salário:', 0, '')}
           ${feriasLinha('Desconto da Previdência:', f.inssVal, 'D')}
           ${feriasLinha('Desconto do imposto de Renda:', f.irrfVal, 'D')}
 
-          <div class="ferias-total-spacer"></div>
+          <div class="ferias-proventos-gap"></div>
 
           ${feriasLinha('TOTAL DOS PROVENTOS:', f.totalProventos, 'P', true)}
           ${feriasLinha('TOTAL DOS DESCONTOS:', f.totalDescontos, 'D', true)}
@@ -2376,42 +2379,54 @@ function buildFeriasHTML(d) {
         </div>
       </div>
 
-      <div class="ferias-texto">
-        Pelo presente comunicamos-lhe que, de acordo com a Lei, ser-lhe-ão concedidas férias relativas ao período acima descrito e a sua disposição fica a importância líquida de R$ ${fmtN2(f.liquido)} a ser paga adiantadamente.
+      <div class="ferias-text-block">
+        Pelo presente comunicamos-lhe que, de acordo com a Lei, ser-lhe-ão concedidas férias relativas ao período acima descrito e a sua disposição fica a importância líquida de R$ ${valorLiquido} a ser paga adiantadamente.
       </div>
 
-      <div class="ferias-assinaturas">
-        <div>
-          <p>CIENTE,</p>
-          <div class="ferias-line"></div>
-          <span>${escHtml(empregado)}</span>
+      <div class="ferias-sign-box">
+        <div class="ferias-sign-left">
+          <div class="ferias-sign-label-top">CIENTE,</div>
+          <div class="ferias-sign-line"></div>
+          <div class="ferias-sign-name">${escHtml(empregado)}</div>
         </div>
 
-        <div>
-          <p class="ferias-data-aviso">Data: ${escHtml(f.dataAvisoFmt || '')}</p>
-          <div class="ferias-line"></div>
-          <span>${escHtml(empresa)}</span>
-        </div>
-      </div>
-
-      <div class="ferias-box-title ferias-recibo-title">RECIBO DE FÉRIAS</div>
-
-      <div class="ferias-texto ferias-recibo-texto">
-        Recebi da firma ${escHtml(empresa)}, estabelecida em ${escHtml(cidade)}, a importância de R$ ${fmtN2(f.liquido)} paga adiantadamente por motivo das minhas férias regulares, ora concedidas e que vou gozar de acordo com a descrição acima, tudo conforme o aviso que recebi em tempo, ao qual dei meu ciente. Para clareza e documento firmo o presente recibo dando plena e geral quitação.
-      </div>
-
-      <div class="ferias-assinaturas ferias-assinaturas-recibo">
-        <div>
-          <p>Data: ${escHtml(f.dataReciboFmt || '')}</p>
-          <p>${escHtml(cidade)}</p>
-        </div>
-
-        <div>
-          <div class="ferias-line"></div>
-          <p>CNPJ: ${escHtml(cnpj)}</p>
-          <p>${escHtml(empregado)}</p>
+        <div class="ferias-sign-right">
+          <div class="ferias-sign-date">Data: ${escHtml(f.dataAvisoFmt || '')}</div>
+          <div class="ferias-sign-line"></div>
+          <div class="ferias-sign-name">${escHtml(empresa)}</div>
         </div>
       </div>
+
+      <div class="ferias-recibo-wrap">
+        <div class="ferias-bar ferias-recibo-title">RECIBO DE FÉRIAS</div>
+
+        <div class="ferias-recibo-text">
+          Recebi da firma ${escHtml(empresa)}, estabelecida em ${escHtml(cidade)}, a importância de R$ ${valorLiquido} que me é paga adiantadamente por motivo das minhas férias regulares, ora concedidas e que vou gozar de acordo com a descrição acima, tudo conforme o aviso que recebi em tempo, ao qual dei meu ciente. Para clareza e documento firmo o presente recibo dando plena e geral quitação.
+        </div>
+
+        <div class="ferias-recibo-signatures">
+          <div class="ferias-recibo-sign-left">
+            <div>Data: ${escHtml(f.dataReciboFmt || '')}</div>
+            <div>${escHtml(cidade)}</div>
+          </div>
+
+          <div class="ferias-recibo-sign-right">
+            <div class="ferias-sign-line"></div>
+            <div>CNPJ: ${escHtml(cnpj)}</div>
+            <div class="ferias-recibo-employee">${escHtml(empregado)}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function feriasLinha(label, valor, tipo = '', strong = false) {
+  return `
+    <div class="ferias-prov-line${strong ? ' strong' : ''}">
+      <span>${escHtml(label)}</span>
+      <b>${fmtN2(valor || 0)}</b>
+      <em>${escHtml(tipo || '')}</em>
     </div>
   `;
 }
@@ -2499,15 +2514,17 @@ async function gerarPDF() {
 
   try {
     const canvas = await html2canvas(printWrap, {
-      scale: 2.5,
-      useCORS: true,
-      backgroundColor: '#ffffff',
-      logging: false,
-      width: renderWidth,
-      windowWidth: renderWidth,
-      scrollX: 0,
-      scrollY: 0
-    });
+  scale: isFerias ? 2.6 : 3,
+  useCORS: true,
+  backgroundColor: '#ffffff',
+  logging: false,
+  width: renderWidth,
+  height: isFerias ? renderHeight : undefined,
+  windowWidth: renderWidth,
+  windowHeight: isFerias ? renderHeight : undefined,
+  scrollX: 0,
+  scrollY: 0
+});
 
     const imgData = canvas.toDataURL('image/png');
     const { jsPDF } = window.jspdf;
@@ -2516,41 +2533,27 @@ async function gerarPDF() {
     const pageW = 210;
     const pageH = 297;
 
-    if (isFerias) {
-      const maxW = 200;
-      const maxH = 287;
+   if (isFerias) {
+  doc.addImage(imgData, 'PNG', 0, 0, 210, 297);
+} else {
+  const marginX = 5;
+  const marginY = 5;
+  const imgW = pageW - marginX * 2;
+  const imgH = canvas.height * imgW / canvas.width;
 
-      let imgW = maxW;
-      let imgH = canvas.height * imgW / canvas.width;
+  if (imgH <= pageH - marginY * 2) {
+    doc.addImage(imgData, 'PNG', marginX, marginY, imgW, imgH);
+  } else {
+    let yPos = 0;
+    const printableH = pageH - marginY * 2;
 
-      if (imgH > maxH) {
-        imgH = maxH;
-        imgW = canvas.width * imgH / canvas.height;
-      }
-
-      const x = (pageW - imgW) / 2;
-      const y = (pageH - imgH) / 2;
-
-      doc.addImage(imgData, 'PNG', x, y, imgW, imgH);
-    } else {
-      const marginX = 5;
-      const marginY = 5;
-      const imgW = pageW - marginX * 2;
-      const imgH = canvas.height * imgW / canvas.width;
-
-      if (imgH <= pageH - marginY * 2) {
-        doc.addImage(imgData, 'PNG', marginX, marginY, imgW, imgH);
-      } else {
-        let yPos = 0;
-        const printableH = pageH - marginY * 2;
-
-        while (yPos < imgH) {
-          if (yPos > 0) doc.addPage();
-          doc.addImage(imgData, 'PNG', marginX, marginY - yPos, imgW, imgH);
-          yPos += printableH;
-        }
-      }
+    while (yPos < imgH) {
+      if (yPos > 0) doc.addPage();
+      doc.addImage(imgData, 'PNG', marginX, marginY - yPos, imgW, imgH);
+      yPos += printableH;
     }
+  }
+}
 
     const fname = `recibo-${(d.func || 'funcionario').replace(/ /g, '-').toLowerCase()}-${(d.comp || '').replace(/ /g, '-')}.pdf`;
     doc.save(fname);
