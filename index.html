@@ -288,6 +288,296 @@
     </div>
   </div>
 
+  <!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emissor de Recibos</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inconsolata:wght@400;500;600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<link rel="stylesheet" href="styles.css">
+
+</head>
+<body>
+<svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+  <symbol id="i-user" viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm0 2c-3.3 0-6 2.2-6 5v1h12v-1c0-2.8-2.7-5-6-5z" fill="currentColor"/></symbol>
+  <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 20h16v-2h-1V4H5v14H4zm4-2H7v-2h1zm0-4H7v-2h1zm0-4H7V8h1zm4 8h-2v-2h2zm0-4h-2v-2h2zm0-4h-2V8h2zm4 8h-2v-2h2zm0-4h-2v-2h2zm0-4h-2V8h2z" fill="currentColor"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><path d="M7 2h2v2h6V2h2v2h3v18H4V4h3zm11 8H6v10h12z" fill="currentColor"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><path d="m21 13-.1-2-2-.7a6.9 6.9 0 0 0-.6-1.5l1.1-1.8-1.4-1.4-1.8 1.1a6.9 6.9 0 0 0-1.5-.6L13 3h-2l-.7 2.1a6.9 6.9 0 0 0-1.5.6L7 4.6 5.6 6l1.1 1.8a6.9 6.9 0 0 0-.6 1.5L4 10v2l2.1.7a6.9 6.9 0 0 0 .6 1.5L5.6 16l1.4 1.4 1.8-1.1a6.9 6.9 0 0 0 1.5.6L11 19h2l.7-2.1a6.9 6.9 0 0 0 1.5-.6l1.8 1.1 1.4-1.4-1.1-1.8a6.9 6.9 0 0 0 .6-1.5L21 13zm-9-4a3 3 0 1 1 0 6 3 3 0 0 1 0-6z" fill="currentColor"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 2 4 5v6c0 5.2 3.3 9.8 8 11 4.7-1.2 8-5.8 8-11V5z" fill="currentColor"/></symbol>
+  <symbol id="i-logout" viewBox="0 0 24 24"><path d="M10 3H4v18h6v-2H6V5h4zm1 4v3h7.2l-2.6-2.6L17 6l5 5-5 5-1.4-1.4 2.6-2.6H11v3H9V7z" fill="currentColor"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z" fill="currentColor"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="m13.5 5-7 7 7 7 1.4-1.4L10.3 13H20v-2h-9.7l4.6-4.6z" fill="currentColor"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><path d="M17 9V7a5 5 0 0 0-10 0v2H5v12h14V9zm-8 0V7a3 3 0 1 1 6 0v2z" fill="currentColor"/></symbol>
+  <symbol id="i-save" viewBox="0 0 24 24"><path d="M5 3h12l4 4v14H3V3zm2 2v14h10v-6H7V5zm8 0H9v4h6z" fill="currentColor"/></symbol>
+  <symbol id="i-clear" viewBox="0 0 24 24"><path d="m18.3 5.7-12.6 12.6-1.4-1.4L16.9 4.3zM19 19H8v-2h11z" fill="currentColor"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M11 4h2v8h3l-4 4-4-4h3zm-6 12h14v4H5z" fill="currentColor"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M3 17.2V21h3.8L18.4 9.4l-3.8-3.8L3 17.2zm17.7-10.4c.4-.4.4-1 0-1.4L18.6 3.3c-.4-.4-1-.4-1.4 0L15.3 5.2l3.8 3.8 1.6-1.6z" fill="currentColor"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 6h2v9h-2V9zm4 0h2v9h-2V9zM6 9h2v9H6V9z" fill="currentColor"/></symbol>
+</svg>
+
+<header class="app-header">
+  <button class="app-logo" type="button" onclick="showMain()" title="Ir para Emissão de Recibos">
+    Recibos
+    <img src="assets/jaguar-wordmark.svg" alt="Jaguar">
+  </button>
+  <div style="display:flex;align-items:center;gap:1rem">
+    <div class="user-badge" id="user-badge" style="display:none"><svg class="ico"><use href="#i-user"/></svg> <b id="user-email-badge"></b></div>
+    <div class="hbtns">
+  <button class="hbtn ghost" onclick="showMain()" id="btn-recibo" style="display:none">
+    <svg class="ico"><use href="#i-edit"/></svg> Recibo
+  </button>
+
+  <button class="hbtn ghost" onclick="showHist()">Histórico</button>
+
+  <button class="hbtn solid" onclick="novoRecibo()">
+    <svg class="ico"><use href="#i-plus"/></svg> Novo
+  </button>
+
+  <div class="header-menu-wrap" id="header-menu-wrap" style="display:none">
+  <button class="hbtn ghost header-menu-trigger" type="button" onclick="toggleHeaderMenu(event)" title="Configurações">
+    <svg class="ico"><use href="#i-gear"/></svg>
+  </button>
+  
+  <div class="header-menu" id="header-menu">
+    <button class="header-menu-item" onclick="showEmpresas(); closeHeaderMenu()" id="btn-empresas" style="display:none">
+      <svg class="ico"><use href="#i-building"/></svg> Empresas
+    </button>
+
+    <button class="header-menu-item" onclick="showFeriados(); closeHeaderMenu()">
+      <svg class="ico"><use href="#i-calendar"/></svg> Feriados
+    </button>
+
+      <button class="header-menu-item" onclick="showConfig(); closeHeaderMenu()" id="btn-formulas" style="display:none">
+        <svg class="ico"><use href="#i-gear"/></svg> Fórmulas
+      </button>
+
+      <button class="header-menu-item admin" onclick="showAdmin(); closeHeaderMenu()" id="btn-admin" style="display:none">
+        <svg class="ico"><use href="#i-shield"/></svg> Admin
+      </button>
+
+      <button class="header-menu-item" onclick="showSenhaTab(); closeHeaderMenu()" id="btn-change-pass" style="display:none">
+        <svg class="ico"><use href="#i-lock"/></svg> Alterar Senha
+      </button>
+    </div>
+  </div>
+
+  <button class="hbtn ghost" onclick="fazerLogout()" id="btn-logout" style="display:none">
+    <svg class="ico"><use href="#i-logout"/></svg> Sair
+  </button>
+</div>
+</header>
+
+<!-- LOGIN -->
+<div id="pg-login">
+  <div id="sky" aria-hidden="true"><div id="stars"></div></div>
+  <div class="login-overlay" aria-hidden="true"></div>
+  <div class="login-box">
+    <div class="login-logo">Recibos</div>
+    <div class="login-sub">Sistema de emissão de recibos</div>
+    <div class="login-field">
+      <label>Email</label>
+      <input type="email" id="login-email" placeholder="seu@email.com" onkeydown="if(event.key==='Enter')fazerLogin()">
+    </div>
+    <div class="login-field">
+      <label>Senha</label>
+      <input type="password" id="login-senha" placeholder="••••••••" onkeydown="if(event.key==='Enter')fazerLogin()">
+    </div>
+    <label class="login-remember">
+      <input type="checkbox" id="login-remember">
+      <span>Lembrar senha</span>
+    </label>
+    <div class="login-err" id="login-err"></div>
+    <button class="btn-login" onclick="fazerLogin()">Entrar</button>
+  </div>
+</div>
+
+<!-- EMPRESAS PAGE -->
+<div id="pg-empresas">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+    <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800"><svg class="ico"><use href="#i-building"/></svg> Minhas Empresas</div>
+    <div style="display:flex;gap:.5rem;align-itens:center;">
+      <button class="hbtn solid" onclick="showAddEmpresa()"><svg class="ico"><use href="#i-plus"/></svg> Nova Empresa</button>
+      <button class="hbtn solid" onclick="showMain_config()"><svg class="ico"><use href="#i-back"/></svg> Voltar</button>
+    </div>
+  </div>
+  <div id="empresas-list"></div>
+  <div id="emp-verbas-config-modal" class="emp-verbas-modal" style="display:none;" onclick="if(event.target===this)fecharConfigVerbas()">
+    <div id="emp-verbas-config" class="card emp-verbas-modal-card" onclick="event.stopPropagation()">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.75rem;margin-bottom:.5rem">
+        <div>
+          <div style="font-family:'Syne';font-weight:700">Configurar verbas padrão</div>
+          <div id="emp-verbas-empresa-nome" style="font-size:.78rem;color:var(--ink2);margin-top:.2rem"></div>
+        </div>
+        <button class="emp-modal-close-btn" title="Fechar" onclick="fecharConfigVerbas()">✕</button>
+      </div>
+      <div id="emp-verbas-list"></div>
+      <button class="abtn outline" onclick="addVerbaPadrao()">+ Adicionar verba</button>
+      <div style="display:flex;gap:.5rem;margin-top:.75rem">
+        <button id="btnSalvarVerba" class="abtn primary" type="button">Salvar</button>
+        <button id="btnCancelarVerba" class="abtn outline" type="button">Cancelar</button>
+      </div>
+    </div>
+  </div>
+  <div id="emp-verba-selector-modal" class="emp-verbas-modal" style="display:none;" onclick="if(event.target===this)closeVerbaSelectorModal()">
+    <div class="card emp-verba-selector-card" onclick="event.stopPropagation()">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:.75rem;margin-bottom:.75rem">
+        <div style="font-family:'Syne';font-weight:700">Selecionar verbas padrão</div>
+        <button class="emp-modal-close-btn" title="Fechar" onclick="closeVerbaSelectorModal()">✕</button>
+      </div>
+      <div id="emp-verba-selector-list" class="emp-verba-selector-list"></div>
+      <div style="display:flex;justify-content:flex-end;margin-top:.75rem">
+        <button class="abtn primary" onclick="closeVerbaSelectorModal()">Concluir</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form add empresa -->
+  <div id="add-empresa-modal" class="emp-verbas-modal" style="display:none;" onclick="if(event.target===this)closeEmpresaModal()">
+    <div id="add-empresa-form" class="card emp-verbas-modal-card" style="max-width:760px;padding:1.25rem;" onclick="event.stopPropagation()">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem">
+        <div style="font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700">Empresa</div>
+        <button class="emp-modal-close-btn" title="Fechar" onclick="closeEmpresaModal()">✕</button>
+      </div>
+      <div class="fg fg2" style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+        <div class="field" style="grid-column:span 2">
+          <label>Razão Social *</label>
+          <input type="text" id="new-emp-nome" placeholder="Ex: Jaguar Contabilidade Ltda" onblur="this.value = toTitleCaseWords(this.value)">
+        </div>
+        <div class="field" id="new-emp-user-wrap" style="grid-column:span 2;display:none">
+          <label>Usuário responsável *</label>
+          <select id="new-emp-user"></select>
+        </div>
+        <div class="field">
+          <label>CNPJ</label>
+          <input type="text" id="new-emp-cnpj" oninput="this.value = formatCNPJ(this.value)" placeholder="00.000.000/0001-00">
+        </div>
+        <div class="field">
+          <label>Cidade</label>
+          <input type="text" id="new-emp-cidade" list="cidades-sugestoes" placeholder="Ex: Jaguariaíva - PR">
+          <datalist id="cidades-sugestoes"></datalist>
+        </div>
+      </div>
+      <div style="display:flex;gap:.5rem;margin-top:.75rem">
+        <button class="abtn primary" onclick="salvarEmpresa()">Salvar</button>
+        <button class="abtn outline" onclick="closeEmpresaModal()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+  
+<!-- ADMIN PAGE -->
+<div id="pg-admin" style="display:none;padding:1.5rem;max-width:1100px;margin:0 auto;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+    <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800"><svg class="ico"><use href="#i-shield"/></svg> Painel Admin</div>
+    <button class="hbtn solid" onclick="showMain()"><svg class="ico"><use href="#i-back"/></svg> Voltar</button>
+  </div>
+
+  <!-- filtros -->
+  <div style="display:flex;gap:.75rem;margin-bottom:1rem;flex-wrap:wrap;">
+    <div class="field" style="flex:1;min-width:200px">
+      <label>Filtrar por usuário</label>
+      <select id="admin-filter-user" onchange="adminFiltrar()">
+        <option value="">Todos os usuários</option>
+      </select>
+    </div>
+    <div class="field" style="flex:1;min-width:200px">
+      <label>Filtrar por empresa</label>
+      <select id="admin-filter-emp" onchange="adminFiltrar()">
+        <option value="">Todas as empresas</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="admin-stats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.25rem;"></div>
+  <div class="hist-grid" id="admin-hist-grid"></div>
+</div>
+
+<!-- MAIN -->
+<div id="pg-main">
+<div class="workspace">
+
+<!-- ── FORM ── -->
+<div class="form-side" id="form-side">
+<input type="hidden" id="f-cidade">
+
+  <!-- EMPRESA -->
+  <div class="form-section section-empresa">
+    <div class="sec-title">
+  <div class="sec-title-left">
+    <span class="sec-icon">
+      <svg class="ico"><use href="#i-building"/></svg>
+    </span>
+    <span class="sec-title-text">Empresa Pagadora</span>
+  </div>
+  <button type="button" class="sec-collapse-btn" onclick="toggleSection(this)">
+    Recolher
+  </button>
+</div>
+    <div class="card fg">
+      <div class="fg fg2">
+        <div class="field" style="grid-column:span 2">
+          <label>Selecionar Empresa</label>
+          <select id="f-emp-select" onchange="selecionarEmpresa(this.value)">
+            <option value="">— Selecione ou preencha abaixo —</option>
+          </select>
+        </div>
+        <div class="field" style="grid-column:span 2">
+          <label>Razão Social *</label>
+          <input type="text" id="f-emp" placeholder="Ex: Jaguar Contabilidade Ltda" oninput="calc()" onblur="this.value = toTitleCaseWords(this.value); calc()">
+        </div>
+        <div class="field" style="grid-column:span 2">
+          <label>CNPJ</label>
+          <input type="text" id="f-cnpj" oninput="this.value = formatCNPJ(this.value); calc()" placeholder="00.000.000/0001-00">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FUNCIONÁRIO -->
+  <div class="form-section section-funcionario">
+    <div class="sec-title">
+  <div class="sec-title-left">
+    <span class="sec-icon">
+      <svg class="ico"><use href="#i-user"/></svg>
+    </span>
+    <span class="sec-title-text">Funcionário</span>
+  </div>
+  <button type="button" class="sec-collapse-btn" onclick="toggleSection(this)">
+    Recolher
+  </button>
+</div>
+    <div class="card fg">
+      <div class="fg fg2">
+        <div class="field" style="grid-column:span 2">
+          <label>Nome Completo *</label>
+          <input type="text" id="f-func" placeholder="Ex: João da Silva" oninput="calc()" onblur="this.value = toTitleCaseWords(this.value); calc()">
+        </div>
+        <div class="field">
+          <label>Cargo / Função</label>
+          <input type="text" id="f-cargo" placeholder="Contador" oninput="calc()" onblur="this.value = toTitleCaseWords(this.value); calc()">
+        </div>
+        <div class="field">
+          <label>Data Admissão</label>
+          <input type="date" id="f-admissao" oninput="calc()">
+        </div>
+        <div class="field">
+          <label>Tipo</label>
+          <select id="f-tipo" onchange="calc()">
+            <option>Mensalista</option>
+            <option>Horista</option>
+            <option>Diarista</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- COMPETÊNCIA -->
   <div class="form-section section-competencia">
     <div class="sec-title">
@@ -486,6 +776,450 @@
   </div>
 </div>
   </div>
+
+  <!-- VERBAS -->
+  <div class="form-section section-verbas">
+    <div class="sec-title">
+  <div class="sec-title-left">
+    <span class="sec-icon">
+      <svg class="ico"><use href="#i-plus"/></svg>
+    </span>
+    <span class="sec-title-text">Verbas / Lançamentos</span>
+  </div>
+  <button type="button" class="sec-collapse-btn" onclick="toggleSection(this)">
+    Recolher
+  </button>
+</div>
+    <div class="card">
+      <div class="verbas-header">
+        <span>Código</span><span>Descrição</span><span>Referência</span>
+        <span>Vencimentos</span><span>Descontos</span><span></span><span></span>
+      </div>
+      <div id="verbas-list"></div>
+
+      <div style="display:flex;gap:.5rem;margin-top:.6rem;flex-wrap:wrap;">
+        <button class="btn-add-verba" onclick="addVerba('venc')" style="flex:1">+ Vencimento</button>
+        <button class="btn-add-verba" onclick="addVerba('desc')" style="flex:1;border-color:#ffb0a8;color:var(--red)">+ Desconto</button>
+      </div>
+
+      <!-- Lançamentos rápidos -->
+      <div style="margin-top:.75rem;padding-top:.75rem;border-top:1px dashed var(--border);">
+        <div style="font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:.5rem;">Adicionar rapidamente:</div>
+        <div class="hcbtns-quick quick-rubricas-grid">
+          <!-- preenchido dinamicamente por renderQuickAddButtons() -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPCIONAIS: INSS/FGTS/IRRF -->
+  <div class="form-section section-encargos">
+   <div class="sec-title">
+  <div class="sec-title-left">
+    <span class="sec-icon">
+      <svg class="ico"><use href="#i-shield"/></svg>
+    </span>
+    <span class="sec-title-text">Encargos</span>
+  </div>
+  <button type="button" class="sec-collapse-btn" onclick="toggleSection(this)">
+    Recolher
+  </button>
+</div>
+    <div class="card">
+      <div class="toggle-row" onclick="toggleEnc('inss')">
+        <span class="toggle-label">INSS</span>
+        <span class="toggle-badge off" id="badge-inss">Desativado</span>
+      </div>
+      <div class="toggle-content" id="tc-inss">
+        <div class="fg" style="margin-top:.5rem;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.75rem">
+          <div class="field">
+            <label>Alíquota INSS (%)</label>
+            <input type="text" id="f-inss-aliq" class="calc" placeholder="Auto" readonly>
+          </div>
+          <div class="field">
+            <label>INSS Manual (R$)</label>
+            <input type="number" id="f-inss-manual" placeholder="Opcional" step="0.01" oninput="calc()">
+            <div class="field-hint">Se preenchido, substitui o cálculo por alíquota</div>
+          </div>
+          <div class="field">
+            <label>Valor INSS (R$)</label>
+            <input type="text" id="f-inss-val" class="calc" readonly>
+          </div>
+        </div>
+      </div>
+
+      <div class="toggle-row" onclick="toggleEnc('fgts')" style="margin-top:.5rem">
+        <span class="toggle-label">FGTS</span>
+        <span class="toggle-badge off" id="badge-fgts">Desativado</span>
+      </div>
+      <div class="toggle-content" id="tc-fgts">
+        <div class="fg" style="margin-top:.5rem;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.75rem">
+          <div class="field">
+            <label>Base FGTS (R$)</label>
+            <input type="number" id="f-fgts-base" placeholder="Auto" step="0.01" oninput="calc()">
+            <div class="field-hint">Deixe vazio para usar total de vencimentos</div>
+          </div>
+          <div class="field">
+            <label>FGTS do Mês (R$)</label>
+            <input type="text" id="f-fgts-val" class="calc" readonly>
+            <div class="field-hint">8% sobre a base</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="toggle-row" onclick="toggleEnc('irrf')" style="margin-top:.5rem">
+        <span class="toggle-label">IRRF</span>
+        <span class="toggle-badge off" id="badge-irrf">Desativado</span>
+      </div>
+      <div class="toggle-content" id="tc-irrf">
+        <div class="fg fg2" style="margin-top:.5rem">
+          <div class="field">
+            <label>Base IRRF (R$)</label>
+            <input type="number" id="f-irrf-base" placeholder="Auto" step="0.01" oninput="calc()">
+            <div class="field-hint">Auto = Base tributável - maior dedução entre simplificado e (INSS + dependentes)</div>
+          </div>
+          <div class="field">
+            <label>Faixa (%)</label>
+            <input type="text" id="f-irrf-faixa" class="calc" readonly>
+          </div>
+        </div>
+        <div class="fg" style="margin-top:.5rem;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.75rem">
+          <div class="field">
+            <label>Dependentes (IRRF)</label>
+            <input type="number" id="f-irrf-dependentes" min="0" step="1" placeholder="0" oninput="calc()">
+          </div>
+          <div class="field">
+            <label>Dedução Base IRRF (R$)</label>
+            <input type="text" id="f-irrf-deducao" class="calc" readonly>
+          </div>
+          <div class="field">
+            <label>Valor IRRF (R$)</label>
+            <input type="text" id="f-irrf-val" class="calc" readonly>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <div class="action-bar">
+    <button class="abtn outline" onclick="novoRecibo()">Limpar</button>
+    <button class="abtn secondary" onclick="salvar()"><svg class="ico"><use href="#i-save"/></svg> Salvar</button>
+    <button class="abtn primary" onclick="gerarPDF()"><svg class="ico"><use href="#i-download"/></svg> PDF</button>
+  </div>
+
+</div><!-- /form-side -->
+
+<!-- ── PREVIEW ── -->
+<div class="preview-side">
+  <div class="preview-toolbar">
+    <span class="preview-label">Pré-visualização</span>
+    <div class="preview-actions">
+      <button class="btn-preview secondary" onclick="salvar()"><svg class="ico"><use href="#i-save"/></svg> Salvar</button>
+      <button class="btn-preview ghost" onclick="novoRecibo()"><svg class="ico"><use href="#i-clear"/></svg> Limpar</button>
+      <button class="btn-preview primary" onclick="gerarPDF()"><svg class="ico"><use href="#i-download"/></svg> Baixar PDF</button>
+    </div>
+  </div>
+
+  <div class="recibo-doc" id="recibo-doc"></div>
+
+  <!-- TOTAIS -->
+  <div class="form-section section-totais">
+    <div class="sec-title">
+  <div class="sec-title-left">
+    <span class="sec-icon sec-icon-muted">
+      <svg class="ico"><use href="#i-gear"/></svg>
+    </span>
+    <span class="sec-title-text">Totais</span>
+  </div>
+  <button type="button" class="sec-collapse-btn" onclick="toggleSection(this)">
+    Recolher
+  </button>
+</div>
+    <div class="card">
+      <div class="totals-grid">
+        <div class="total-box green">
+          <label>Total Vencimentos</label>
+          <div class="val" id="t-venc">R$ 0,00</div>
+        </div>
+        <div class="total-box red">
+          <label>Total Descontos</label>
+          <div class="val" id="t-desc">R$ 0,00</div>
+        </div>
+        <div class="total-box highlight" style="grid-column:span 2">
+          <label>Valor Líquido</label>
+          <div class="val" id="t-liq">R$ 0,00</div>
+        </div>
+        <div class="total-box">
+          <label>Sal. Base</label>
+          <div class="val" id="t-salbase">R$ 0,00</div>
+        </div>
+        <div class="total-box">
+          <label>Sal. Contr. INSS</label>
+          <div class="val" id="t-salinss">R$ 0,00</div>
+        </div>
+        <div class="total-box">
+          <label>Base Cálc. FGTS</label>
+          <div class="val" id="t-basefgts">R$ 0,00</div>
+        </div>
+        <div class="total-box">
+          <label>FGTS do Mês</label>
+          <div class="val" id="t-fgts">R$ 0,00</div>
+        </div>
+        <div class="total-box">
+          <label>Base Cálc. IRRF</label>
+          <div class="val" id="t-baseirrf">R$ 0,00</div>
+        </div>
+        <div class="total-box">
+          <label>Faixa IRRF</label>
+          <div class="val" id="t-faixairrf">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /workspace -->
+</div><!-- /pg-main -->
+
+<!-- HOLIDAYS -->
+<div id="pg-feriados" class="fer-page" style="display:none">
+  <div class="fer-header">
+    <div class="fer-title">Feriados</div>
+    <button class="fer-back-btn" onclick="showMain()"><svg class="ico"><use href="#i-back"/></svg> Voltar</button>
+  </div>
+
+  <div class="fer-card">
+    <div class="fer-card-label">Cadastrar feriado</div>
+    <div class="fer-grid fer-grid-top">
+      <div class="field fer-field">
+        <label>Contexto</label>
+        <select id="fer-scope" onchange="renderFeriadosPage()">
+          <option value="global">Geral (todos)</option>
+          <option value="cidade">Por cidade</option>
+          <option value="empresa">Por empresa</option>
+        </select>
+      </div>
+      <div class="field fer-field" id="fer-cidade-wrap" style="display:none">
+        <label>Cidade</label>
+        <select id="fer-cidade" onchange="renderFeriadosPage()">
+          <option value="">Selecione a cidade</option>
+        </select>
+      </div>
+      <div class="field fer-field" id="fer-empresa-wrap" style="display:none">
+        <label>Empresa</label>
+        <select id="fer-empresa" onchange="renderFeriadosPage()"></select>
+      </div>
+    </div>
+    <div class="fer-grid fer-grid-bottom">
+      <div class="field fer-field">
+        <label>Data</label>
+        <input type="date" id="fer-data">
+      </div>
+      <div class="field fer-field">
+        <label>Descrição</label>
+        <input id="fer-desc" placeholder="Ex: Tiradentes / Carnaval / Municipal">
+      </div>
+      <button class="fer-add-btn" onclick="addFeriado()">+ Adicionar</button>
+    </div>
+  </div>
+
+  <div class="fer-card">
+    <div class="fer-list-head">
+      <div>Feriados cadastrados — <span id="fer-context-label">Geral</span></div>
+      <span class="fer-badge" id="fer-count-badge">0 feriados</span>
+    </div>
+    <div id="feriados-list" class="fer-list"></div>
+    <div class="fer-note">Os feriados impactam o cálculo automático de Dias Úteis e Dias DSR da competência selecionada.</div>
+  </div>
+
+  <div class="fer-edit-modal" id="fer-edit-modal" style="display:none" onclick="if(event.target===this)cancelarEdicaoFeriado()">
+    <div class="fer-edit-card" id="fer-edit-card">
+      <div class="fer-edit-title">Editar feriado</div>
+      <div class="field fer-field">
+        <label>Data</label>
+        <input type="date" id="fer-edit-data">
+      </div>
+      <div class="field fer-field">
+        <label>Descrição</label>
+        <input id="fer-edit-desc" placeholder="Descrição do feriado">
+      </div>
+      <div class="fer-edit-actions">
+        <button class="fer-edit-btn fer-edit-save" onclick="salvarEdicaoFeriado()">Salvar</button>
+        <button class="fer-edit-btn fer-edit-cancel" onclick="cancelarEdicaoFeriado()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HISTORY -->
+<div id="pg-hist">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
+    <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800">Histórico de Recibos</div>
+      <button class="hbtn solid" onclick="novoRecibo();showMain()"><svg class="ico"><use href="#i-plus"/></svg> Novo Recibo</button>
+  </div>
+  <div class="hist-grid" id="hist-grid"></div>
+</div>
+
+<!-- CONFIG PAGE -->
+<div id="pg-config">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+    <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800"><svg class="ico"><use href="#i-gear"/></svg> Configuração de Fórmulas</div>
+    <div style="display:flex;gap:.5rem">
+      <button class="hbtn ghost" style="background:var(--ink);color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.2)" onclick="showSenhaTab()"><svg class="ico"><use href="#i-lock"/></svg> Alterar Senha</button>
+      <button class="hbtn solid" onclick="showMain_config()"><svg class="ico"><use href="#i-back"/></svg> Voltar</button>
+    </div>
+  </div>
+
+  <div class="config-grid">
+
+    <!-- VERBAS PADRÃO -->
+    <div class="config-card config-full">
+      <div class="config-card-title">
+        Verbas Cadastradas
+        <button class="btn-add-config" style="width:auto;padding:.35rem 1rem" onclick="addConfigVerba()">+ Nova Verba</button>
+      </div>
+      <div class="formula-hint formula-vars-hint" style="line-height:1.5;background:#f3f6ff;border:1px solid #dbe7ff;padding:.45rem .55rem;border-radius:6px">
+        <b style="color:var(--accent)">Variáveis de fórmula:</b>
+        <div class="formula-vars-list">
+          <span class="formula-var-pill">sal</span>
+          <span class="formula-var-pill">salHora</span>
+          <span class="formula-var-pill">salDia</span>
+          <span class="formula-var-pill">ref</span>
+          <span class="formula-var-pill">diasTrab</span>
+          <span class="formula-var-pill">diasMes</span>
+          <span class="formula-var-pill">diasUteis</span>
+          <span class="formula-var-pill">diasDSR</span>
+          <span class="formula-var-pill">totalHE</span>
+        </div>
+        <div style="margin-top:.2rem">Para incluir uma nova rubrica (ex.: HE 60%) no DSR, marque <b>Compõe HE/DSR</b>. Use <b>Compõe IRRF</b> para controlar a base do imposto.</div>
+      </div>
+      <div class="config-table-wrap">
+      <table class="config-table config-verbas-table" style="margin-top:.75rem">
+        <thead><tr>
+          <th style="width:42px"></th>
+          <th style="width:60px">Código</th>
+          <th>Descrição</th>
+          <th style="width:80px">Tipo</th>
+          <th style="width:80px">Ref.</th>
+          <th style="width:95px">Compõe HE/DSR</th>
+          <th style="width:85px">Compõe IRRF</th>
+          <th style="width:85px">Compõe INSS</th>
+          <th style="width:85px">Compõe FGTS</th>
+          <th>Fórmula (Vencimento)</th>
+          <th>Fórmula (Desconto)</th>
+          <th style="width:30px"></th>
+        </tr></thead>
+        <tbody id="config-verbas-body"></tbody>
+      </table>
+      </div>
+    </div>
+
+    <!-- PARÂMETROS GERAIS -->
+    <div class="config-card">
+      <div class="config-card-title">Parâmetros Gerais</div>
+      <table class="config-table">
+        <tbody>
+          <tr><td style="color:var(--ink2);font-size:.78rem">Horas mensais (divisor hora)</td><td><input type="number" id="cfg-horas-mes" value="220" oninput="saveConfig()"></td></tr>
+          <tr><td style="color:var(--ink2);font-size:.78rem">Multiplicador HE 50%</td><td><input type="number" id="cfg-he50-mult" value="1.5" step="0.01" oninput="saveConfig()"></td></tr>
+          <tr><td style="color:var(--ink2);font-size:.78rem">Multiplicador HE 100%</td><td><input type="number" id="cfg-he100-mult" value="2.0" step="0.01" oninput="saveConfig()"></td></tr>
+          <tr><td style="color:var(--ink2);font-size:.78rem">Alíquota FGTS (%)</td><td><input type="number" id="cfg-fgts-aliq" value="8" step="0.01" oninput="saveConfig()"></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- BOTÕES RÁPIDOS -->
+    <div class="config-card">
+      <div class="config-card-title">Botões Rápidos</div>
+      <div class="formula-hint" style="margin-bottom:.5rem">Verbas que aparecem como atalho no formulário</div>
+      <div id="config-quick-list" style="display:flex;flex-direction:column;gap:.4rem;"></div>
+    </div>
+
+    <!-- TABELA INSS 2026 -->
+    <div class="config-card">
+      <div class="config-card-title">Tabela INSS 2026 <span class="config-formula">progressiva</span></div>
+      <table class="config-table">
+        <thead><tr>
+          <th>Faixa Salarial</th>
+          <th style="width:80px;text-align:right">Alíquota</th>
+          <th style="width:110px;text-align:right">Parcela a Deduzir</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>Até R$ 1.621,00</td><td style="text-align:right"><span class="config-badge venc">7,5%</span></td><td style="text-align:right;font-family:'Inconsolata',monospace">—</td></tr>
+          <tr><td>De R$ 1.621,01 até R$ 2.902,84</td><td style="text-align:right"><span class="config-badge venc">9%</span></td><td style="text-align:right;font-family:'Inconsolata',monospace">R$ 24,32</td></tr>
+          <tr><td>De R$ 2.902,85 até R$ 4.354,27</td><td style="text-align:right"><span class="config-badge venc">12%</span></td><td style="text-align:right;font-family:'Inconsolata',monospace">R$ 111,48</td></tr>
+          <tr><td>De R$ 4.354,28 até R$ 8.475,55</td><td style="text-align:right"><span class="config-badge venc">14%</span></td><td style="text-align:right;font-family:'Inconsolata',monospace">R$ 198,59</td></tr>
+        </tbody>
+      </table>
+      <div class="formula-hint" style="margin-top:.5rem">Teto do INSS 2026: R$ 8.475,55 · Máximo: R$ 988,09 · Mínimo: R$ 121,58</div>
+    </div>
+
+    <!-- TABELA IRRF 2026 -->
+    <div class="config-card">
+      <div class="config-card-title">Tabela IRRF 2026 <span class="config-formula">progressiva</span></div>
+      <table class="config-table">
+        <thead><tr>
+          <th>Base de Cálculo</th>
+          <th style="width:70px;text-align:right">Alíquota</th>
+          <th style="width:100px;text-align:right">Dedução</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>Até R$ 2.428,80</td><td style="text-align:right"><span class="config-badge venc">Isento</span></td><td style="text-align:right;font-family:'Inconsolata',monospace">—</td></tr>
+          <tr><td>De R$ 2.428,81 até R$ 2.826,65</td><td style="text-align:right"><span class="config-badge venc">7,5%</span></td><td style="text-align:right;font-family:'Inconsolata',monospace">R$ 182,16</td></tr>
+          <tr><td>De R$ 2.826,66 até R$ 3.751,05</td><td style="text-align:right"><span class="config-badge venc">15%</span></td><td style="text-align:right;font-family:'Inconsolata',monospace">R$ 394,16</td></tr>
+          <tr><td>De R$ 3.751,06 até R$ 4.664,68</td><td style="text-align:right"><span class="config-badge venc">22,5%</span></td><td style="text-align:right;font-family:'Inconsolata',monospace">R$ 675,49</td></tr>
+          <tr><td>Acima de R$ 4.664,68</td><td style="text-align:right"><span class="config-badge desc">27,5%</span></td><td style="text-align:right;font-family:'Inconsolata',monospace">R$ 908,73</td></tr>
+        </tbody>
+      </table>
+      <div class="formula-hint" style="margin-top:.5rem">
+        Rendimentos tributáveis até R$ 5.000,00 possuem redução para zerar o imposto (limite de redução: R$ 312,89). De R$ 5.000,01 até R$ 7.350,00, a redução é decrescente linear até zerar.
+        <div style="margin-top:.2rem">
+          <b>Fórmula usada na redução:</b>
+          <code>redução = 978,62 - (0,133145 × base IRRF)</code> ·
+          <code>IRRF_final = IRRF_base - redução</code>.
+        </div>
+        <div style="margin-top:.2rem">Dedução por dependente: R$ 189,59 · Limite mensal do desconto simplificado: R$ 607,20 · Rendimentos previdenciários isentos (65+): R$ 1.903,98.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ALTERAR SENHA PAGE -->
+<div id="pg-senha" style="display:none;padding:1.5rem;max-width:680px;margin:0 auto;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+    <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800"><svg class="ico"><use href="#i-lock"/></svg> Alterar Senha</div>
+    <button class="hbtn solid" onclick="showMain()"><svg class="ico"><use href="#i-back"/></svg> Voltar</button>
+  </div>
+  <div class="card" style="padding:1rem">
+    <div class="fg" style="display:grid;gap:.75rem">
+      <div class="field">
+        <label>Senha atual</label>
+        <input type="password" id="senha-atual" placeholder="Digite a senha atual">
+      </div>
+      <div class="field">
+        <label>Nova senha</label>
+        <input type="password" id="senha-nova" placeholder="Digite a nova senha">
+      </div>
+      <div class="field">
+        <label>Confirmar nova senha</label>
+        <input type="password" id="senha-confirma" placeholder="Confirme a nova senha">
+      </div>
+      <div style="display:flex;gap:.5rem;margin-top:.25rem">
+        <button class="abtn primary" onclick="salvarNovaSenha()">Salvar senha</button>
+        <button class="abtn outline" onclick="showMain()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="app.js?v=20260406-02"></script>
+
+</body>
+</html>
 
   <!-- VERBAS -->
   <div class="form-section section-verbas">
