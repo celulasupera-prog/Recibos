@@ -2452,7 +2452,15 @@ async function gerarPDF() {
 
   const printWrap = document.createElement('div');
   printWrap.className = 'recibo-doc pdf-render-fixed';
+  if (getTipoFolhaKey(d.folha) === 'ferias') {
+  printWrap.innerHTML = buildFeriasHTML(d);
+  printWrap.classList.add('recibo-ferias-doc');
+  printWrap.style.width = '780px';
+  printWrap.style.maxWidth = '780px';
+  printWrap.style.minWidth = '780px';
+    } else {
   printWrap.innerHTML = buildViaHTML(d, 'EMPRESA') + buildViaHTML(d, 'FUNCIONÁRIO');
+  }
 
   Object.assign(printWrap.style, {
     position: 'fixed',
