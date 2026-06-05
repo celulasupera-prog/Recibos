@@ -1095,6 +1095,10 @@ function getTipoFolhaKey(tipoFolha = getTipoFolhaSelecionado()) {
     return 'prolabore';
   }
 
+  if (s.includes('férias') || s.includes('ferias')) {
+    return 'ferias';
+  }
+
   return 'mensal';
 }
 
