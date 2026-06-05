@@ -2431,17 +2431,6 @@ function feriasLinha(label, valor, tipo = '', strong = false) {
   `;
 }
 
-function feriasLinha(label, valor, tipo = '', strong = false) {
-  const cls = strong ? ' strong' : '';
-  return `
-    <p class="ferias-linha${cls}">
-      <span>${escHtml(label)}</span>
-      <b>${fmtN2(valor || 0)}</b>
-      <em>${tipo}</em>
-    </p>
-  `;
-}
-
 function fmtRef(v, tipo, dias) {
   if(tipo==='d') return String(dias)+',00';
   if (v.autoType === 'proLabore') return '';
@@ -2490,6 +2479,7 @@ async function gerarPDF() {
   }
 
   const renderWidth = isFerias ? 794 : 700; // A4 aprox em px @96dpi
+  const renderHeight = isFerias ? 1123 : null;
 
   Object.assign(printWrap.style, {
     position: 'fixed',
