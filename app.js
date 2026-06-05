@@ -2270,6 +2270,36 @@ function abonoEhValidoForaDoGozo(abonoIni, abonoFim) {
   return !periodosSeSobrepoem(abonoIni, abonoFim, gozoIni, gozoFim);
 }
 
+function sameOrAfter(dateA, dateB) {
+  if (!dateA || !dateB) return false;
+  return dateA.getTime() >= dateB.getTime();
+}
+
+function sameOrBefore(dateA, dateB) {
+  if (!dateA || !dateB) return false;
+  return dateA.getTime() <= dateB.getTime();
+}
+
+function dateEstaEntre(date, iniStr, fimStr) {
+  const ini = inputDateToDate(iniStr);
+  const fim = inputDateToDate(fimStr);
+  if (!date || !ini || !fim) return false;
+
+  const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  return sameOrAfter(d, ini) && sameOrBefore(d, fim);
+}
+
+function getAbonoStartDate() {
+  const ini = document.getElementById('f-ferias-abono-ini')?.value || '';
+  return inputDateToDate(ini);
+}
+
+function getAbonoMaxDateByStart() {
+  const ini = document.getElementById('f-ferias-abono-ini')?.value || '';
+  if (!ini) return null;
+  return inputDateToDate(addDiasDateInput(ini, 9)); // 10 dias contando o início
+}
+
 function initFeriasAbonoPicker() {
   const rangeEl = document.getElementById('f-ferias-abono-range');
   const iniEl = document.getElementById('f-ferias-abono-ini');
@@ -2289,15 +2319,38 @@ function initFeriasAbonoPicker() {
     disableMobile: true,
     allowInput: false,
 
+    disable: [
+      function(date) {
+        const gozoIni = document.getElementById('f-ferias-gozo-ini')?.value || '';
+        const gozoFim = document.getElementById('f-ferias-gozo-fim')?.value || '';
+
+        // bloqueia visualmente qualquer dia dentro do período de gozo
+        return dateEstaEntre(date, gozoIni, gozoFim);
+      }
+    ],
+
     onOpen: function() {
-      feriasAbonoPicker.set('minDate', null);
-      feriasAbonoPicker.set('maxDate', null);
+      const startDate = getAbonoStartDate();
+      const maxDate = getAbonoMaxDateByStart();
+
+      if (startDate && maxDate) {
+        feriasAbonoPicker.set('minDate', startDate);
+        feriasAbonoPicker.set('maxDate', maxDate);
+      } else {
+        feriasAbonoPicker.set('minDate', null);
+        feriasAbonoPicker.set('maxDate', null);
+      }
+
+      feriasAbonoPicker.redraw();
     },
 
     onChange: function(selectedDates) {
       if (!selectedDates.length) {
         iniEl.value = '';
         fimEl.value = '';
+        feriasAbonoPicker.set('minDate', null);
+        feriasAbonoPicker.set('maxDate', null);
+        feriasAbonoPicker.redraw();
         calc();
         return;
       }
@@ -2312,13 +2365,18 @@ function initFeriasAbonoPicker() {
         iniEl.value = '';
         fimEl.value = '';
         feriasAbonoPicker.clear();
+        feriasAbonoPicker.set('minDate', null);
+        feriasAbonoPicker.set('maxDate', null);
+        feriasAbonoPicker.redraw();
         toast('O período de abono não pode cair dentro do período de gozo das férias.', 'err');
         calc();
         return;
       }
 
+      // após escolher o início, mostra visualmente o limite de 10 dias
       feriasAbonoPicker.set('minDate', start);
       feriasAbonoPicker.set('maxDate', maxDate);
+      feriasAbonoPicker.redraw();
 
       if (selectedDates.length === 2) {
         const end = selectedDates[1];
@@ -2354,6 +2412,35 @@ function initFeriasAbonoPicker() {
       }
 
       calc();
+    },
+
+    onDayCreate: function(dObj, dStr, fp, dayElem) {
+      const date = dayElem.dateObj;
+
+      const gozoIni = document.getElementById('f-ferias-gozo-ini')?.value || '';
+      const gozoFim = document.getElementById('f-ferias-gozo-fim')?.value || '';
+
+      if (dateEstaEntre(date, gozoIni, gozoFim)) {
+        dayElem.classList.add('abono-dia-gozo-bloqueado');
+        dayElem.title = 'Indisponível: período de gozo das férias';
+      }
+
+      const startDate = getAbonoStartDate();
+      const maxDate = getAbonoMaxDateByStart();
+
+      if (startDate && maxDate) {
+        const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+        if (d >= startDate && d <= maxDate && !dateEstaEntre(d, gozoIni, gozoFim)) {
+          dayElem.classList.add('abono-dia-permitido');
+          dayElem.title = 'Disponível dentro do limite de 10 dias';
+        }
+
+        if (d > maxDate) {
+          dayElem.classList.add('abono-dia-fora-limite');
+          dayElem.title = 'Fora do limite de 10 dias de abono';
+        }
+      }
     }
   });
 }
