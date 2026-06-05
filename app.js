@@ -2143,6 +2143,9 @@ function initFeriasRangePicker() {
   }
 
   fimEl.value = dateToInputValue(end);
+
+  if (feriasAbonoPicker) {
+  feriasAbonoPicker.redraw();      
 } else {
         fimEl.value = '';
       }
