@@ -2461,34 +2461,35 @@ async function gerarPDF() {
 
   syncDOMtoVerbas();
   const d = getData();
+  const isFerias = getTipoFolhaKey(d.folha) === 'ferias';
 
   const printWrap = document.createElement('div');
-  printWrap.className = 'recibo-doc pdf-render-fixed';
-  if (getTipoFolhaKey(d.folha) === 'ferias') {
-  printWrap.innerHTML = buildFeriasHTML(d);
-  printWrap.classList.add('recibo-ferias-doc');
-  printWrap.style.width = '780px';
-  printWrap.style.maxWidth = '780px';
-  printWrap.style.minWidth = '780px';
-    } else {
-  printWrap.innerHTML = buildViaHTML(d, 'EMPRESA') + buildViaHTML(d, 'FUNCIONÁRIO');
+  printWrap.className = isFerias
+    ? 'recibo-doc pdf-render-fixed recibo-ferias-doc'
+    : 'recibo-doc pdf-render-fixed';
+
+  if (isFerias) {
+    printWrap.innerHTML = buildFeriasHTML(d);
+  } else {
+    printWrap.innerHTML = buildViaHTML(d, 'EMPRESA') + buildViaHTML(d, 'FUNCIONÁRIO');
   }
+
+  const renderWidth = isFerias ? 794 : 700; // A4 aprox em px @96dpi
 
   Object.assign(printWrap.style, {
     position: 'fixed',
     left: '-10000px',
     top: '0',
-    width: '700px',
-    maxWidth: '700px',
-    minWidth: '700px',
+    width: `${renderWidth}px`,
+    maxWidth: `${renderWidth}px`,
+    minWidth: `${renderWidth}px`,
     background: '#ffffff',
-    padding: '28px 18px 0px 18px',
+    padding: '0',
+    margin: '0',
     boxSizing: 'border-box',
     fontFamily: 'Arial, Helvetica, sans-serif',
-    fontSize: '8pt',
     color: '#000',
     border: 'none',
-    borderBottom: 'none',
     boxShadow: 'none',
     transform: 'none',
     zoom: '1'
@@ -2498,12 +2499,12 @@ async function gerarPDF() {
 
   try {
     const canvas = await html2canvas(printWrap, {
-      scale: 3,
+      scale: 2.5,
       useCORS: true,
       backgroundColor: '#ffffff',
       logging: false,
-      width: 700,
-      windowWidth: 700,
+      width: renderWidth,
+      windowWidth: renderWidth,
       scrollX: 0,
       scrollY: 0
     });
@@ -2515,21 +2516,39 @@ async function gerarPDF() {
     const pageW = 210;
     const pageH = 297;
 
-    const marginX = 5;
-    const marginY = 5;
-    const imgW = pageW - marginX * 2;
-    const imgH = canvas.height * imgW / canvas.width;
+    if (isFerias) {
+      const maxW = 200;
+      const maxH = 287;
 
-    if (imgH <= pageH - marginY * 2) {
-      doc.addImage(imgData, 'PNG', marginX, marginY, imgW, imgH);
+      let imgW = maxW;
+      let imgH = canvas.height * imgW / canvas.width;
+
+      if (imgH > maxH) {
+        imgH = maxH;
+        imgW = canvas.width * imgH / canvas.height;
+      }
+
+      const x = (pageW - imgW) / 2;
+      const y = (pageH - imgH) / 2;
+
+      doc.addImage(imgData, 'PNG', x, y, imgW, imgH);
     } else {
-      let yPos = 0;
-      const printableH = pageH - marginY * 2;
+      const marginX = 5;
+      const marginY = 5;
+      const imgW = pageW - marginX * 2;
+      const imgH = canvas.height * imgW / canvas.width;
 
-      while (yPos < imgH) {
-        if (yPos > 0) doc.addPage();
-        doc.addImage(imgData, 'PNG', marginX, marginY - yPos, imgW, imgH);
-        yPos += printableH;
+      if (imgH <= pageH - marginY * 2) {
+        doc.addImage(imgData, 'PNG', marginX, marginY, imgW, imgH);
+      } else {
+        let yPos = 0;
+        const printableH = pageH - marginY * 2;
+
+        while (yPos < imgH) {
+          if (yPos > 0) doc.addPage();
+          doc.addImage(imgData, 'PNG', marginX, marginY - yPos, imgW, imgH);
+          yPos += printableH;
+        }
       }
     }
 
@@ -2544,6 +2563,7 @@ async function gerarPDF() {
     printWrap.remove();
   }
 }
+
 // ── SUPABASE ──
 const SB_URL = 'https://vexaeculstthppbqmxqj.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZleGFlY3Vsc3R0aHBwYnFteHFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwMzM0NzIsImV4cCI6MjA4OTYwOTQ3Mn0.u-FLKKFarm_oqQeLhdOxx_zVDvDey2cQT209jdU1oQs';
