@@ -1716,3 +1716,31 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .preview-side #recibo-doc.recibo-ferias-doc:not(.pdf-render-fixed) .ferias-table td {
   border-top: none;
 }
+
+/* Ajuste somente no preview: segura os valores da Base de Cálculo dentro da coluna */
+.preview-side #recibo-doc.recibo-ferias-doc:not(.pdf-render-fixed) .ferias-col-base {
+  padding-left: 14px !important;
+  padding-right: 16px !important;
+  overflow: hidden !important;
+}
+
+.preview-side #recibo-doc.recibo-ferias-doc:not(.pdf-render-fixed) .ferias-base-line {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 38px !important;
+  column-gap: 4px !important;
+  align-items: baseline !important;
+}
+
+.preview-side #recibo-doc.recibo-ferias-doc:not(.pdf-render-fixed) .ferias-base-line span {
+  min-width: 0 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+}
+
+.preview-side #recibo-doc.recibo-ferias-doc:not(.pdf-render-fixed) .ferias-base-line b {
+  width: 38px !important;
+  min-width: 38px !important;
+  max-width: 38px !important;
+  text-align: right !important;
+  overflow: hidden !important;
+}
