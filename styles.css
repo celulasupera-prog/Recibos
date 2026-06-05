@@ -1643,14 +1643,22 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   margin-top: 18px;
 }
 
-/* Preview menor apenas para o modelo de férias */
+/* Preview do recibo de férias mais parecido com o recibo normal */
 .preview-side #recibo-doc.recibo-ferias-doc:not(.pdf-render-fixed) {
-  transform: scale(.82);
-  transform-origin: top center;
-  margin-bottom: -190px;
+  width: 700px !important;
+  min-width: 700px !important;
+  max-width: 700px !important;
+  height: auto !important;
+  min-height: auto !important;
+  max-height: none !important;
+  margin-left: 0 !important;
+  margin-right: auto !important;
+  overflow: visible !important;
 }
 
-/* Evita precisar deslizar para o lado no preview */
-.preview-side {
-  overflow-x: hidden;
+.preview-side #recibo-doc.recibo-ferias-doc:not(.pdf-render-fixed) .ferias-doc {
+  width: 100% !important;
+  height: auto !important;
+  min-height: 990px !important;
+  padding: 14px 10px 10px 10px !important;
 }
