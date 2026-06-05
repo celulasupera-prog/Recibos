@@ -571,27 +571,29 @@ function selecionarEmpresa(id) {
       });
   }
   
- // DIAS NORMAIS (fixo)
-if (!verbas.find(v => v.autoType === 'diasnormais')) {
-  addVerbaDiasNormais();
-}
+if (getTipoFolhaKey() !== 'ferias') {
+  // DIAS NORMAIS (fixo)
+  if (!verbas.find(v => v.autoType === 'diasnormais')) {
+    addVerbaDiasNormais();
+  }
 
-// 🔥 DSR FIXO
-if (!verbas.find(v => v.autoType === 'dsrhe')) {
-  verbas.push({
-    id: Date.now() + Math.random(),
-    cod: getConfigCod('dsrhe', '9999'),
-    desc: getConfigDesc('dsrhe', 'DSR SOBRE HORAS EXTRAS'),
-    ref: '',
-    venc: 0,
-    desc2: 0,
-    incideIRRF: true,
-    incideINSS: true,
-    incideFGTS: true,
-    auto: true,
-    autoType: 'dsrhe',
-    tipo: 'venc'
-  });
+  // DSR FIXO
+  if (!verbas.find(v => v.autoType === 'dsrhe')) {
+    verbas.push({
+      id: Date.now() + Math.random(),
+      cod: getConfigCod('dsrhe', '9999'),
+      desc: getConfigDesc('dsrhe', 'DSR SOBRE HORAS EXTRAS'),
+      ref: '',
+      venc: 0,
+      desc2: 0,
+      incideIRRF: true,
+      incideINSS: true,
+      incideFGTS: true,
+      auto: true,
+      autoType: 'dsrhe',
+      tipo: 'venc'
+    });
+  }
 }
   calc();
 }
@@ -1151,6 +1153,11 @@ function syncFolhaModelVerbas() {
     'proLabore'
   ]);
 
+  if (tipoKey === 'ferias') {
+    verbas = verbas.filter(v => !autoTypesControlados.has(v.autoType));
+    return;
+  }
+
   if (tipoKey === 'prolabore') {
     verbas = verbas.filter(v => {
       if (!autoTypesControlados.has(v.autoType)) return true;
@@ -1171,6 +1178,13 @@ function syncFolhaModelVerbas() {
 
     return;
   }
+
+  // Folha Mensal padrão
+  verbas = verbas.filter(v => {
+    if (!autoTypesControlados.has(v.autoType)) return true;
+    return v.autoType === 'diasnormais' || v.autoType === 'dsrhe';
+  });
+}
 
   // Folha Mensal padrão
   verbas = verbas.filter(v => {
@@ -1209,6 +1223,11 @@ function ensureFixedVerbas() {
   ['diasnormais', 'dsrhe', 'proLabore'].forEach(dedupeByAutoType);
 
   const tipoKey = getTipoFolhaKey();
+
+  if (tipoKey === 'ferias') {
+    syncFolhaModelVerbas();
+    return;
+  }
 
   if (tipoKey === 'prolabore') {
     syncFolhaModelVerbas();
