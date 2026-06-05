@@ -1122,7 +1122,7 @@ function getFolhaModelDefs(tipoFolha = getTipoFolhaSelecionado()) {
       return [
         {
           autoType: 'proLabore',
-          cod: '8781',
+          cod: '9380',
           desc: 'PRO LABORE',
           ref: '',
           tipo: 'venc',
