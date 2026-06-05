@@ -1998,7 +1998,9 @@ function getData() {
 
   const admissao = document.getElementById('f-admissao').value;
   const admFmt = admissao ? (() => { const [y,m,d]=admissao.split('-'); return `${d}/${m}/${y}`; })() : '';
-
+  
+  const feriasData = getFeriasData();
+  
   return {
     emp: toTitleCaseWords(document.getElementById('f-emp').value),
     cnpj: document.getElementById('f-cnpj').value,
@@ -2007,6 +2009,7 @@ function getData() {
     cargo: toTitleCaseWords(document.getElementById('f-cargo').value),
     tipo: document.getElementById('f-tipo').value,
     folha: document.getElementById('f-folha').value,
+    ferias: feriasData,
     periodoParcial: !!document.getElementById('f-periodo-parcial')?.checked,
     periodoInicio: document.getElementById('f-periodo-inicio')?.value || '',
     periodoFim: document.getElementById('f-periodo-fim')?.value || '',
@@ -2267,6 +2270,149 @@ if (d.encs.fgts && d.fgtsVal > 0) {
     </div><!-- /via-inner -->
   <div class="via-sep"></div>
 </div>`;
+}
+
+function buildFeriasHTML(d) {
+  const f = d.ferias || {};
+  const empresa = d.emp || 'Nome da Empresa';
+  const cnpj = d.cnpj || '';
+  const empregado = d.func || '—';
+  const cidade = d.cidade || '';
+
+  const periodoAquisitivo = f.aqIniFmt && f.aqFimFmt
+    ? `${f.aqIniFmt} A ${f.aqFimFmt}`
+    : '';
+
+  const periodoGozo = f.gozoIniFmt && f.gozoFimFmt
+    ? `${f.gozoIniFmt} A ${f.gozoFimFmt} = ${f.diasGozo || 0} Dias`
+    : '';
+
+  return `
+    <div class="ferias-doc">
+      <div class="ferias-topo">
+        <div>${escHtml(empresa)}</div>
+        <div><strong>CNPJ: ${escHtml(cnpj)}</strong></div>
+      </div>
+
+      <h1>AVISO E RECIBO DE FÉRIAS</h1>
+
+      <div class="ferias-box-title">AVISO PRÉVIO DE FÉRIAS</div>
+      <div class="ferias-box-title ferias-box-subtitle">NOTIFICAÇÃO</div>
+
+      <table class="ferias-table">
+        <tr>
+          <th>Nome do empregado</th>
+          <th style="width:180px">Número Carteira Profissional</th>
+          <th style="width:90px">Série</th>
+        </tr>
+        <tr>
+          <td>${escHtml(empregado)}</td>
+          <td>${escHtml(f.carteira || '')}</td>
+          <td>${escHtml(f.serie || '')}</td>
+        </tr>
+      </table>
+
+      <div class="ferias-box-title">PERÍODOS</div>
+
+      <table class="ferias-table">
+        <tr>
+          <th>De Aquisição</th>
+          <th>De Gozo das Férias</th>
+          <th>De Gozo da Licença Remunerada</th>
+          <th>De Abono</th>
+        </tr>
+        <tr>
+          <td>${escHtml(periodoAquisitivo)}</td>
+          <td>${escHtml(periodoGozo)}</td>
+          <td></td>
+          <td>${f.abono > 0 ? 'Sim' : ''}</td>
+        </tr>
+      </table>
+
+      <div class="ferias-split-title">
+        <div>BASE PARA CÁLCULO</div>
+        <div>PROVENTOS E DESCONTOS</div>
+      </div>
+
+      <div class="ferias-split-body">
+        <div>
+          <p><span>Faltas não justificadas:</span><b>${String(f.faltas || 0).padStart(2, '0')}</b></p>
+          <p><span>Salário Base:</span><b>${fmtN2(f.salarioBase)}</b></p>
+          <p><span>Média Horas:</span><b>${fmtN2(f.mediaHoras)}</b></p>
+          <p><span>Média Valores:</span><b>${fmtN2(f.mediaValores)}</b></p>
+          <p><span>Outras Vantagens:</span><b>${fmtN2(f.outras)}</b></p>
+          <p><span>TOTAL BASE CALCULO:</span><b>${fmtN2(f.totalBase)}</b></p>
+        </div>
+
+        <div>
+          ${feriasLinha('Férias:', f.ferias, 'P')}
+          ${feriasLinha('1/3 das Férias:', f.tercoFerias, 'P')}
+          ${feriasLinha('Abono de Férias:', f.abono, 'P')}
+          ${feriasLinha('1/3 do Abono de Férias:', f.tercoAbono, 'P')}
+          ${feriasLinha('Adicional do Dobro das Férias:', 0, '')}
+          ${feriasLinha('1/3 do Dobro das Férias:', 0, '')}
+          ${feriasLinha('Salário Família:', f.salarioFamilia, 'P')}
+          ${feriasLinha('1ª Parcela 13º Salário:', 0, '')}
+          ${feriasLinha('Desconto da Previdência:', f.inssVal, 'D')}
+          ${feriasLinha('Desconto do imposto de Renda:', f.irrfVal, 'D')}
+
+          <div class="ferias-total-spacer"></div>
+
+          ${feriasLinha('TOTAL DOS PROVENTOS:', f.totalProventos, 'P', true)}
+          ${feriasLinha('TOTAL DOS DESCONTOS:', f.totalDescontos, 'D', true)}
+          ${feriasLinha('TOTAL LIQUIDO:', f.liquido, 'P', true)}
+        </div>
+      </div>
+
+      <div class="ferias-texto">
+        Pelo presente comunicamos-lhe que, de acordo com a Lei, ser-lhe-ão concedidas férias relativas ao período acima descrito e a sua disposição fica a importância líquida de R$ ${fmtN2(f.liquido)} a ser paga adiantadamente.
+      </div>
+
+      <div class="ferias-assinaturas">
+        <div>
+          <p>CIENTE,</p>
+          <div class="ferias-line"></div>
+          <span>${escHtml(empregado)}</span>
+        </div>
+
+        <div>
+          <p class="ferias-data-aviso">Data: ${escHtml(f.dataAvisoFmt || '')}</p>
+          <div class="ferias-line"></div>
+          <span>${escHtml(empresa)}</span>
+        </div>
+      </div>
+
+      <div class="ferias-box-title ferias-recibo-title">RECIBO DE FÉRIAS</div>
+
+      <div class="ferias-texto ferias-recibo-texto">
+        Recebi da firma ${escHtml(empresa)}, estabelecida em ${escHtml(cidade)}, a importância de R$ ${fmtN2(f.liquido)} paga adiantadamente por motivo das minhas férias regulares, ora concedidas e que vou gozar de acordo com a descrição acima, tudo conforme o aviso que recebi em tempo, ao qual dei meu ciente. Para clareza e documento firmo o presente recibo dando plena e geral quitação.
+      </div>
+
+      <div class="ferias-assinaturas ferias-assinaturas-recibo">
+        <div>
+          <p>Data: ${escHtml(f.dataReciboFmt || '')}</p>
+          <p>${escHtml(cidade)}</p>
+        </div>
+
+        <div>
+          <div class="ferias-line"></div>
+          <p>CNPJ: ${escHtml(cnpj)}</p>
+          <p>${escHtml(empregado)}</p>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function feriasLinha(label, valor, tipo = '', strong = false) {
+  const cls = strong ? ' strong' : '';
+  return `
+    <p class="ferias-linha${cls}">
+      <span>${escHtml(label)}</span>
+      <b>${fmtN2(valor || 0)}</b>
+      <em>${tipo}</em>
+    </p>
+  `;
 }
 
 function fmtRef(v, tipo, dias) {
@@ -3385,4 +3531,105 @@ async function adminDelRec(id) {
   } catch(e) {
     toast('Erro ao excluir!', 'err');
   }
+}
+
+function formatDateBRFromInput(value) {
+  if (!value) return '';
+  const [y, m, d] = String(value).split('-');
+  if (!y || !m || !d) return '';
+  return `${d}/${m}/${y}`;
+}
+
+function calcDiasEntreDatas(inicio, fim) {
+  if (!inicio || !fim) return 0;
+  const a = new Date(inicio + 'T00:00:00');
+  const b = new Date(fim + 'T00:00:00');
+  if (Number.isNaN(a.getTime()) || Number.isNaN(b.getTime())) return 0;
+  const diff = Math.round((b - a) / 86400000) + 1;
+  return Math.max(diff, 0);
+}
+
+function getFeriasData() {
+  const sal = parseN(document.getElementById('f-sal')?.value) || 0;
+
+  const aqIni = document.getElementById('f-ferias-aq-ini')?.value || '';
+  const aqFim = document.getElementById('f-ferias-aq-fim')?.value || '';
+  const gozoIni = document.getElementById('f-ferias-gozo-ini')?.value || '';
+  const gozoFim = document.getElementById('f-ferias-gozo-fim')?.value || '';
+
+  const diasGozo = calcDiasEntreDatas(gozoIni, gozoFim) || 30;
+
+  const faltas = parseInt(document.getElementById('f-ferias-faltas')?.value, 10) || 0;
+  const mediaHoras = parseN(document.getElementById('f-ferias-media-horas')?.value);
+  const mediaValores = parseN(document.getElementById('f-ferias-media-valores')?.value);
+  const outras = parseN(document.getElementById('f-ferias-outras')?.value);
+  const abono = parseN(document.getElementById('f-ferias-abono')?.value);
+  const salarioFamilia = parseN(document.getElementById('f-ferias-sal-familia')?.value);
+
+  const totalBase = roundFiscal(sal + mediaHoras + mediaValores + outras);
+
+  const ferias = roundFiscal((totalBase / 30) * diasGozo);
+  const tercoFerias = roundFiscal(ferias / 3);
+
+  const tercoAbono = roundFiscal(abono / 3);
+
+  const totalProventos = roundFiscal(
+    ferias +
+    tercoFerias +
+    abono +
+    tercoAbono +
+    salarioFamilia
+  );
+
+  const inssCalc = calcINSSProgressivo(totalProventos);
+  const inssVal = inssCalc.valor;
+
+  const deducaoBaseIRRF = Math.max(607.20, inssVal);
+  const irrfBase = Math.max(roundFiscal(totalProventos - salarioFamilia - inssVal - deducaoBaseIRRF), 0);
+  const irrfCalc = calcIRRF(irrfBase, totalProventos);
+  const irrfVal = irrfCalc.val;
+
+  const totalDescontos = roundFiscal(inssVal + irrfVal);
+  const liquido = roundFiscal(totalProventos - totalDescontos);
+
+  return {
+    carteira: document.getElementById('f-ferias-carteira')?.value || '',
+    serie: document.getElementById('f-ferias-serie')?.value || '',
+
+    aqIni,
+    aqFim,
+    aqIniFmt: formatDateBRFromInput(aqIni),
+    aqFimFmt: formatDateBRFromInput(aqFim),
+
+    gozoIni,
+    gozoFim,
+    gozoIniFmt: formatDateBRFromInput(gozoIni),
+    gozoFimFmt: formatDateBRFromInput(gozoFim),
+    diasGozo,
+
+    dataAviso: document.getElementById('f-ferias-aviso')?.value || '',
+    dataAvisoFmt: formatDateBRFromInput(document.getElementById('f-ferias-aviso')?.value || ''),
+
+    dataRecibo: document.getElementById('f-ferias-recibo')?.value || '',
+    dataReciboFmt: formatDateBRFromInput(document.getElementById('f-ferias-recibo')?.value || ''),
+
+    faltas,
+    salarioBase: sal,
+    mediaHoras,
+    mediaValores,
+    outras,
+    totalBase,
+
+    ferias,
+    tercoFerias,
+    abono,
+    tercoAbono,
+    salarioFamilia,
+
+    inssVal,
+    irrfVal,
+    totalProventos,
+    totalDescontos,
+    liquido
+  };
 }
