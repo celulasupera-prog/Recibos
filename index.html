@@ -334,11 +334,10 @@
           <input type="date" id="f-periodo-fim" oninput="applyAutoDiasHE();calc()">
         </div>
       </div>
-    <div class="fg fg2 ferias-extra-fields" id="ferias-extra-fields" style="display:none;grid-column:1/-1">
+  <div class="fg fg2 ferias-extra-fields" id="ferias-extra-fields" style="display:none;grid-column:1/-1">
   <div class="field">
     <label>Período Aquisitivo Início</label>
     <input type="date" id="f-ferias-aq-ini" oninput="calc()">
-    </div>
   </div>
 
   <div class="field">
@@ -376,7 +375,6 @@
     <input type="text" id="f-ferias-serie" placeholder="Ex: 00005" oninput="calc()">
   </div>
 </div>
-  </div>
 
   <!-- BASE DE CÁLCULO -->
   <div class="form-section section-base">
@@ -433,15 +431,37 @@
           <input type="text" id="f-valdias" class="calc" readonly>
         </div>
       </div>
-    <div class="fg fg3 ferias-extra-fields" id="ferias-base-extra-fields" style="display:none;margin-top:.5rem">
+    <div class="fg fg3 ferias-extra-fields" id="ferias-base-extra-fields" style="display:none;grid-column:1/-1;margin-top:.5rem">
   <div class="field">
     <label>Faltas não justificadas</label>
     <input type="number" id="f-ferias-faltas" min="0" step="1" placeholder="0" oninput="calc()">
-    </div>
   </div>
 
   <div class="field">
     <label>Média Horas (R$)</label>
+    <input type="text" id="f-ferias-media-horas" inputmode="decimal" placeholder="R$ 0,00" onfocus="prepareCurrencyField(this)" oninput="calc()" onblur="formatCurrencyField(this);calc()">
+  </div>
+
+  <div class="field">
+    <label>Média Valores (R$)</label>
+    <input type="text" id="f-ferias-media-valores" inputmode="decimal" placeholder="R$ 0,00" onfocus="prepareCurrencyField(this)" oninput="calc()" onblur="formatCurrencyField(this);calc()">
+  </div>
+
+  <div class="field">
+    <label>Outras Vantagens (R$)</label>
+    <input type="text" id="f-ferias-outras" inputmode="decimal" placeholder="R$ 0,00" onfocus="prepareCurrencyField(this)" oninput="calc()" onblur="formatCurrencyField(this);calc()">
+  </div>
+
+  <div class="field">
+    <label>Abono de Férias (R$)</label>
+    <input type="text" id="f-ferias-abono" inputmode="decimal" placeholder="R$ 0,00" onfocus="prepareCurrencyField(this)" oninput="calc()" onblur="formatCurrencyField(this);calc()">
+  </div>
+
+  <div class="field">
+    <label>Salário Família (R$)</label>
+    <input type="text" id="f-ferias-sal-familia" inputmode="decimal" placeholder="R$ 0,00" onfocus="prepareCurrencyField(this)" oninput="calc()" onblur="formatCurrencyField(this);calc()">
+  </div>
+</div>
     <input type="text" id="f-ferias-media-horas" inputmode="decimal" placeholder="R$ 0,00" onfocus="prepareCurrencyField(this)" oninput="calc()" onblur="formatCurrencyField(this);calc()">
   </div>
 
