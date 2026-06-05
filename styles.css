@@ -1684,3 +1684,35 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   min-height: 990px !important;
   padding: 14px 10px 10px 10px !important;
 }
+
+/* Ajuste somente no preview do recibo de férias */
+.preview-side #recibo-doc.recibo-ferias-doc:not(.pdf-render-fixed) .ferias-base-line {
+  display: grid;
+  grid-template-columns: 1fr 44px;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.preview-side #recibo-doc.recibo-ferias-doc:not(.pdf-render-fixed) .ferias-base-line span {
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.preview-side #recibo-doc.recibo-ferias-doc:not(.pdf-render-fixed) .ferias-base-line b {
+  width: 44px;
+  min-width: 0;
+  text-align: right;
+}
+
+.preview-side #recibo-doc.recibo-ferias-doc:not(.pdf-render-fixed) .ferias-col-base {
+  padding-right: 8px;
+  overflow: hidden;
+}
+
+.preview-side #recibo-doc.recibo-ferias-doc:not(.pdf-render-fixed) .ferias-table th {
+  border-bottom: none;
+}
+
+.preview-side #recibo-doc.recibo-ferias-doc:not(.pdf-render-fixed) .ferias-table td {
+  border-top: none;
+}
