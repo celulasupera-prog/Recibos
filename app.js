@@ -1180,6 +1180,12 @@ function syncFolhaModelVerbas() {
 }
 
 function applyTipoFolha() {
+  const tipoKey = getTipoFolhaKey();
+
+  document.querySelectorAll('.ferias-extra-fields').forEach(el => {
+    el.style.display = tipoKey === 'ferias' ? 'grid' : 'none';
+  });
+
   syncFolhaModelVerbas();
   calc();
 }
