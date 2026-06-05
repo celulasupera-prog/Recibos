@@ -474,6 +474,7 @@ async function initApp() {
   setTimeout(() => {
   initFeriasAquisitivoPicker();
   initFeriasRangePicker();
+  initFeriasAbonoPicker();
 }, 0);
 }
 // ── EMPRESAS ──
@@ -2043,6 +2044,7 @@ function getData() {
 
 let feriasRangePicker = null;
 let feriasAquisitivoPicker = null;
+let feriasAbonoPicker = null;
 
 function formatDateBRFromInput(dateStr) {
   if (!dateStr) return '';
@@ -2215,7 +2217,105 @@ function initFeriasAquisitivoPicker() {
     }
   });
 }
-  
+
+function toggleFeriasAbono() {
+  const check = document.getElementById('f-ferias-tem-abono');
+  const wrap = document.getElementById('ferias-abono-range-wrap');
+  const rangeEl = document.getElementById('f-ferias-abono-range');
+  const iniEl = document.getElementById('f-ferias-abono-ini');
+  const fimEl = document.getElementById('f-ferias-abono-fim');
+
+  const ativo = !!check?.checked;
+
+  if (wrap) wrap.style.display = ativo ? 'block' : 'none';
+
+  if (!ativo) {
+    if (rangeEl) rangeEl.value = '';
+    if (iniEl) iniEl.value = '';
+    if (fimEl) fimEl.value = '';
+
+    if (feriasAbonoPicker) {
+      feriasAbonoPicker.clear();
+      feriasAbonoPicker.set('minDate', null);
+      feriasAbonoPicker.set('maxDate', null);
+    }
+  } else {
+    initFeriasAbonoPicker();
+  }
+
+  calc();
+}
+
+function initFeriasAbonoPicker() {
+  const rangeEl = document.getElementById('f-ferias-abono-range');
+  const iniEl = document.getElementById('f-ferias-abono-ini');
+  const fimEl = document.getElementById('f-ferias-abono-fim');
+
+  if (!rangeEl || !iniEl || !fimEl || typeof flatpickr === 'undefined') return;
+
+  if (feriasAbonoPicker) {
+    feriasAbonoPicker.destroy();
+  }
+
+  feriasAbonoPicker = flatpickr(rangeEl, {
+    mode: 'range',
+    locale: 'pt',
+    dateFormat: 'd/m/Y',
+    showMonths: 2,
+    disableMobile: true,
+    allowInput: false,
+
+    onOpen: function() {
+      feriasAbonoPicker.set('minDate', null);
+      feriasAbonoPicker.set('maxDate', null);
+    },
+
+    onChange: function(selectedDates) {
+      if (!selectedDates.length) {
+        iniEl.value = '';
+        fimEl.value = '';
+        calc();
+        return;
+      }
+
+      const start = selectedDates[0];
+      const startStr = dateToInputValue(start);
+      const maxDate = inputDateToDate(addDiasDateInput(startStr, 9)); // máximo 10 dias contando início
+
+      iniEl.value = startStr;
+
+      feriasAbonoPicker.set('minDate', start);
+      feriasAbonoPicker.set('maxDate', maxDate);
+
+      if (selectedDates.length === 2) {
+        const end = selectedDates[1];
+
+        if (end < start) {
+          fimEl.value = '';
+          feriasAbonoPicker.setDate([start], false);
+          toast('A data fim do abono não pode ser anterior à data de início.', 'err');
+          calc();
+          return;
+        }
+
+        if (end > maxDate) {
+          fimEl.value = '';
+          feriasAbonoPicker.setDate([start], false);
+          toast(`O abono pode ter no máximo 10 dias. Escolha até ${formatDateBRFromInput(dateToInputValue(maxDate))}.`, 'err');
+          calc();
+          return;
+        }
+
+        fimEl.value = dateToInputValue(end);
+      } else {
+        fimEl.value = '';
+      }
+
+      calc();
+    }
+  });
+}
+
 function resetFeriasRangePickerLimit() {
   const iniEl = document.getElementById('f-ferias-gozo-ini');
   const fimEl = document.getElementById('f-ferias-gozo-fim');
@@ -2515,6 +2615,10 @@ function buildFeriasHTML(d) {
 
   const periodoGozo = (f.gozoIniFmt && f.gozoFimFmt)
   ? `${f.gozoIniFmt} A ${f.gozoFimFmt}${f.diasFeriasCalc ? ` = ${f.diasFeriasCalc} Dias` : ''}`
+  : '';
+
+  const periodoAbono = (f.abonoIniFmt && f.abonoFimFmt)
+  ? `${f.abonoIniFmt} A ${f.abonoFimFmt}${f.diasAbono ? ` = ${f.diasAbono} Dias` : ''}`
   : '';
 
   const valorLiquido = fmtN2(f.liquido || 0);
@@ -3895,7 +3999,11 @@ function getFeriasData() {
   const mediaHoras = parseN(document.getElementById('f-ferias-media-horas')?.value);
   const mediaValores = parseN(document.getElementById('f-ferias-media-valores')?.value);
   const outras = parseN(document.getElementById('f-ferias-outras')?.value);
-  const abono = parseN(document.getElementById('f-ferias-abono')?.value);
+  const temAbono = !!document.getElementById('f-ferias-tem-abono')?.checked;
+  const abonoIni = document.getElementById('f-ferias-abono-ini')?.value || '';
+  const abonoFim = document.getElementById('f-ferias-abono-fim')?.value || '';
+  const diasAbonoRaw = temAbono ? calcDiasEntreDatas(abonoIni, abonoFim) : 0;
+  const diasAbono = Math.min(Math.max(diasAbonoRaw, 0), 10);
   const salarioFamilia = parseN(document.getElementById('f-ferias-sal-familia')?.value);
 
   const totalBase = roundFiscal(sal + mediaHoras + mediaValores + outras);
@@ -3903,6 +4011,7 @@ function getFeriasData() {
   const ferias = roundFiscal((totalBase / 30) * diasFeriasCalc);
   const tercoFerias = roundFiscal(ferias / 3);
 
+  const abono = roundFiscal((totalBase / 30) * diasAbono);
   const tercoAbono = roundFiscal(abono / 3);
 
   const totalProventos = roundFiscal(
@@ -3951,6 +4060,12 @@ const irrfBase = Math.max(
     dataReciboFmt: formatDateBRFromInput(document.getElementById('f-ferias-recibo')?.value || ''),
 
     faltas,
+    temAbono,
+    abonoIni,
+    abonoFim,
+    abonoIniFmt: formatDateBRFromInput(abonoIni),
+    abonoFimFmt: formatDateBRFromInput(abonoFim),
+    diasAbono,
     salarioBase: sal,
     mediaHoras,
     mediaValores,
@@ -3974,4 +4089,5 @@ const irrfBase = Math.max(
 document.addEventListener('DOMContentLoaded', () => {
   initFeriasAquisitivoPicker();
   initFeriasRangePicker();
+  initFeriasAbonoPicker();
 });
