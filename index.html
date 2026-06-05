@@ -363,17 +363,16 @@
       </div>
 
       <div class="field" style="grid-column:1/-1">
-        <label style="display:flex;align-items:center;gap:.45rem;text-transform:none;font-size:.8rem;letter-spacing:0;color:var(--ink)">
+        <label class="ferias-check-label">
           <input type="checkbox" id="f-ferias-tem-abono" onchange="toggleFeriasAbono()">
-          Terá abono de férias
+          <span>Terá abono de férias</span>
         </label>
-        <div class="field-hint">Marque para selecionar o período do abono.</div>
       </div>
       
-      <div class="field" id="ferias-abono-range-wrap" style="display:none;grid-column:1/-1">
+      <div class="field ferias-abono-field" id="ferias-abono-range-wrap" style="display:none;grid-column:1/-1">
         <label>Período de Abono</label>
         <input type="text" id="f-ferias-abono-range" placeholder="Selecione o período de abono" readonly>
-        <div class="field-hint">O período de abono pode ter no máximo 10 dias.</div>
+        <div class="field-hint">O período de abono pode ter no máximo 10 dias e não pode cair dentro do gozo.</div>
       
         <input type="date" id="f-ferias-abono-ini" hidden>
         <input type="date" id="f-ferias-abono-fim" hidden>
