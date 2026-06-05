@@ -2075,6 +2075,49 @@ function addDiasDateInput(dateStr, dias) {
   return dateToInputValue(dt);
 }
 
+function getPeriodoConcessivoPorAquisitivo(aqFimStr) {
+  if (!aqFimStr) {
+    return { ini: '', fim: '' };
+  }
+
+  const aqFim = inputDateToDate(aqFimStr);
+  if (!aqFim) {
+    return { ini: '', fim: '' };
+  }
+
+  const ini = new Date(aqFim.getFullYear(), aqFim.getMonth(), aqFim.getDate());
+  ini.setDate(ini.getDate() + 1);
+
+  const fim = new Date(ini.getFullYear(), ini.getMonth(), ini.getDate());
+  fim.setFullYear(fim.getFullYear() + 1);
+  fim.setDate(fim.getDate() - 1);
+
+  return {
+    ini: dateToInputValue(ini),
+    fim: dateToInputValue(fim)
+  };
+}
+
+function atualizarPeriodoConcessivoFerias() {
+  const aqFimEl = document.getElementById('f-ferias-aq-fim');
+  const concIniEl = document.getElementById('f-ferias-concessivo-ini');
+  const concFimEl = document.getElementById('f-ferias-concessivo-fim');
+  const concRangeEl = document.getElementById('f-ferias-concessivo-range');
+
+  if (!aqFimEl || !concIniEl || !concFimEl || !concRangeEl) return;
+
+  const periodo = getPeriodoConcessivoPorAquisitivo(aqFimEl.value);
+
+  concIniEl.value = periodo.ini;
+  concFimEl.value = periodo.fim;
+
+  concRangeEl.value = periodo.ini && periodo.fim
+    ? `${formatDateBRFromInput(periodo.ini)} até ${formatDateBRFromInput(periodo.fim)}`
+    : '';
+
+  calc();
+}
+
 function getFeriasMaxDateByFaltas(startDateStr) {
   const faltas = parseInt(document.getElementById('f-ferias-faltas')?.value, 10) || 0;
   const diasDireito = getDiasFeriasPorFaltas(faltas);
@@ -2226,9 +2269,10 @@ function initFeriasAquisitivoPicker() {
 
       iniEl.value = inicioStr;
       fimEl.value = fimStr;
-
+      
       rangeEl.value = `${formatDateBRFromInput(inicioStr)} até ${formatDateBRFromInput(fimStr)}`;
-
+      
+      atualizarPeriodoConcessivoFerias();
       calc();
     }
   });
@@ -2360,14 +2404,13 @@ function initFeriasAbonoPicker() {
 
     onChange: function(selectedDates) {
       if (!selectedDates.length) {
-        iniEl.value = '';
-        fimEl.value = '';
-        feriasAbonoPicker.set('minDate', null);
-        feriasAbonoPicker.set('maxDate', null);
-        feriasAbonoPicker.redraw();
-        calc();
-        return;
-      }
+      iniEl.value = '';
+      fimEl.value = '';
+      rangeEl.value = '';
+      atualizarPeriodoConcessivoFerias();
+      calc();
+      return;
+    }
 
       const start = selectedDates[0];
       const startStr = dateToInputValue(start);
@@ -4130,6 +4173,8 @@ function getFeriasData() {
 
   const aqIni = document.getElementById('f-ferias-aq-ini')?.value || '';
   const aqFim = document.getElementById('f-ferias-aq-fim')?.value || '';
+  const concessivoIni = document.getElementById('f-ferias-concessivo-ini')?.value || '';
+  const concessivoFim = document.getElementById('f-ferias-concessivo-fim')?.value || '';
   const gozoIni = document.getElementById('f-ferias-gozo-ini')?.value || '';
   const gozoFim = document.getElementById('f-ferias-gozo-fim')?.value || '';
 
@@ -4189,6 +4234,12 @@ const irrfBase = Math.max(
     aqIniFmt: formatDateBRFromInput(aqIni),
     aqFimFmt: formatDateBRFromInput(aqFim),
 
+
+    concessivoIni,
+    concessivoFim,
+    concessivoIniFmt: formatDateBRFromInput(concessivoIni),
+    concessivoFimFmt: formatDateBRFromInput(concessivoFim),
+    
     gozoIni,
     gozoFim,
     gozoIniFmt: formatDateBRFromInput(gozoIni),
