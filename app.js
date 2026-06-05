@@ -2118,14 +2118,6 @@ function initFeriasRangePicker() {
       iniEl.value = startStr;
       feriasRangePicker.set('minDate', start);
 
-      if (!abonoEhValidoForaDoGozo(startStr, startStr)) {
-        iniEl.value = '';
-        fimEl.value = '';
-        feriasAbonoPicker.clear();
-        toast('O período de abono não pode cair dentro do período de gozo das férias.', 'err');
-        calc();
-        return;
-      }
       
       if (maxDate) {
         feriasRangePicker.set('maxDate', maxDate);
@@ -2312,15 +2304,25 @@ function initFeriasAbonoPicker() {
 
       const start = selectedDates[0];
       const startStr = dateToInputValue(start);
-      const maxDate = inputDateToDate(addDiasDateInput(startStr, 9)); // máximo 10 dias contando início
+      const maxDate = inputDateToDate(addDiasDateInput(startStr, 9)); // máximo 10 dias contando o início
 
       iniEl.value = startStr;
+
+      if (!abonoEhValidoForaDoGozo(startStr, startStr)) {
+        iniEl.value = '';
+        fimEl.value = '';
+        feriasAbonoPicker.clear();
+        toast('O período de abono não pode cair dentro do período de gozo das férias.', 'err');
+        calc();
+        return;
+      }
 
       feriasAbonoPicker.set('minDate', start);
       feriasAbonoPicker.set('maxDate', maxDate);
 
       if (selectedDates.length === 2) {
         const end = selectedDates[1];
+        const endStr = dateToInputValue(end);
 
         if (end < start) {
           fimEl.value = '';
@@ -2338,18 +2340,15 @@ function initFeriasAbonoPicker() {
           return;
         }
 
-      if (!abonoEhValidoForaDoGozo(startStr, endStr)) {
+        if (!abonoEhValidoForaDoGozo(startStr, endStr)) {
           fimEl.value = '';
           feriasAbonoPicker.setDate([start], false);
           toast('O período de abono deve ficar totalmente antes ou totalmente depois do período de gozo das férias.', 'err');
           calc();
           return;
         }
-      
+
         fimEl.value = endStr;
-      }
-        
-        fimEl.value = dateToInputValue(end);
       } else {
         fimEl.value = '';
       }
