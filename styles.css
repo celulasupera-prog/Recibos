@@ -1535,3 +1535,10 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   min-height: 120px;
   padding-top: 22px;
 }
+
+.pdf-render-fixed.recibo-ferias-doc {
+  width: 780px !important;
+  max-width: 780px !important;
+  min-width: 780px !important;
+  padding: 0 !important;
+}
