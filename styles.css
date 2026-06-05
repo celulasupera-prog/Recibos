@@ -1340,3 +1340,198 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .btn-toggle-recibo.off {
   color: var(--ink3);
 }
+
+.recibo-doc.recibo-ferias-doc {
+  max-width: 780px;
+  width: 100%;
+  background: #fff;
+  padding: 0;
+  border: none;
+  box-shadow: var(--shadow-lg);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.ferias-doc {
+  width: 100%;
+  background: #fff;
+  color: #000;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  padding: 8px;
+}
+
+.ferias-topo {
+  font-size: 14px;
+  line-height: 1.55;
+  margin-bottom: 16px;
+}
+
+.ferias-doc h1 {
+  text-align: center;
+  font-size: 20px;
+  margin: 0 0 14px;
+  font-weight: 700;
+}
+
+.ferias-box-title {
+  border: 1px solid #111;
+  text-align: center;
+  font-weight: 700;
+  padding: 7px 5px;
+  font-size: 17px;
+}
+
+.ferias-box-subtitle {
+  border-top: none;
+}
+
+.ferias-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.ferias-table th,
+.ferias-table td {
+  border: 1px solid #111;
+  padding: 5px 7px;
+  font-size: 12px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.ferias-table th {
+  font-weight: 400;
+  font-size: 10px;
+}
+
+.ferias-split-title {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+}
+
+.ferias-split-title > div {
+  border: 1px solid #111;
+  border-top: none;
+  padding: 7px;
+  text-align: center;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.ferias-split-title > div + div {
+  border-left: none;
+}
+
+.ferias-split-body {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  min-height: 250px;
+}
+
+.ferias-split-body > div {
+  border: 1px solid #111;
+  border-top: none;
+  padding: 20px 12px;
+}
+
+.ferias-split-body > div + div {
+  border-left: none;
+  padding-left: 110px;
+  padding-right: 110px;
+}
+
+.ferias-split-body p {
+  margin: 0 0 6px;
+  font-size: 14px;
+}
+
+.ferias-split-body > div:first-child p {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.ferias-linha {
+  display: grid;
+  grid-template-columns: 1fr 90px 24px;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.ferias-linha span {
+  white-space: nowrap;
+}
+
+.ferias-linha b {
+  text-align: right;
+  font-weight: 400;
+}
+
+.ferias-linha em {
+  font-style: normal;
+  text-align: center;
+}
+
+.ferias-linha.strong b,
+.ferias-linha.strong span {
+  font-weight: 700;
+}
+
+.ferias-total-spacer {
+  height: 26px;
+}
+
+.ferias-texto {
+  border: 1px solid #111;
+  border-top: none;
+  padding: 10px;
+  font-size: 13px;
+  line-height: 1.25;
+  text-align: justify;
+  min-height: 58px;
+}
+
+.ferias-assinaturas {
+  border: 1px solid #111;
+  border-top: none;
+  padding: 16px 10px 24px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 42px;
+  min-height: 170px;
+  align-items: end;
+}
+
+.ferias-assinaturas p {
+  margin: 0 0 12px;
+  font-size: 13px;
+}
+
+.ferias-data-aviso {
+  text-align: right;
+}
+
+.ferias-line {
+  border-bottom: 1px solid #111;
+  height: 1px;
+  margin-bottom: 6px;
+}
+
+.ferias-assinaturas span,
+.ferias-assinaturas p {
+  font-size: 13px;
+}
+
+.ferias-recibo-title {
+  margin-top: 18px;
+}
+
+.ferias-recibo-texto {
+  min-height: 90px;
+  padding: 26px 14px;
+}
+
+.ferias-assinaturas-recibo {
+  min-height: 120px;
+  padding-top: 22px;
+}
