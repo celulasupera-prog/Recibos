@@ -500,6 +500,15 @@
         <label>Salário Família (R$)</label>
         <input type="text" id="f-ferias-sal-familia" inputmode="decimal" placeholder="R$ 0,00" onfocus="prepareCurrencyField(this)" oninput="calc()" onblur="formatCurrencyField(this);calc()">
       </div>
+      
+        <div class="field" style="grid-column:1/-1">
+      <label class="ferias-check-label">
+        <input type="checkbox" id="f-ferias-descontar-inss" checked onchange="calc()">
+        <span>Descontar Previdência / INSS nas férias</span>
+      </label>
+      <div class="field-hint">Desmarque para não descontar INSS neste recibo de férias.</div>
+    </div>
+      
     </div>
   </div>
 </div>
