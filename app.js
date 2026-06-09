@@ -3583,7 +3583,16 @@ function loadRec(id) {
   });
 
   showMain();
-  calc();
+
+  setTimeout(() => {
+    applyTipoFolha();
+  
+    if (getTipoFolhaKey(document.getElementById('f-folha')?.value) === 'ferias') {
+      carregarCamposFeriasDoHistorico(h.ferias || {});
+    }
+  
+    calc();
+  }, 0);
 }
 
 function pdfRec(id){ loadRec(id); setTimeout(gerarPDF,200); }
