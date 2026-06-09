@@ -271,6 +271,7 @@ let verbas = [];
 let encs = { inss: false, fgts: false, irrf: false };
 let hist = JSON.parse(localStorage.getItem('rec_hist_v2') || '[]');
 let editId = null;
+let historicoTipoFiltro = 'todos';
 let currentUser = null;
 let empresasList = [];
 let grupoId = null;
@@ -3504,24 +3505,121 @@ function showFeriados() {
   renderFeriadosPage();
 }
 
+function getHistoricoTipoInfo(folha) {
+  const tipoKey = getTipoFolhaKey(folha);
+
+  if (tipoKey === 'ferias') {
+    return {
+      key: 'ferias',
+      label: 'Férias',
+      badge: 'FÉRIAS',
+      cls: 'hist-badge-ferias'
+    };
+  }
+
+  if (tipoKey === 'prolabore') {
+    return {
+      key: 'prolabore',
+      label: 'Pró-labore',
+      badge: 'PRÓ-LABORE',
+      cls: 'hist-badge-prolabore'
+    };
+  }
+
+  return {
+    key: 'mensal',
+    label: 'Folha Mensal',
+    badge: 'FOLHA',
+    cls: 'hist-badge-mensal'
+  };
+}
+
+function setHistoricoTipoFiltro(tipo) {
+  historicoTipoFiltro = tipo || 'todos';
+  renderHist();
+}
+
 function renderHist() {
   const g = document.getElementById('hist-grid');
-  if(!hist.length){ g.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--ink3)"><b>Nenhum recibo salvo ainda.</b></div>'; return; }
-  g.innerHTML = hist.map(h=>`
-    <div class="hcard">
-      <div class="hc-emp">${h.emp||'—'}</div>
-      <div class="hc-func">${h.func||'—'} · ${h.cargo||'—'}</div>
-      <div class="hc-comp">${h.comp||'—'} · ${h.folha||'—'}</div>
-      <div class="hc-foot">
-        <span class="hc-liq">${fmtBRL(h.liq||0)}</span>
-        <span style="font-size:.7rem;color:var(--ink3)">${fmtBRL(h.totVenc||0)} bruto</span>
+
+  if (!hist.length) {
+    g.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--ink3)"><b>Nenhum recibo salvo ainda.</b></div>';
+    return;
+  }
+
+  const totaisPorTipo = hist.reduce((acc, h) => {
+    const info = getHistoricoTipoInfo(h.folha);
+    acc[info.key] = (acc[info.key] || 0) + 1;
+    return acc;
+  }, {});
+
+  const listaFiltrada = historicoTipoFiltro === 'todos'
+    ? hist
+    : hist.filter(h => getHistoricoTipoInfo(h.folha).key === historicoTipoFiltro);
+
+  const filtrosHTML = `
+    <div class="hist-filter-bar">
+      <button class="hist-filter-btn ${historicoTipoFiltro === 'todos' ? 'active' : ''}" onclick="setHistoricoTipoFiltro('todos')">
+        Todos <span>${hist.length}</span>
+      </button>
+
+      <button class="hist-filter-btn ${historicoTipoFiltro === 'mensal' ? 'active' : ''}" onclick="setHistoricoTipoFiltro('mensal')">
+        Folha Mensal <span>${totaisPorTipo.mensal || 0}</span>
+      </button>
+
+      <button class="hist-filter-btn ${historicoTipoFiltro === 'ferias' ? 'active' : ''}" onclick="setHistoricoTipoFiltro('ferias')">
+        Férias <span>${totaisPorTipo.ferias || 0}</span>
+      </button>
+
+      <button class="hist-filter-btn ${historicoTipoFiltro === 'prolabore' ? 'active' : ''}" onclick="setHistoricoTipoFiltro('prolabore')">
+        Pró-labore <span>${totaisPorTipo.prolabore || 0}</span>
+      </button>
+    </div>
+  `;
+
+  if (!listaFiltrada.length) {
+    g.innerHTML = filtrosHTML + `
+      <div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--ink3)">
+        <b>Nenhum recibo encontrado para este filtro.</b>
       </div>
-      <div class="hc-acts">
-        <button class="hcbtn" onclick="loadRec('${h.id}')">Editar</button>
-        <button class="hcbtn" onclick="pdfRec('${h.id}')">PDF</button>
-        <button class="hcbtn d" onclick="delRec('${h.id}')">Excluir</button>
+    `;
+    return;
+  }
+
+  g.innerHTML = filtrosHTML + listaFiltrada.map(h => {
+    const info = getHistoricoTipoInfo(h.folha);
+    const isFerias = info.key === 'ferias';
+
+    const gozoLinha = isFerias && h.ferias?.gozoIniFmt && h.ferias?.gozoFimFmt
+      ? `<div class="hc-extra-line">Gozo: ${h.ferias.gozoIniFmt} a ${h.ferias.gozoFimFmt}</div>`
+      : '';
+
+    return `
+      <div class="hcard hist-card-${info.key}">
+        <div class="hist-card-top">
+          <span class="hist-badge ${info.cls}">${info.badge}</span>
+          <span class="hist-card-comp">${h.comp || '—'}</span>
+        </div>
+
+        <div class="hc-emp">${h.emp || '—'}</div>
+        <div class="hc-func">${h.func || '—'} · ${h.cargo || '—'}</div>
+        <div class="hc-comp">${h.comp || '—'} · ${h.folha || '—'}</div>
+
+        ${gozoLinha}
+
+        <div class="hc-foot">
+          <span class="hc-liq">${fmtBRL(h.liq || 0)}</span>
+          <span style="font-size:.7rem;color:var(--ink3)">${fmtBRL(h.totVenc || 0)} bruto</span>
+        </div>
+
+        <div class="hc-acts">
+          <button class="hcbtn" onclick="loadRec('${h.id}')">Editar</button>
+          <button class="hcbtn" onclick="pdfRec('${h.id}')">PDF</button>
+          <button class="hcbtn d" onclick="delRec('${h.id}')">Excluir</button>
+        </div>
       </div>
-    </div>`).join('');
+    `;
+  }).join('');
 }
 
 function loadRec(id) {
