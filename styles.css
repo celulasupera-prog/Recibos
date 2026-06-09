@@ -1889,3 +1889,125 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .ferias-abono-field .field-hint {
   margin-top: .35rem;
 }
+
+.hist-filter-bar {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin: 0 0 .65rem 0;
+  padding: .55rem;
+  background: #ffffff;
+  border: 1px solid #dbe3ef;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, .06);
+}
+
+.hist-filter-btn {
+  border: 1px solid #dbe3ef;
+  background: #f8fafc;
+  color: #334155;
+  border-radius: 999px;
+  padding: .45rem .75rem;
+  font-size: .78rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: .15s ease;
+}
+
+.hist-filter-btn span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  margin-left: .35rem;
+  padding: 0 .35rem;
+  border-radius: 999px;
+  background: #e2e8f0;
+  color: #334155;
+  font-size: .68rem;
+  font-weight: 900;
+}
+
+.hist-filter-btn:hover {
+  background: #eef2f7;
+}
+
+.hist-filter-btn.active {
+  background: #1f2937;
+  border-color: #1f2937;
+  color: #ffffff;
+}
+
+.hist-filter-btn.active span {
+  background: rgba(255,255,255,.16);
+  color: #ffffff;
+}
+
+.hist-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  margin-bottom: .45rem;
+}
+
+.hist-badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  border-radius: 999px;
+  padding: .22rem .5rem;
+  font-size: .64rem;
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: .055em;
+  text-transform: uppercase;
+}
+
+.hist-badge-mensal {
+  background: #e0f2fe;
+  color: #075985;
+  border: 1px solid #bae6fd;
+}
+
+.hist-badge-ferias {
+  background: #ffe4e6;
+  color: #be123c;
+  border: 1px solid #fecdd3;
+}
+
+.hist-badge-prolabore {
+  background: #ede9fe;
+  color: #5b21b6;
+  border: 1px solid #ddd6fe;
+}
+
+.hist-card-comp {
+  color: #64748b;
+  font-size: .72rem;
+  font-weight: 800;
+}
+
+.hc-extra-line {
+  margin-top: .45rem;
+  padding: .38rem .5rem;
+  border-radius: 8px;
+  background: #fff1f2;
+  color: #9f1239;
+  font-size: .74rem;
+  font-weight: 800;
+}
+
+.hist-card-ferias {
+  border-left: 4px solid #dc3f45;
+}
+
+.hist-card-prolabore {
+  border-left: 4px solid #7c3aed;
+}
+
+.hist-card-mensal {
+  border-left: 4px solid #0ea5e9;
+}
