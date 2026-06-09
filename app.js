@@ -3594,6 +3594,14 @@ function renderHist() {
       ? `<div class="hc-extra-line">Gozo: ${h.ferias.gozoIniFmt} a ${h.ferias.gozoFimFmt}</div>`
       : '';
 
+    const liqCard = isFerias
+      ? roundFiscal(h.ferias?.liquido || h.liq || 0)
+      : roundFiscal(h.liq || 0);
+    
+    const brutoCard = isFerias
+      ? roundFiscal(h.ferias?.totalProventos || h.totVenc || 0)
+      : roundFiscal(h.totVenc || 0);
+    
     return `
       <div class="hcard hist-card-${info.key}">
         <div class="hist-card-top">
@@ -3608,8 +3616,8 @@ function renderHist() {
         ${gozoLinha}
 
         <div class="hc-foot">
-          <span class="hc-liq">${fmtBRL(h.liq || 0)}</span>
-          <span style="font-size:.7rem;color:var(--ink3)">${fmtBRL(h.totVenc || 0)} bruto</span>
+          <span class="hc-liq">${fmtBRL(liqCard)}</span>
+          <span style="font-size:.7rem;color:var(--ink3)">${fmtBRL(brutoCard)} bruto</span>
         </div>
 
         <div class="hc-acts">
