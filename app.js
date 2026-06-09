@@ -2207,7 +2207,13 @@ function initFeriasRangePicker() {
           return;
         }
 
-       fimEl.value = dateTo
+               fimEl.value = dateToInputValue(end);
+
+        preencherDatasPadraoFerias(true);
+
+        if (feriasAbonoPicker) {
+          feriasAbonoPicker.redraw();
+        }
       } else {
         fimEl.value = '';
 
