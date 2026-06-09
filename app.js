@@ -4297,10 +4297,15 @@ function getFeriasData() {
     salarioFamilia
   );
 
-  const inssCalc = calcINSSProgressivo(totalProventos);
-  const inssVal = inssCalc.valor;
+  const descontarINSSFerias = !!document.getElementById('f-ferias-descontar-inss')?.checked;
 
- const deducaoBaseIRRF = calcDeducaoBaseIRRF(inssVal);
+const inssCalc = descontarINSSFerias
+  ? calcINSSProgressivo(totalProventos)
+  : { aliq: 0, deducao: 0, valor: 0 };
+
+const inssVal = inssCalc.valor;
+
+const deducaoBaseIRRF = calcDeducaoBaseIRRF(inssVal);
 const irrfBase = Math.max(
   roundFiscal(totalProventos - salarioFamilia - deducaoBaseIRRF),
   0
@@ -4358,7 +4363,7 @@ const irrfBase = Math.max(
     abono,
     tercoAbono,
     salarioFamilia,
-
+    descontarINSSFerias,
     inssVal,
     irrfVal,
     totalProventos,
