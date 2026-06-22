@@ -2282,3 +2282,16 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   height: 1px;
   margin-bottom: 8px;
 }
+
+.preview-actions .pdf-extra-options {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  flex-wrap: wrap;
+}
+
+.preview-actions .pdf-extra-check {
+  height: 34px;
+  padding: 0 .6rem;
+  font-size: .7rem;
+}
