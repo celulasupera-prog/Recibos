@@ -2868,7 +2868,10 @@ function buildFeriasHTML(d) {
         <div class="ferias-cnpj"><strong>CNPJ: ${escHtml(cnpj)}</strong></div>
       </div>
 
-      <div class="ferias-main-title">RECIBO DE FÉRIAS</div>
+      <div class="ferias-main-title">AVISO E RECIBO DE FÉRIAS</div>
+
+      <div class="ferias-bar">AVISO PRÉVIO DE FÉRIAS</div>
+      <div class="ferias-bar ferias-bar-sub">NOTIFICAÇÃO</div>
 
       <table class="ferias-table ferias-table-head">
         <tr>
@@ -2936,7 +2939,26 @@ function buildFeriasHTML(d) {
       </div>
 
 
-      <div class="ferias-recibo-wrap ferias-recibo-wrap-only">
+      <div class="ferias-text-block">
+  Pelo presente comunicamos-lhe que, de acordo com a Lei, ser-lhe-ão concedidas férias relativas ao período acima descrito e a sua disposição fica a importância líquida de R$ ${valorLiquido} a ser paga adiantadamente.
+</div>
+
+<div class="ferias-sign-box">
+  <div class="ferias-sign-left">
+    <div class="ferias-sign-label-top">CIENTE,</div>
+    <div class="ferias-sign-line"></div>
+    <div class="ferias-sign-name">${escHtml(empregado)}</div>
+  </div>
+
+  <div class="ferias-sign-right">
+    <div class="ferias-sign-date">Data: ${escHtml(f.dataAvisoFmt || '')}</div>
+    <div class="ferias-sign-line"></div>
+    <div class="ferias-sign-name">${escHtml(empresa)}</div>
+  </div>
+</div>
+
+<div class="ferias-recibo-wrap">
+  <div class="ferias-bar ferias-recibo-title">RECIBO DE FÉRIAS</div>
 
         <div class="ferias-recibo-text">
           Recebi da firma ${escHtml(empresa)}, estabelecida em ${escHtml(cidade)}, a importância de R$ ${valorLiquido} que me é paga adiantadamente por motivo das minhas férias regulares, ora concedidas e que vou gozar de acordo com a descrição acima, tudo conforme o aviso que recebi em tempo, ao qual dei meu ciente. Para clareza e documento firmo o presente recibo dando plena e geral quitação.
