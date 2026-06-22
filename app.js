@@ -3012,6 +3012,100 @@ function trRow(cod, desc, ref, venc, descVal) {
   </tr>`;
 }
 
+function addDiasCorridosInput(dateStr, qtdDias) {
+  const dt = inputDateToDate(dateStr);
+  if (!dt) return '';
+
+  dt.setDate(dt.getDate() + (Number(qtdDias) || 0));
+
+  return dateToInputValue(dt);
+}
+
+function formatDateLongaBRFromInput(dateStr) {
+  const dt = inputDateToDate(dateStr);
+  if (!dt) return '';
+
+  const meses = [
+    'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+  ];
+
+  return `${dt.getDate()} de ${meses[dt.getMonth()]} de ${dt.getFullYear()}`;
+}
+
+function buildAvisoFeriasHTML(d) {
+  const f = d.ferias || {};
+
+  const empresa = d.emp || 'Nome da Empresa';
+  const cnpj = d.cnpj || '';
+  const empregado = d.func || '—';
+  const cidade = d.cidade || '';
+
+  const retornoInput = f.gozoFim
+    ? addDiasCorridosInput(f.gozoFim, 1)
+    : '';
+
+  const retornoFmt = formatDateBRFromInput(retornoInput);
+
+  return `
+    <div class="aviso-ferias-doc">
+      <div class="aviso-ferias-top">
+        <div>${escHtml(empresa)}</div>
+        <div>CNPJ: ${escHtml(cnpj)}</div>
+      </div>
+
+      <div class="aviso-ferias-title">AVISO DE FÉRIAS</div>
+
+      <div class="aviso-ferias-data">
+        ${escHtml(cidade ? cidade.toUpperCase() : '')}, ${escHtml(formatDateLongaBRFromInput(f.dataAviso || hojeInputDate()))}
+      </div>
+
+      <div class="aviso-ferias-destinatario">
+        Sr.: ${escHtml(empregado)}
+      </div>
+
+      <div class="aviso-ferias-texto">
+        Nos termos das disposições legais vigentes, suas férias serão concedidas conforme o demonstrativo abaixo:
+      </div>
+
+      <div class="aviso-ferias-periodos">
+        <div>
+          <span>Período Aquisitivo................:</span>
+          <b>${escHtml(f.aqIniFmt || '')} - ${escHtml(f.aqFimFmt || '')}</b>
+        </div>
+
+        <div>
+          <span>Período de Gozo................:</span>
+          <b>${escHtml(f.gozoIniFmt || '')} - ${escHtml(f.gozoFimFmt || '')}</b>
+        </div>
+
+        <div>
+          <span>Retorno ao trabalho............:</span>
+          <b>${escHtml(retornoFmt)}</b>
+        </div>
+      </div>
+
+      <div class="aviso-ferias-texto aviso-ferias-texto-final">
+        A remuneração correspondente às férias, e se for o caso, ao abono pecuniário e ao adiantamento da gratificação de natal encontra-se no caixa e poderá ser recebida em ${escHtml(f.dataReciboFmt || '')}.
+        <br>
+        Favor apresentar a sua Carteira de Trabalho e Previdência Social ao Departamento de Pessoal para as anotações necessárias.
+      </div>
+
+      <div class="aviso-ferias-assinaturas">
+        <div>
+          <div class="aviso-ferias-linha"></div>
+          <span>${escHtml(empresa)}</span>
+        </div>
+
+        <div>
+          <div class="aviso-ferias-linha"></div>
+          <span>${escHtml(empregado)}</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 // ── PDF ──
 async function gerarPDF() {
   const original = document.getElementById('recibo-doc');
