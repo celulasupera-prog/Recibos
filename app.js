@@ -766,6 +766,10 @@ async function salvar() {
 
   const isFerias = getTipoFolhaKey(d.folha) === 'ferias';
 
+  const incluirAvisoFerias = isFerias
+  ? confirm('Deseja incluir o Aviso de Férias junto com o recibo no mesmo PDF?')
+  : false;
+  
   const liqSalvar = isFerias
     ? roundFiscal(d.ferias?.liquido || 0)
     : roundFiscal(d.liq || 0);
@@ -3207,6 +3211,60 @@ try{
   }
 }
 
+  if (incluirAvisoFerias) {
+  const avisoWrap = document.createElement('div');
+
+  avisoWrap.className = 'pdf-render-fixed';
+  avisoWrap.innerHTML = buildAvisoFeriasHTML(d);
+
+  Object.assign(avisoWrap.style, {
+    position: 'fixed',
+    left: '-10000px',
+    top: '0',
+    width: '794px',
+    maxWidth: '794px',
+    minWidth: '794px',
+    height: '1123px',
+    maxHeight: '1123px',
+    minHeight: '1123px',
+    background: '#ffffff',
+    padding: '0',
+    margin: '0',
+    boxSizing: 'border-box',
+    fontFamily: 'Arial, Helvetica, sans-serif',
+    color: '#000',
+    border: 'none',
+    boxShadow: 'none',
+    overflow: 'hidden',
+    transform: 'none',
+    zoom: '1'
+  });
+
+  document.body.appendChild(avisoWrap);
+
+  try {
+    const avisoCanvas = await html2canvas(avisoWrap, {
+      scale: 2.6,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      logging: false,
+      width: 794,
+      height: 1123,
+      windowWidth: 794,
+      windowHeight: 1123,
+      scrollX: 0,
+      scrollY: 0
+    });
+
+    const avisoImgData = avisoCanvas.toDataURL('image/png');
+
+    doc.addPage();
+    doc.addImage(avisoImgData, 'PNG', 0, 0, 210, 297);
+  } finally {
+    avisoWrap.remove();
+  }
+}
+  
     const fname = `recibo-${(d.func || 'funcionario').replace(/ /g, '-').toLowerCase()}-${(d.comp || '').replace(/ /g, '-')}.pdf`;
     doc.save(fname);
 
