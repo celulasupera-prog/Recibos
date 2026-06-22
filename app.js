@@ -3065,9 +3065,8 @@ Object.assign(printWrap.style, {
 
   document.body.appendChild(printWrap);
 
-  try {
   const canvas = await html2canvas(printWrap, {
-  scale: isFerias ? 2.3 : 2.6,
+  scale: isFerias ? 2 : 2.2,
   useCORS: true,
   backgroundColor: '#ffffff',
   logging: false,
@@ -3079,15 +3078,20 @@ Object.assign(printWrap.style, {
   scrollY: 0
 });
 
-    const imgData = canvas.toDataURL('image/jpeg', 0.9);
+    const imgData = canvas.toDataURL('image/png');
     const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+    const doc = new jsPDF({
+      unit: 'mm',
+      format: 'a4',
+      orientation: 'portrait',
+      compress: true
+    });
 
     const pageW = 210;
     const pageH = 297;
 
    if (isFerias) {
-  doc.addImage(imgData, 'JPEG', 0, 0, 210, 297);
+  doc.addImage(imgData, 'PNG', 0, 0, 210, 297);
 } else {
   const marginX = 5;
   const marginY = 5;
@@ -3095,7 +3099,7 @@ Object.assign(printWrap.style, {
   const imgH = canvas.height * imgW / canvas.width;
 
   if (imgH <= pageH - marginY * 2) {
-    doc.addImage(imgData, 'JPEG', marginX, marginY, imgW, imgH);
+    doc.addImage(imgData, 'PNG', marginX, marginY, imgW, imgH);
   } else {
     let yPos = 0;
     const printableH = pageH - marginY * 2;
