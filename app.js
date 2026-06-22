@@ -3110,6 +3110,190 @@ function buildAvisoFeriasHTML(d) {
   `;
 }
 
+function addDiasCorridosInput(dateStr, qtdDias) {
+  const dt = inputDateToDate(dateStr);
+  if (!dt) return '';
+
+  dt.setDate(dt.getDate() + (Number(qtdDias) || 0));
+
+  return dateToInputValue(dt);
+}
+
+function formatDateLongaBRFromInput(dateStr) {
+  const dt = inputDateToDate(dateStr);
+  if (!dt) return '';
+
+  const meses = [
+    'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+  ];
+
+  return `${dt.getDate()} de ${meses[dt.getMonth()]} de ${dt.getFullYear()}`;
+}
+
+function buildAvisoFeriasHTML(d) {
+  const f = d.ferias || {};
+
+  const empresa = d.emp || 'Nome da Empresa';
+  const cnpj = d.cnpj || '';
+  const empregado = d.func || '—';
+  const cidade = d.cidade || '';
+
+  const retornoInput = f.gozoFim
+    ? addDiasCorridosInput(f.gozoFim, 1)
+    : '';
+
+  const retornoFmt = formatDateBRFromInput(retornoInput);
+
+  return `
+    <div class="aviso-ferias-doc">
+      <div class="aviso-ferias-top">
+        <div>${escHtml(empresa)}</div>
+        <div>CNPJ: ${escHtml(cnpj)}</div>
+      </div>
+
+      <div class="aviso-ferias-title">AVISO DE FÉRIAS</div>
+
+      <div class="aviso-ferias-data">
+        ${escHtml(cidade ? cidade.toUpperCase() : '')}, ${escHtml(formatDateLongaBRFromInput(f.dataAviso || hojeInputDate()))}
+      </div>
+
+      <div class="aviso-ferias-destinatario">
+        Sr.: ${escHtml(empregado)}
+      </div>
+
+      <div class="aviso-ferias-texto">
+        Nos termos das disposições legais vigentes, suas férias serão concedidas conforme o demonstrativo abaixo:
+      </div>
+
+      <div class="aviso-ferias-periodos">
+        <div>
+          <span>Período Aquisitivo................:</span>
+          <b>${escHtml(f.aqIniFmt || '')} - ${escHtml(f.aqFimFmt || '')}</b>
+        </div>
+
+        <div>
+          <span>Período de Gozo................:</span>
+          <b>${escHtml(f.gozoIniFmt || '')} - ${escHtml(f.gozoFimFmt || '')}</b>
+        </div>
+
+        <div>
+          <span>Retorno ao trabalho............:</span>
+          <b>${escHtml(retornoFmt)}</b>
+        </div>
+      </div>
+
+      <div class="aviso-ferias-texto aviso-ferias-texto-final">
+        A remuneração correspondente às férias, e se for o caso, ao abono pecuniário e ao adiantamento da gratificação de natal encontra-se no caixa e poderá ser recebida em ${escHtml(f.dataReciboFmt || '')}.
+        <br>
+        Favor apresentar a sua Carteira de Trabalho e Previdência Social ao Departamento de Pessoal para as anotações necessárias.
+      </div>
+
+      <div class="aviso-ferias-assinaturas">
+        <div>
+          <div class="aviso-ferias-linha"></div>
+          <span>${escHtml(empresa)}</span>
+        </div>
+
+        <div>
+          <div class="aviso-ferias-linha"></div>
+          <span>${escHtml(empregado)}</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function buildSolicitacaoAbonoFeriasHTML(d) {
+  const f = d.ferias || {};
+
+  const empresa = d.emp || 'Nome da Empresa';
+  const cnpj = d.cnpj || '';
+  const empregado = d.func || '—';
+  const cidade = d.cidade || '';
+  const cpf = '';
+
+  return `
+    <div class="abono-ferias-doc">
+      <div class="abono-ferias-title">SOLICITAÇÃO DE ABONO DE FÉRIAS</div>
+
+      <div class="abono-ferias-dados">
+        <div><span>Empresa:</span> <b>${escHtml(empresa)}</b></div>
+        <div><span>CNPJ:</span> <b>${escHtml(cnpj)}</b></div>
+        <div><span>Cadastro:</span> <b>${escHtml(empregado)}</b></div>
+        <div><span>CPF:</span> <b>${escHtml(cpf)}</b></div>
+      </div>
+
+      <div class="abono-ferias-data">
+        ${escHtml(cidade ? cidade.toUpperCase() : '')}, ${escHtml(formatDateLongaBRFromInput(f.dataAviso || hojeInputDate()).toUpperCase())}
+      </div>
+
+      <div class="abono-ferias-texto">
+        Em cumprimento ao disposto no parágrafo 1º do Artigo 143 do Decreto-Lei Nº 1.535 de 13 de Abril de 1977, venho pela presente requerer a ABONO PECUNIÁRIO de 1/3 das férias, referente ao período aquisitivo de ${escHtml(f.aqIniFmt || '')} a ${escHtml(f.aqFimFmt || '')}.
+      </div>
+
+      <div class="abono-ferias-assinatura">
+        <div class="abono-ferias-linha"></div>
+        <span>${escHtml(empregado)}</span>
+      </div>
+    </div>
+  `;
+}
+
+async function adicionarPaginaHTMLNoPDF(doc, html, scale = 2.6) {
+  const wrap = document.createElement('div');
+
+  wrap.className = 'pdf-render-fixed';
+  wrap.innerHTML = html;
+
+  Object.assign(wrap.style, {
+    position: 'fixed',
+    left: '-10000px',
+    top: '0',
+    width: '794px',
+    maxWidth: '794px',
+    minWidth: '794px',
+    height: '1123px',
+    maxHeight: '1123px',
+    minHeight: '1123px',
+    background: '#ffffff',
+    padding: '0',
+    margin: '0',
+    boxSizing: 'border-box',
+    fontFamily: 'Arial, Helvetica, sans-serif',
+    color: '#000',
+    border: 'none',
+    boxShadow: 'none',
+    overflow: 'hidden',
+    transform: 'none',
+    zoom: '1'
+  });
+
+  document.body.appendChild(wrap);
+
+  try {
+    const canvas = await html2canvas(wrap, {
+      scale,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      logging: false,
+      width: 794,
+      height: 1123,
+      windowWidth: 794,
+      windowHeight: 1123,
+      scrollX: 0,
+      scrollY: 0
+    });
+
+    const imgData = canvas.toDataURL('image/png');
+
+    doc.addPage();
+    doc.addImage(imgData, 'PNG', 0, 0, 210, 297);
+  } finally {
+    wrap.remove();
+  }
+}
+
 // ── PDF ──
 async function gerarPDF() {
   const original = document.getElementById('recibo-doc');
@@ -3124,6 +3308,12 @@ async function gerarPDF() {
   const d = getData();
   const isFerias = getTipoFolhaKey(d.folha) === 'ferias';
 
+  const incluirAvisoFerias = isFerias && !!document.getElementById('f-ferias-pdf-aviso')?.checked;
+
+  const incluirSolicitacaoAbono = isFerias
+    && !!document.getElementById('f-ferias-pdf-solicitacao-abono')?.checked
+    && !!d.ferias?.temAbono;
+  
   const printWrap = document.createElement('div');
   printWrap.className = isFerias
     ? 'recibo-doc pdf-render-fixed recibo-ferias-doc'
@@ -3264,6 +3454,14 @@ try{
     avisoWrap.remove();
   }
 }
+
+     if (incluirAvisoFerias) {
+      await adicionarPaginaHTMLNoPDF(doc, buildAvisoFeriasHTML(d), 2.6);
+    }
+    
+    if (incluirSolicitacaoAbono) {
+      await adicionarPaginaHTMLNoPDF(doc, buildSolicitacaoAbonoFeriasHTML(d), 2.6);
+    }
   
     const fname = `recibo-${(d.func || 'funcionario').replace(/ /g, '-').toLowerCase()}-${(d.comp || '').replace(/ /g, '-')}.pdf`;
     doc.save(fname);
