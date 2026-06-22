@@ -3063,6 +3063,7 @@ Object.assign(printWrap.style, {
   zoom: '1'
 });
 
+try{
   document.body.appendChild(printWrap);
 
   const canvas = await html2canvas(printWrap, {
@@ -3106,7 +3107,7 @@ Object.assign(printWrap.style, {
 
     while (yPos < imgH) {
       if (yPos > 0) doc.addPage();
-      doc.addImage(imgData, 'JPEG', marginX, marginY - yPos, imgW, imgH);
+      doc.addImage(imgData, 'PNG', marginX, marginY - yPos, imgW, imgH);
       yPos += printableH;
     }
   }
