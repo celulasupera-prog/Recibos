@@ -647,11 +647,24 @@
 
 
 
-  <div class="action-bar">
-    <button class="abtn outline" onclick="novoRecibo()">Limpar</button>
-    <button class="abtn secondary" onclick="salvar()"><svg class="ico"><use href="#i-save"/></svg> Salvar</button>
-    <button class="abtn primary" onclick="gerarPDF()"><svg class="ico"><use href="#i-download"/></svg> PDF</button>
+ <div class="action-bar">
+  <button class="abtn outline" onclick="novoRecibo()">Limpar</button>
+  <button class="abtn secondary" onclick="salvar()"><svg class="ico"><use href="#i-save"/></svg> Salvar</button>
+
+  <div class="pdf-extra-options ferias-extra-fields">
+    <label class="pdf-extra-check">
+      <input type="checkbox" id="f-ferias-pdf-aviso" checked>
+      <span>Aviso de Férias</span>
+    </label>
+
+    <label class="pdf-extra-check">
+      <input type="checkbox" id="f-ferias-pdf-solicitacao-abono">
+      <span>Solicitação de Abono</span>
+    </label>
   </div>
+
+  <button class="abtn primary" onclick="gerarPDF()"><svg class="ico"><use href="#i-download"/></svg> PDF</button>
+</div>
 
 </div><!-- /form-side -->
 
