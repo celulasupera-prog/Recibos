@@ -2299,3 +2299,22 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .preview-actions .pdf-extra-options.ferias-extra-fields {
   display: none;
 }
+
+.pdf-extra-page-render {
+  width: 794px !important;
+  max-width: 794px !important;
+  min-width: 794px !important;
+  height: 1123px !important;
+  max-height: 1123px !important;
+  min-height: 1123px !important;
+  box-shadow: none !important;
+  transform: none !important;
+  zoom: 1 !important;
+  border: none !important;
+  background: #fff !important;
+  overflow: hidden !important;
+}
+
+.pdf-extra-page-render * {
+  box-sizing: border-box;
+}
