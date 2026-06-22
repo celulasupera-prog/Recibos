@@ -2295,3 +2295,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   padding: 0 .6rem;
   font-size: .7rem;
 }
+
+.preview-actions .pdf-extra-options.ferias-extra-fields {
+  display: none;
+}
