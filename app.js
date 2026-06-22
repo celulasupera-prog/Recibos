@@ -3067,7 +3067,7 @@ try{
   document.body.appendChild(printWrap);
 
   const canvas = await html2canvas(printWrap, {
-  scale: isFerias ? 3,
+  scale: 3,
   useCORS: true,
   backgroundColor: '#ffffff',
   logging: false,
