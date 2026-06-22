@@ -3067,7 +3067,7 @@ Object.assign(printWrap.style, {
 
   try {
   const canvas = await html2canvas(printWrap, {
-  scale: isFerias ? 1.6 : 2,
+  scale: isFerias ? 2.1 : 2.4,
   useCORS: true,
   backgroundColor: '#ffffff',
   logging: false,
@@ -3079,7 +3079,7 @@ Object.assign(printWrap.style, {
   scrollY: 0
 });
 
-    const imgData = canvas.toDataURL('image/jpeg', 0.82);
+    const imgData = canvas.toDataURL('image/jpeg', 0.92);
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
 
