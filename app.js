@@ -3214,8 +3214,7 @@ async function gerarPDF() {
   const incluirAvisoFerias = isFerias && !!document.getElementById('f-ferias-pdf-aviso')?.checked;
 
   const incluirSolicitacaoAbono = isFerias
-    && !!document.getElementById('f-ferias-pdf-solicitacao-abono')?.checked
-    && !!d.ferias?.temAbono;
+  && !!document.getElementById('f-ferias-pdf-solicitacao-abono')?.checked;
   
   const printWrap = document.createElement('div');
   printWrap.className = isFerias
