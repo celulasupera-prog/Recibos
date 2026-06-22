@@ -2318,11 +2318,3 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .pdf-extra-page-render * {
   box-sizing: border-box;
 }
-
-.ferias-recibo-wrap-only {
-  margin-top: 20px;
-}
-
-.ferias-recibo-wrap-only .ferias-recibo-text {
-  border-top: 1px solid #111;
-}
