@@ -3167,36 +3167,61 @@ async function sbFetch(path, options={}) {
 // ── SAVE / HIST ──
 async function salvar() {
   const d = getData();
-  if(!d.emp||!d.func){ toast('Preencha empresa e funcionário!','err'); return; }
+
+  if (!d.emp || !d.func) {
+    toast('Preencha empresa e funcionário!', 'err');
+    return;
+  }
+
+  const isFerias = getTipoFolhaKey(d.folha) === 'ferias';
+
+  const liqSalvar = isFerias
+    ? roundFiscal(d.ferias?.liquido || 0)
+    : roundFiscal(d.liq || 0);
+
+  const totVencSalvar = isFerias
+    ? roundFiscal(d.ferias?.totalProventos || 0)
+    : roundFiscal(d.totVenc || 0);
+
+  const totDescSalvar = isFerias
+    ? roundFiscal(d.ferias?.totalDescontos || 0)
+    : roundFiscal(d.totDesc || 0);
+
+  d.liq = liqSalvar;
+  d.totVenc = totVencSalvar;
+  d.totDesc = totDescSalvar;
+
   toast('Salvando...');
+
   const row = {
-  id: editId || Date.now(),
-  emp: d.emp,
-  func: d.func,
-  cargo: d.cargo,
-  comp: d.comp,
-  folha: d.folha,
-  liq: d.liq,
-  tot_venc: d.totVenc,
-  tot_desc: d.totDesc,
-  grupo_id: grupoId,        // 🔥 ADICIONAR
-  user_id: currentUser.id,  // 🔥 ADICIONAR
-  dados: d
-};
+    id: editId || Date.now(),
+    emp: d.emp,
+    func: d.func,
+    cargo: d.cargo,
+    comp: d.comp,
+    folha: d.folha,
+    liq: liqSalvar,
+    tot_venc: totVencSalvar,
+    tot_desc: totDescSalvar,
+    grupo_id: grupoId,
+    user_id: currentUser.id,
+    dados: d
+  };
+
   try {
     await sbFetch('recibos', {
       method: 'POST',
       prefer: 'resolution=merge-duplicates',
       body: JSON.stringify(row)
     });
+
     editId = row.id;
     toast('Recibo salvo! ✅');
-  } catch(e) {
+  } catch (e) {
     console.error('Erro ao salvar:', e);
     toast('Erro ao salvar: ' + e.message, 'err');
   }
 }
-
 async function showHist() {
   document.getElementById('pg-main').style.display='none';
   document.getElementById('pg-hist').style.display='block';
