@@ -1189,8 +1189,8 @@ function applyTipoFolha() {
   const tipoKey = getTipoFolhaKey();
 
   document.querySelectorAll('.ferias-extra-fields').forEach(el => {
-    el.style.display = tipoKey === 'ferias' ? 'grid' : 'none';
-  });
+  el.style.display = tipoKey === 'ferias' ? 'flex' : 'none';
+});
 
   syncFolhaModelVerbas();
 
