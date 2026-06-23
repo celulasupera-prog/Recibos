@@ -46,23 +46,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .hbtn.ghost:hover{background:rgba(255,255,255,.14);transform:translateY(-1px);}
 .hbtn.solid {  background: var(--accent);  color: #fff;  box-shadow: 0 6px 16px rgba(217, 68, 68, .30);}
 .hbtn.solid:hover {  background: #c73535;  transform: translateY(-1px);}
-.abtn.primary {
-  background: var(--accent);
-  color: #fff;
-}
 
-.abtn.primary:hover {
-  background: #a83232;
-}
-.btn-preview.primary {
-  background: var(--accent);
-  color: #fff;
-  box-shadow: 0 6px 14px rgba(196, 59, 59, .28);
-}
-
-.btn-preview.primary:hover {
-  background: #a83232;
-}
 .ico{width:14px;height:14px;display:inline-block;vertical-align:-2px;flex:none;}
 
 /* LAYOUT */
@@ -562,7 +546,6 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   letter-spacing:.06em;text-transform:uppercase;padding:.65rem;border-radius:6px;
   cursor:pointer;border:none;transition:all .18s;}
 .abtn.primary{background:var(--accent);color:#fff;}
-.abtn.primary:hover{background:#1648c0;}
 .abtn.secondary{background:var(--ink);color:#fff;}
 .abtn.secondary:hover{background:#333;}
 .abtn.outline{background:transparent;border:1.5px solid var(--border);color:var(--ink2);}
@@ -602,7 +585,6 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:.35rem;
 }
 .btn-preview.primary{background:var(--accent);color:#fff;box-shadow:0 6px 14px rgba(46,109,230,.3);}
-.btn-preview.primary:hover{background:#245ece;}
 .btn-preview.secondary{background:#1f2732;color:#fff;}
 .btn-preview.secondary:hover{background:#111827;}
 .btn-preview.ghost{background:transparent;border-color:#bcc4d2;color:#374151;}
@@ -1685,30 +1667,6 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   padding: 14px 10px 10px 10px !important;
 }
 
-/* Ajuste somente no preview do recibo de férias */
-.preview-side #recibo-doc.recibo-ferias-doc:not(.pdf-render-fixed) .ferias-base-line {
-  display: grid;
-  grid-template-columns: 1fr 44px;
-  align-items: baseline;
-  gap: 4px;
-}
-
-.preview-side #recibo-doc.recibo-ferias-doc:not(.pdf-render-fixed) .ferias-base-line span {
-  white-space: nowrap;
-  overflow: hidden;
-}
-
-.preview-side #recibo-doc.recibo-ferias-doc:not(.pdf-render-fixed) .ferias-base-line b {
-  width: 44px;
-  min-width: 0;
-  text-align: right;
-}
-
-.preview-side #recibo-doc.recibo-ferias-doc:not(.pdf-render-fixed) .ferias-col-base {
-  padding-right: 8px;
-  overflow: hidden;
-}
-
 .preview-side #recibo-doc.recibo-ferias-doc:not(.pdf-render-fixed) .ferias-table th {
   border-bottom: none;
 }
@@ -2136,53 +2094,6 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   border-top: 1px solid #000;
   height: 1px;
   margin-bottom: 8px;
-}
-
-/* Opções extras do PDF de férias no preview */
-.pdf-ferias-extra-options {
-  display: none;
-}
-
-.preview-actions .pdf-ferias-extra-options {
-  align-items: center;
-  gap: .45rem;
-  flex-wrap: wrap;
-}
-
-.preview-actions .pdf-extra-check {
-  height: 34px;
-  padding: 0 .6rem;
-  font-size: .7rem;
-}
-
-/* Campos de período de férias */
-#f-ferias-aq-range,
-#f-ferias-concessivo-range,
-#f-ferias-range,
-#f-ferias-abono-range {
-  min-width: 0;
-  width: 100%;
-  max-width: 100%;
-}
-
-/* Renderização das páginas extras no PDF */
-.pdf-extra-page-render {
-  width: 794px !important;
-  max-width: 794px !important;
-  min-width: 794px !important;
-  height: 1123px !important;
-  max-height: 1123px !important;
-  min-height: 1123px !important;
-  box-shadow: none !important;
-  transform: none !important;
-  zoom: 1 !important;
-  border: none !important;
-  background: #fff !important;
-  overflow: hidden !important;
-}
-
-.pdf-extra-page-render * {
-  box-sizing: border-box;
 }
 
 /* Opções extras do PDF de férias no preview */
