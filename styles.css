@@ -2319,24 +2319,49 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   box-sizing: border-box;
 }
 
-/* Ajuste específico dos campos de férias dentro de Competência */
-.section-competencia .ferias-extra-fields {
-  grid-column: 1 / -1;
+/* Opções extras do PDF de férias no preview */
+.pdf-ferias-extra-options {
+  display: none;
 }
 
-.section-competencia .fg3 {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+.preview-actions .pdf-ferias-extra-options {
+  align-items: center;
+  gap: .45rem;
+  flex-wrap: wrap;
 }
 
-.section-competencia .ferias-extra-fields input,
-.section-competencia .ferias-extra-fields select {
+.preview-actions .pdf-extra-check {
+  height: 34px;
+  padding: 0 .6rem;
+  font-size: .7rem;
+}
+
+/* Campos de período de férias */
+#f-ferias-aq-range,
+#f-ferias-concessivo-range,
+#f-ferias-range,
+#f-ferias-abono-range {
+  min-width: 0;
   width: 100%;
   max-width: 100%;
 }
 
-#f-ferias-aq-range,
-#f-ferias-concessivo-range,
-#f-ferias-range {
-  min-width: 0;
-  width: 100%;
+/* Renderização das páginas extras no PDF */
+.pdf-extra-page-render {
+  width: 794px !important;
+  max-width: 794px !important;
+  min-width: 794px !important;
+  height: 1123px !important;
+  max-height: 1123px !important;
+  min-height: 1123px !important;
+  box-shadow: none !important;
+  transform: none !important;
+  zoom: 1 !important;
+  border: none !important;
+  background: #fff !important;
+  overflow: hidden !important;
+}
+
+.pdf-extra-page-render * {
+  box-sizing: border-box;
 }
