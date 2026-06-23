@@ -1038,7 +1038,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .config-verbas-table th:nth-child(3), .config-verbas-table td:nth-child(3){min-width:260px;}
 .config-verbas-table th:nth-child(5),
 .config-verbas-table td:nth-child(5) {
-  min-width: 140px;
+  min-width: 120px;
 }
 }
 .config-verbas-table th:nth-child(10), .config-verbas-table td:nth-child(10),
