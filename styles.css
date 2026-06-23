@@ -2302,3 +2302,8 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   box-sizing: border-box !important;
   transform-origin: top left !important;
 }
+
+.preview-side #recibo-doc.recibo-ferias-doc {
+  margin-left: 0 !important;
+  transform: none !important;
+}
