@@ -2245,9 +2245,12 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   border: none !important;
   box-shadow: var(--shadow-lg) !important;
   padding: 0 !important;
-  overflow: visible !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
+  overflow: hidden !important;
 }
 
 .preview-side #recibo-doc.preview-extra-ferias-doc .aviso-ferias-doc,
+.preview-side #recibo-doc.preview-extra-ferias-doc .abono-ferias-doc {
+  width: 700px !important;
+  min-height: 990px !important;
+  transform-origin: top left;
+}
