@@ -2235,3 +2235,13 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   accent-color: #dc3f45;
   margin: 0;
 }
+
+.abono-ferias-dados > div > span:first-child {
+  display: inline-block;
+  min-width: 90px;
+  font-weight: 700;
+}
+
+.abono-ferias-valor {
+  font-weight: 400;
+}
