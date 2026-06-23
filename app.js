@@ -3178,9 +3178,16 @@ function buildSolicitacaoAbonoFeriasHTML(d) {
         Em cumprimento ao disposto no parágrafo 1º do Artigo 143 do Decreto-Lei Nº 1.535 de 13 de Abril de 1977, venho pela presente requerer a ABONO PECUNIÁRIO de 1/3 das férias, referente ao período aquisitivo de ${escHtml(f.aqIniFmt || '')} a ${escHtml(f.aqFimFmt || '')}.
       </div>
 
-      <div class="abono-ferias-assinatura">
-        <div class="abono-ferias-linha"></div>
-        <span>${escHtml(empregado)}</span>
+      <div class="abono-ferias-assinaturas">
+        <div class="abono-ferias-assinatura">
+          <div class="abono-ferias-linha"></div>
+          <span>${escHtml(empresa)}</span>
+        </div>
+      
+        <div class="abono-ferias-assinatura">
+          <div class="abono-ferias-linha"></div>
+          <span>${escHtml(empregado)}</span>
+        </div>
       </div>
     </div>
   `;
