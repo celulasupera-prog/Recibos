@@ -1102,7 +1102,9 @@ function getTipoFolhaKey(tipoFolha = getTipoFolhaSelecionado()) {
     return 'ferias';
   }
 
-if (tipo.includes('rescisao') || tipo.includes('rescisão')) return 'rescisao';
+if (s.includes('rescisao') || s.includes('rescisão')) {
+  return 'rescisao';
+}
   
   return 'mensal';
 }
