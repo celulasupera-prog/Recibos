@@ -269,6 +269,8 @@ feriadosConfig = normalizeFeriadosConfig(feriadosConfig);
 // ── STATE ──
 let verbas = [];
 let encs = { inss: false, fgts: false, irrf: false };
+let feriasPreviewIndex = 0;
+let feriasPreviewDocs = [];
 let hist = JSON.parse(localStorage.getItem('rec_hist_v2') || '[]');
 let editId = null;
 let historicoTipoFiltro = 'todos';
@@ -1203,6 +1205,7 @@ document.querySelectorAll('.pdf-ferias-extra-options').forEach(el => {
   }
   
   toggleFeriasAbono();
+  feriasPreviewIndex = 0;
   calc();
 }
 
@@ -2596,18 +2599,119 @@ function resetFeriasRangePickerLimit() {
   calc();
 }
 // ── PREVIEW ──
+function getFeriasPreviewDocs(d) {
+  const docs = [
+    {
+      key: 'recibo',
+      title: 'Aviso/Recibo de Férias',
+      html: buildFeriasHTML(d)
+    }
+  ];
+
+  const incluirAviso = !!document.getElementById('f-ferias-pdf-aviso')?.checked;
+  const incluirAbono = !!document.getElementById('f-ferias-pdf-solicitacao-abono')?.checked;
+
+  if (incluirAviso) {
+    docs.push({
+      key: 'aviso',
+      title: 'Aviso de Férias',
+      html: buildAvisoFeriasHTML(d)
+    });
+  }
+
+  if (incluirAbono) {
+    docs.push({
+      key: 'abono',
+      title: 'Solicitação de Abono de Férias',
+      html: buildSolicitacaoAbonoFeriasHTML(d)
+    });
+  }
+
+  return docs;
+}
+
+function atualizarPreviewFeriasPager() {
+  const pager = document.getElementById('ferias-preview-pager');
+  const countEl = document.getElementById('ferias-preview-count');
+  const titleEl = document.getElementById('ferias-preview-title');
+
+  if (!pager || !countEl || !titleEl) return;
+
+  if (getTipoFolhaKey() !== 'ferias' || !feriasPreviewDocs.length) {
+    pager.style.display = 'none';
+    return;
+  }
+
+  pager.style.display = 'flex';
+
+  if (feriasPreviewIndex < 0) feriasPreviewIndex = 0;
+  if (feriasPreviewIndex >= feriasPreviewDocs.length) {
+    feriasPreviewIndex = feriasPreviewDocs.length - 1;
+  }
+
+  const atual = feriasPreviewDocs[feriasPreviewIndex];
+
+  countEl.textContent = `${feriasPreviewIndex + 1}/${feriasPreviewDocs.length}`;
+  titleEl.textContent = atual?.title || '';
+}
+
+function mudarPreviewFerias(direction) {
+  if (!feriasPreviewDocs.length) return;
+
+  feriasPreviewIndex += direction;
+
+  if (feriasPreviewIndex < 0) {
+    feriasPreviewIndex = feriasPreviewDocs.length - 1;
+  }
+
+  if (feriasPreviewIndex >= feriasPreviewDocs.length) {
+    feriasPreviewIndex = 0;
+  }
+
+  const reciboDoc = document.getElementById('recibo-doc');
+  if (!reciboDoc) return;
+
+  const atual = feriasPreviewDocs[feriasPreviewIndex];
+  reciboDoc.innerHTML = atual?.html || '';
+
+  reciboDoc.classList.toggle('recibo-ferias-doc', atual?.key === 'recibo');
+  reciboDoc.classList.toggle('preview-extra-ferias-doc', atual?.key !== 'recibo');
+
+  atualizarPreviewFeriasPager();
+}
+
 function renderPreview() {
   syncDOMtoVerbas();
   const d = getData();
 
   const reciboDoc = document.getElementById('recibo-doc');
+  
 
   if (getTipoFolhaKey(d.folha) === 'ferias') {
-    reciboDoc.innerHTML = buildFeriasHTML(d);
-    reciboDoc.classList.add('recibo-ferias-doc');
+    feriasPreviewDocs = getFeriasPreviewDocs(d);
+  
+    if (feriasPreviewIndex >= feriasPreviewDocs.length) {
+      feriasPreviewIndex = feriasPreviewDocs.length - 1;
+    }
+  
+    if (feriasPreviewIndex < 0) {
+      feriasPreviewIndex = 0;
+    }
+  
+    const atual = feriasPreviewDocs[feriasPreviewIndex];
+  
+    reciboDoc.innerHTML = atual?.html || '';
+    reciboDoc.classList.toggle('recibo-ferias-doc', atual?.key === 'recibo');
+    reciboDoc.classList.toggle('preview-extra-ferias-doc', atual?.key !== 'recibo');
+  
+    atualizarPreviewFeriasPager();
     return;
   }
 
+  feriasPreviewDocs = [];
+  feriasPreviewIndex = 0;
+  atualizarPreviewFeriasPager();
+  
   reciboDoc.classList.remove('recibo-ferias-doc');
   reciboDoc.innerHTML =
     buildViaHTML(d, 'EMPRESA') + buildViaHTML(d, 'FUNCIONÁRIO');
