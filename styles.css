@@ -2033,7 +2033,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .aviso-ferias-title {
   text-align: center;
   font-size: 20px;
-  font-weight: 450;
+  font-weight: 500;
   margin-bottom: 82px;
 }
 
@@ -2130,42 +2130,6 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   margin-bottom: 8px;
 }
 
-.preview-actions .pdf-extra-options {
-  display: flex;
-  align-items: center;
-  gap: .45rem;
-  flex-wrap: wrap;
-}
-
-.preview-actions .pdf-extra-check {
-  height: 34px;
-  padding: 0 .6rem;
-  font-size: .7rem;
-}
-
-.preview-actions .pdf-extra-options.ferias-extra-fields {
-  display: none;
-}
-
-.pdf-extra-page-render {
-  width: 794px !important;
-  max-width: 794px !important;
-  min-width: 794px !important;
-  height: 1123px !important;
-  max-height: 1123px !important;
-  min-height: 1123px !important;
-  box-shadow: none !important;
-  transform: none !important;
-  zoom: 1 !important;
-  border: none !important;
-  background: #fff !important;
-  overflow: hidden !important;
-}
-
-.pdf-extra-page-render * {
-  box-sizing: border-box;
-}
-
 /* Opções extras do PDF de férias no preview */
 .pdf-ferias-extra-options {
   display: none;
@@ -2211,4 +2175,55 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 
 .pdf-extra-page-render * {
   box-sizing: border-box;
+}
+
+/* Opções extras do PDF de férias no preview */
+.pdf-ferias-extra-options {
+  display: none;
+}
+
+.preview-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+
+.preview-actions .pdf-ferias-extra-options {
+  align-items: center;
+  gap: .35rem;
+  flex-wrap: nowrap;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+.preview-actions .pdf-ferias-extra-options[style*="flex"] {
+  display: inline-flex !important;
+}
+
+.preview-actions .pdf-ferias-extra-options .pdf-extra-check {
+  height: 32px;
+  padding: 0 .55rem;
+  border: 1px solid #dbe3ef;
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--ink);
+  font-size: .68rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.preview-actions .pdf-ferias-extra-options .pdf-extra-check input {
+  width: 13px;
+  height: 13px;
+  accent-color: #dc3f45;
+  margin: 0;
 }
