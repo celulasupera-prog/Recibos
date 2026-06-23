@@ -2238,9 +2238,9 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 
 /* Preview das páginas extras de férias */
 .preview-side #recibo-doc.preview-extra-ferias-doc {
-  width: 700px !important;
-  max-width: 700px !important;
-  min-width: 700px !important;
+  width: 720px !important;
+  max-width: 720px !important;
+  min-width: 720px !important;
   background: #ffffff !important;
   border: none !important;
   box-shadow: var(--shadow-lg) !important;
@@ -2250,7 +2250,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 
 .preview-side #recibo-doc.preview-extra-ferias-doc .aviso-ferias-doc,
 .preview-side #recibo-doc.preview-extra-ferias-doc .abono-ferias-doc {
-  width: 700px !important;
+  width: 720px !important;
   min-height: 990px !important;
   transform-origin: top left;
 }
