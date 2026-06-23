@@ -1674,21 +1674,20 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   margin-right: auto !important;
   padding: 0 !important;
   overflow: visible !important;
-  display: flex !important;
-  justify-content: center !important;
+  display: block !important;
 }
 
 .preview-side #recibo-doc.recibo-ferias-doc:not(.pdf-render-fixed) .ferias-doc {
-  width: 700px !important;
-  max-width: 700px !important;
-  min-width: 700px !important;
+  width: 720px !important;
+  max-width: 720px !important;
+  min-width: 720px !important;
   height: auto !important;
   min-height: 990px !important;
   padding: 14px 10px 10px 10px !important;
-  margin: 0 auto !important;
+  margin-left: -20px !important;
+  margin-right: 0 !important;
   box-sizing: border-box !important;
 }
-
 .preview-side #recibo-doc.recibo-ferias-doc:not(.pdf-render-fixed) .ferias-table th {
   border-bottom: none;
 }
