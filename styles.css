@@ -2252,6 +2252,6 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .preview-side #recibo-doc.preview-extra-ferias-doc .abono-ferias-doc {
   width: 720px !important;
   min-height: 990px !important;
-  margin-left: 18px !important;
+  margin-left: 30px !important;
   transform-origin: top left;
 }
