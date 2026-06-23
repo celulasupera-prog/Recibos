@@ -3038,13 +3038,44 @@ function formatDateLongaBRFromInput(dateStr) {
   return `${dt.getDate()} de ${meses[dt.getMonth()]} de ${dt.getFullYear()}`;
 }
 
+function getCidadeEmpresaDocumento(d) {
+  const cidadeDireta = String(d?.cidade || '').trim();
+  if (cidadeDireta) return cidadeDireta;
+
+  const cidadeCampo = String(document.getElementById('f-cidade')?.value || '').trim();
+  if (cidadeCampo) return toTitleCaseWords(cidadeCampo);
+
+  const empresaId = document.getElementById('f-emp-select')?.value || '';
+  const empresaSelecionada = empresasList.find(e => String(e.id) === String(empresaId));
+
+  if (empresaSelecionada?.cidade) {
+    return toTitleCaseWords(empresaSelecionada.cidade);
+  }
+
+  const nomeEmpresa = String(d?.emp || document.getElementById('f-emp')?.value || '').trim().toLowerCase();
+  const cnpjEmpresa = String(d?.cnpj || document.getElementById('f-cnpj')?.value || '').trim();
+
+  const empresaPorDados = empresasList.find(e => {
+    const nome = String(e.nome || '').trim().toLowerCase();
+    const cnpj = String(e.cnpj || '').trim();
+
+    return (cnpjEmpresa && cnpj === cnpjEmpresa) || (nomeEmpresa && nome === nomeEmpresa);
+  });
+
+  if (empresaPorDados?.cidade) {
+    return toTitleCaseWords(empresaPorDados.cidade);
+  }
+
+  return '';
+}
+
 function buildAvisoFeriasHTML(d) {
   const f = d.ferias || {};
 
   const empresa = d.emp || 'Nome da Empresa';
   const cnpj = d.cnpj || '';
   const empregado = d.func || '—';
-  const cidade = d.cidade || '';
+  const cidade = getCidadeEmpresaDocumento(d);
   
   const dataAvisoLonga = formatDateLongaBRFromInput(f.dataAviso || hojeInputDate());
   const cidadeData = cidade
@@ -3121,7 +3152,7 @@ function buildSolicitacaoAbonoFeriasHTML(d) {
   const empresa = d.emp || 'Nome da Empresa';
   const cnpj = d.cnpj || '';
   const empregado = d.func || '—';
-  const cidade = d.cidade || '';
+  const cidade = getCidadeEmpresaDocumento(d);
   const cpf = '';
   const dataAvisoLonga = formatDateLongaBRFromInput(f.dataAviso || hojeInputDate()).toUpperCase();
   const cidadeData = cidade
