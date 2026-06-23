@@ -3164,10 +3164,10 @@ function buildSolicitacaoAbonoFeriasHTML(d) {
       <div class="abono-ferias-title">SOLICITAÇÃO DE ABONO DE FÉRIAS</div>
 
       <div class="abono-ferias-dados">
-        <div><span>Empresa:</span> <b>${escHtml(empresa)}</b></div>
-        <div><span>CNPJ:</span> <b>${escHtml(cnpj)}</b></div>
-        <div><span>Cadastro:</span> <b>${escHtml(empregado)}</b></div>
-        <div><span>CPF:</span> <b>${escHtml(cpf)}</b></div>
+        <div><span>Empresa:</span> <span class="abono-ferias-valor">${escHtml(empresa)}</span></div>
+        <div><span>CNPJ:</span> <span class="abono-ferias-valor">${escHtml(cnpj)}</span></div>
+        <div><span>Cadastro:</span> <span class="abono-ferias-valor">${escHtml(empregado)}</span></div>
+        <div><span>CPF:</span> <span class="abono-ferias-valor">${escHtml(cpf)}</span></div>
       </div>
 
       <div class="abono-ferias-data">
