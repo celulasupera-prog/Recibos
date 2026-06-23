@@ -47,7 +47,22 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .hbtn.solid {  background: var(--accent);  color: #fff;  box-shadow: 0 6px 16px rgba(217, 68, 68, .30);}
 .hbtn.solid:hover {  background: #c73535;  transform: translateY(-1px);}
 
-.ico{width:14px;height:14px;display:inline-block;vertical-align:-2px;flex:none;}
+.ico {
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+  vertical-align: -2px;
+  flex: none;
+  stroke: currentColor;
+  fill: none;
+}
+
+.hbtn .ico,
+.header-menu-item .ico {
+  color: currentColor;
+  stroke: currentColor;
+  fill: none;
+}
 
 /* LAYOUT */
 .workspace{display:grid;grid-template-columns:680px 1fr;min-height:calc(100vh - 56px);}
