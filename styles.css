@@ -1676,10 +1676,13 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 }
 
 .preview-side #recibo-doc.recibo-ferias-doc:not(.pdf-render-fixed) .ferias-doc {
-  width: 100% !important;
+  width: 700px !important;
+  max-width: 700px !important;
+  min-width: 700px !important;
   height: auto !important;
   min-height: 990px !important;
   padding: 14px 10px 10px 10px !important;
+  margin: 0 auto !important;
 }
 
 .preview-side #recibo-doc.recibo-ferias-doc:not(.pdf-render-fixed) .ferias-table th {
