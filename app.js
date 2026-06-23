@@ -1189,6 +1189,10 @@ function applyTipoFolha() {
   const tipoKey = getTipoFolhaKey();
 
   document.querySelectorAll('.ferias-extra-fields').forEach(el => {
+  el.style.display = tipoKey === 'ferias' ? '' : 'none';
+});
+
+document.querySelectorAll('.pdf-ferias-extra-options').forEach(el => {
   el.style.display = tipoKey === 'ferias' ? 'flex' : 'none';
 });
 
@@ -3442,13 +3446,26 @@ async function showHist() {
       data = await sbFetch('recibos?grupo_id=eq.' + grupoId + '&order=saved_at.desc');
     }
 
-    hist = data.map(r => ({
-      ...r.dados,
-      id: r.id,
-      liq: r.liq,
-      totVenc: r.tot_venc,
-      totDesc: r.tot_desc
-    }));
+    hist = data.map(r => {
+  const dados = r.dados || {};
+  const isFerias = getTipoFolhaKey(dados.folha || r.folha) === 'ferias';
+
+  return {
+    ...dados,
+    id: r.id,
+    liq: isFerias
+      ? roundFiscal(dados.ferias?.liquido || r.liq || 0)
+      : roundFiscal(r.liq || dados.liq || 0),
+
+    totVenc: isFerias
+      ? roundFiscal(dados.ferias?.totalProventos || r.tot_venc || 0)
+      : roundFiscal(r.tot_venc || dados.totVenc || 0),
+
+    totDesc: isFerias
+      ? roundFiscal(dados.ferias?.totalDescontos || r.tot_desc || 0)
+      : roundFiscal(r.tot_desc || dados.totDesc || 0)
+  };
+});
 
     renderHist();
 
