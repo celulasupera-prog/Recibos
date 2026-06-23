@@ -2255,3 +2255,50 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   margin-left: 30px !important;
   transform-origin: top left;
 }
+
+/* ===== AJUSTE FINAL DO PREVIEW DE FÉRIAS ===== */
+/* Mantém todos os documentos de férias com a mesma base visual */
+
+.preview-side #recibo-doc.recibo-ferias-doc:not(.pdf-render-fixed),
+.preview-side #recibo-doc.preview-extra-ferias-doc {
+  width: 700px !important;
+  min-width: 700px !important;
+  max-width: 700px !important;
+  height: auto !important;
+  min-height: auto !important;
+  max-height: none !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  display: block !important;
+  background: #ffffff !important;
+  border: none !important;
+  box-shadow: var(--shadow-lg) !important;
+}
+
+/* Documento 1: Aviso/Recibo de Férias */
+.preview-side #recibo-doc.recibo-ferias-doc:not(.pdf-render-fixed) .ferias-doc {
+  width: 720px !important;
+  max-width: 720px !important;
+  min-width: 720px !important;
+  height: auto !important;
+  min-height: 990px !important;
+  margin-left: -20px !important;
+  margin-right: 0 !important;
+  padding: 14px 10px 10px 10px !important;
+  box-sizing: border-box !important;
+}
+
+/* Documentos 2 e 3: Aviso de Férias e Solicitação de Abono */
+.preview-side #recibo-doc.preview-extra-ferias-doc .aviso-ferias-doc,
+.preview-side #recibo-doc.preview-extra-ferias-doc .abono-ferias-doc {
+  width: 720px !important;
+  max-width: 720px !important;
+  min-width: 720px !important;
+  min-height: 990px !important;
+  margin-left: -20px !important;
+  margin-right: 0 !important;
+  box-sizing: border-box !important;
+  transform-origin: top left !important;
+}
