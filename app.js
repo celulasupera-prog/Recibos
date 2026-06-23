@@ -1102,6 +1102,8 @@ function getTipoFolhaKey(tipoFolha = getTipoFolhaSelecionado()) {
     return 'ferias';
   }
 
+if (tipo.includes('rescisao') || tipo.includes('rescisão')) return 'rescisao';
+  
   return 'mensal';
 }
 
@@ -1194,6 +1196,10 @@ function applyTipoFolha() {
   el.style.display = tipoKey === 'ferias' ? '' : 'none';
 });
 
+document.querySelectorAll('.rescisao-extra-fields').forEach(el => {
+  el.style.display = tipoKey === 'rescisao' ? '' : 'none';
+});
+  
 document.querySelectorAll('.pdf-ferias-extra-options').forEach(el => {
   el.style.display = tipoKey === 'ferias' ? 'flex' : 'none';
 });
