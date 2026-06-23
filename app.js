@@ -2850,6 +2850,10 @@ function buildFeriasHTML(d) {
   const cnpj = d.cnpj || '';
   const empregado = d.func || '—';
   const cidade = d.cidade || '';
+  const dataAvisoLonga = formatDateLongaBRFromInput(f.dataAviso || hojeInputDate());
+  const cidadeData = cidade
+    ? `${cidade.toUpperCase()}, ${dataAvisoLonga}`
+    : dataAvisoLonga;
 
   const periodoAquisitivo = (f.aqIniFmt && f.aqFimFmt)
     ? `${f.aqIniFmt} A ${f.aqFimFmt}`
@@ -3062,7 +3066,7 @@ function buildAvisoFeriasHTML(d) {
       <div class="aviso-ferias-title">AVISO DE FÉRIAS</div>
 
       <div class="aviso-ferias-data">
-        ${escHtml(cidade ? cidade.toUpperCase() : '')}, ${escHtml(formatDateLongaBRFromInput(f.dataAviso || hojeInputDate()))}
+        ${escHtml(cidadeData)}
       </div>
 
       <div class="aviso-ferias-destinatario">
@@ -3119,7 +3123,11 @@ function buildSolicitacaoAbonoFeriasHTML(d) {
   const empregado = d.func || '—';
   const cidade = d.cidade || '';
   const cpf = '';
-
+  const dataAvisoLonga = formatDateLongaBRFromInput(f.dataAviso || hojeInputDate()).toUpperCase();
+  const cidadeData = cidade
+    ? `${cidade.toUpperCase()}, ${dataAvisoLonga}`
+    : dataAvisoLonga;
+  
   return `
     <div class="abono-ferias-doc">
       <div class="abono-ferias-title">SOLICITAÇÃO DE ABONO DE FÉRIAS</div>
@@ -3132,7 +3140,7 @@ function buildSolicitacaoAbonoFeriasHTML(d) {
       </div>
 
       <div class="abono-ferias-data">
-        ${escHtml(cidade ? cidade.toUpperCase() : '')}, ${escHtml(formatDateLongaBRFromInput(f.dataAviso || hojeInputDate()).toUpperCase())}
+        ${escHtml(cidadeData)}
       </div>
 
       <div class="abono-ferias-texto">
