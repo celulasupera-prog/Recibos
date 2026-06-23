@@ -2307,3 +2307,14 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   margin-left: 0 !important;
   transform: none !important;
 }
+
+/* Transição suave entre documentos do preview de férias */
+#recibo-doc.ferias-preview-changing {
+  opacity: 0;
+  transform: translateY(8px) scale(.992);
+  transition: opacity .16s ease, transform .16s ease;
+}
+
+#recibo-doc {
+  transition: opacity .16s ease, transform .16s ease;
+}
