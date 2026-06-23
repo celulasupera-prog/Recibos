@@ -2020,8 +2020,8 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   font-family: Arial, Helvetica, sans-serif;
   padding: 46px 54px;
   box-sizing: border-box;
-  font-size: 18px;
-  line-height: 1.25;
+  font-size: 16px;
+  line-height: 1.24;
 }
 
 .aviso-ferias-top {
@@ -2032,26 +2032,26 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 
 .aviso-ferias-title {
   text-align: center;
-  font-size: 22px;
-  font-weight: 800;
+  font-size: 20px;
+  font-weight: 600;
   margin-bottom: 82px;
 }
 
 .aviso-ferias-data {
   text-align: right;
-  font-size: 18px;
+  font-size: 16px;
   margin-bottom: 34px;
 }
 
 .aviso-ferias-destinatario {
-  font-size: 18px;
+  font-size: 16px;
   margin-bottom: 135px;
 }
 
 .aviso-ferias-texto {
-  font-size: 18px;
+  font-size: 16px;
   text-align: justify;
-  line-height: 1.25;
+  line-height: 1.24;
   margin: 0 0 54px 0;
   text-indent: 48px;
 }
@@ -2060,28 +2060,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   width: 520px;
   margin-left: 48px;
   margin-bottom: 82px;
-  font-size: 18px;
-}
-
-.aviso-ferias-periodos div {
-  display: grid;
-  grid-template-columns: 260px 1fr;
-  gap: 16px;
-  margin-bottom: 7px;
-}
-
-.aviso-ferias-periodos span {
-  white-space: nowrap;
-}
-
-.aviso-ferias-periodos b {
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.aviso-ferias-texto-final {
-  margin-top: 0;
-  margin-bottom: 190px;
+  font-size: 16px;
 }
 
 .aviso-ferias-assinaturas {
@@ -2091,7 +2070,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   align-items: end;
   margin-top: auto;
   text-align: center;
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .aviso-ferias-linha {
@@ -2230,43 +2209,34 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   font-family: Arial, Helvetica, sans-serif;
   padding: 70px 58px;
   box-sizing: border-box;
-  font-size: 18px;
-  line-height: 1.35;
+  font-size: 16px;
+  line-height: 1.30;
 }
 
 .abono-ferias-title {
   text-align: center;
-  font-size: 21px;
-  font-weight: 800;
+  font-size: 19px;
+  font-weight: 600;
   margin-bottom: 70px;
 }
 
 .abono-ferias-dados {
-  font-size: 17px;
-  line-height: 1.6;
+  font-size: 16px;
+  line-height: 1.5;
   margin-bottom: 70px;
-}
-
-.abono-ferias-dados span {
-  display: inline-block;
-  min-width: 90px;
-}
-
-.abono-ferias-dados b {
-  font-weight: 500;
 }
 
 .abono-ferias-data {
   text-align: right;
-  font-size: 18px;
+  font-size: 16px;
   margin-bottom: 80px;
 }
 
 .abono-ferias-texto {
   text-align: justify;
   text-indent: 48px;
-  font-size: 18px;
-  line-height: 1.45;
+  font-size: 16px;
+  line-height: 1.38;
   margin-bottom: 250px;
 }
 
@@ -2274,7 +2244,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   width: 360px;
   margin: 0 auto;
   text-align: center;
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .abono-ferias-linha {
