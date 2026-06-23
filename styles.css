@@ -1670,7 +1670,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
   height: auto !important;
   min-height: auto !important;
   max-height: none !important;
-  margin-left: 0 !important;
+  margin-left: auto !important;
   margin-right: auto !important;
   overflow: visible !important;
 }
