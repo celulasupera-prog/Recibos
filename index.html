@@ -409,6 +409,113 @@
       </div>
     </div>
   </div>
+  <div class="fg fg2 rescisao-extra-fields" id="rescisao-extra-fields" style="display:none;grid-column:1/-1">
+  <div class="field">
+    <label>Tipo de Rescisão</label>
+    <select id="f-rescisao-tipo" onchange="calc()">
+      <option value="sem_justa_causa">Dispensa sem justa causa</option>
+      <option value="pedido_demissao">Pedido de demissão</option>
+      <option value="justa_causa">Dispensa por justa causa</option>
+      <option value="termino_contrato">Término de contrato</option>
+      <option value="acordo">Acordo entre empregado e empregador</option>
+    </select>
+  </div>
+
+  <div class="field">
+    <label>Causa do Afastamento</label>
+    <input type="text" id="f-rescisao-causa" value="Despedida sem justa causa, pelo empregador" oninput="calc()">
+  </div>
+
+  <div class="field">
+    <label>Código de Afastamento</label>
+    <input type="text" id="f-rescisao-cod-afastamento" value="SJ2" oninput="calc()">
+  </div>
+
+  <div class="field">
+    <label>Data do Aviso Prévio</label>
+    <input type="date" id="f-rescisao-aviso-data" oninput="calc()">
+  </div>
+
+  <div class="field">
+    <label>Data de Afastamento</label>
+    <input type="date" id="f-rescisao-afastamento-data" oninput="calc()">
+  </div>
+
+  <div class="field">
+    <label>Data de Pagamento</label>
+    <input type="date" id="f-rescisao-pagamento-data" oninput="calc()">
+  </div>
+
+  <div class="field">
+    <label>Remuneração Mês Anterior</label>
+    <input type="text" id="f-rescisao-remuneracao-ant" inputmode="decimal" placeholder="R$ 0,00" onfocus="prepareCurrencyField(this)" oninput="calc()" onblur="formatCurrencyField(this);calc()">
+  </div>
+
+  <div class="field">
+    <label>PIS/PASEP</label>
+    <input type="text" id="f-rescisao-pis" placeholder="000.00000.00-0" oninput="calc()">
+  </div>
+
+  <div class="field">
+    <label>CPF</label>
+    <input type="text" id="f-rescisao-cpf" placeholder="000.000.000-00" oninput="calc()">
+  </div>
+
+  <div class="field">
+    <label>Data de Nascimento</label>
+    <input type="date" id="f-rescisao-nascimento" oninput="calc()">
+  </div>
+
+  <div class="field" style="grid-column:1/-1">
+    <label>Nome da Mãe</label>
+    <input type="text" id="f-rescisao-mae" placeholder="Nome da mãe do trabalhador" oninput="calc()" onblur="this.value = toTitleCaseWords(this.value); calc()">
+  </div>
+
+  <div class="field" style="grid-column:1/-1">
+    <label>Endereço do Trabalhador</label>
+    <input type="text" id="f-rescisao-endereco" placeholder="Rua, número, complemento" oninput="calc()">
+  </div>
+
+  <div class="field">
+    <label>Bairro</label>
+    <input type="text" id="f-rescisao-bairro" placeholder="Bairro" oninput="calc()">
+  </div>
+
+  <div class="field">
+    <label>Município</label>
+    <input type="text" id="f-rescisao-municipio" placeholder="Cidade" oninput="calc()">
+  </div>
+
+  <div class="field">
+    <label>UF</label>
+    <input type="text" id="f-rescisao-uf" placeholder="UF" maxlength="2" oninput="this.value = this.value.toUpperCase(); calc()">
+  </div>
+
+  <div class="field">
+    <label>CEP</label>
+    <input type="text" id="f-rescisao-cep" placeholder="00.000-000" oninput="calc()">
+  </div>
+
+  <div class="field">
+    <label>CTPS</label>
+    <input type="text" id="f-rescisao-ctps" placeholder="nº, série, UF" oninput="calc()">
+  </div>
+
+  <div class="field">
+    <label>Categoria do Trabalhador</label>
+    <input type="text" id="f-rescisao-categoria" value="01 - Empregado" oninput="calc()">
+  </div>
+
+  <div class="field">
+    <label>Pensão Alim. (%) TRCT</label>
+    <input type="number" id="f-rescisao-pensao-trct" value="0" min="0" step="0.01" oninput="calc()">
+  </div>
+
+  <div class="field">
+    <label>Pensão Alim. (%) FGTS</label>
+    <input type="number" id="f-rescisao-pensao-fgts" value="0" min="0" step="0.01" oninput="calc()">
+  </div>
+</div>
 </div>    
 
 <!-- BASE DE CÁLCULO -->
