@@ -2318,3 +2318,43 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .pdf-extra-page-render * {
   box-sizing: border-box;
 }
+
+/* Correção de estouro dos campos dentro dos cards */
+.form-side {
+  overflow-x: hidden;
+}
+
+.form-section,
+.form-section .card,
+.fg,
+.fg2,
+.fg3,
+.field {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.field input,
+.field select {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+/* Evita que grids de Competência/Base forcem largura maior que o card */
+.fg2,
+.fg3 {
+  min-width: 0;
+}
+
+.section-competencia .fg3,
+.section-base .fg3 {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+/* Campo grande ocupando linha inteira quando necessário */
+.section-competencia .field[style*="grid-column:1/-1"],
+.section-base .field[style*="grid-column:1/-1"] {
+  min-width: 0;
+  max-width: 100%;
+}
