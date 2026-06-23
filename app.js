@@ -2850,10 +2850,6 @@ function buildFeriasHTML(d) {
   const cnpj = d.cnpj || '';
   const empregado = d.func || '—';
   const cidade = d.cidade || '';
-  const dataAvisoLonga = formatDateLongaBRFromInput(f.dataAviso || hojeInputDate());
-  const cidadeData = cidade
-    ? `${cidade.toUpperCase()}, ${dataAvisoLonga}`
-    : dataAvisoLonga;
 
   const periodoAquisitivo = (f.aqIniFmt && f.aqFimFmt)
     ? `${f.aqIniFmt} A ${f.aqFimFmt}`
@@ -3049,10 +3045,14 @@ function buildAvisoFeriasHTML(d) {
   const cnpj = d.cnpj || '';
   const empregado = d.func || '—';
   const cidade = d.cidade || '';
-
-  const retornoInput = f.gozoFim
-    ? addDiasCorridosInput(f.gozoFim, 1)
-    : '';
+  
+  const dataAvisoLonga = formatDateLongaBRFromInput(f.dataAviso || hojeInputDate());
+  const cidadeData = cidade
+    ? `${cidade.toUpperCase()}, ${dataAvisoLonga}`
+    : dataAvisoLonga;
+    const retornoInput = f.gozoFim
+      ? addDiasCorridosInput(f.gozoFim, 1)
+      : '';
 
   const retornoFmt = formatDateBRFromInput(retornoInput);
 
