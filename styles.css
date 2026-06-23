@@ -2171,3 +2171,80 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .abono-ferias-valor {
   font-weight: 400;
 }
+
+/* Passador do preview de férias */
+.ferias-preview-pager {
+  width: 100%;
+  max-width: 700px;
+  margin: 0 0 .75rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .65rem;
+  padding: .55rem .7rem;
+  border: 1px solid #dbe3ef;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, .08);
+}
+
+.ferias-preview-nav {
+  width: 34px;
+  height: 34px;
+  border: 1px solid #dbe3ef;
+  border-radius: 999px;
+  background: #f8fafc;
+  color: #1f2937;
+  font-size: 1.45rem;
+  line-height: 1;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ferias-preview-nav:hover {
+  background: #fff1f1;
+  border-color: #efb7b7;
+  color: #a83232;
+}
+
+.ferias-preview-info {
+  min-width: 260px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: .1rem;
+}
+
+.ferias-preview-info strong {
+  font-size: .78rem;
+  color: #a83232;
+  font-weight: 900;
+}
+
+.ferias-preview-info span {
+  font-size: .82rem;
+  color: #1f2937;
+  font-weight: 800;
+}
+
+/* Preview das páginas extras de férias */
+.preview-side #recibo-doc.preview-extra-ferias-doc {
+  width: 700px !important;
+  max-width: 700px !important;
+  min-width: 700px !important;
+  background: #ffffff !important;
+  border: none !important;
+  box-shadow: var(--shadow-lg) !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+.preview-side #recibo-doc.preview-extra-ferias-doc .aviso-ferias-doc,
+.preview-side #recibo-doc.preview-extra-ferias-doc .abono-ferias-doc {
+  width: 700px !important;
+  min-height: 990px !important;
+  transform-origin: top left;
+}
