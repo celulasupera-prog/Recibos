@@ -2671,13 +2671,22 @@ function mudarPreviewFerias(direction) {
   const reciboDoc = document.getElementById('recibo-doc');
   if (!reciboDoc) return;
 
+  reciboDoc.classList.add('ferias-preview-changing');
+
+setTimeout(() => {
   const atual = feriasPreviewDocs[feriasPreviewIndex];
+
   reciboDoc.innerHTML = atual?.html || '';
 
   reciboDoc.classList.toggle('recibo-ferias-doc', atual?.key === 'recibo');
   reciboDoc.classList.toggle('preview-extra-ferias-doc', atual?.key !== 'recibo');
 
   atualizarPreviewFeriasPager();
+
+  requestAnimationFrame(() => {
+    reciboDoc.classList.remove('ferias-preview-changing');
+  });
+}, 160);
 }
 
 function renderPreview() {
