@@ -666,12 +666,12 @@
       <button class="btn-preview primary" onclick="gerarPDF()"><svg class="ico"><use href="#i-download"/></svg> Baixar PDF</button>
       <div class="pdf-extra-options pdf-ferias-extra-options">
       <label class="pdf-extra-check">
-        <input type="checkbox" id="f-ferias-pdf-aviso" checked>
+        <input type="checkbox" id="f-ferias-pdf-aviso" checked onchange="feriasPreviewIndex = 0; calc();">
         <span>Aviso de Férias</span>
       </label>
     
       <label class="pdf-extra-check">
-        <input type="checkbox" id="f-ferias-pdf-solicitacao-abono">
+        <input type="checkbox" id="f-ferias-pdf-solicitacao-abono" onchange="feriasPreviewIndex = 0; calc();">
         <span>Solicitação de Abono</span>
       </label>
     </div>
