@@ -159,7 +159,7 @@
       <div class="fg fg2" style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
         <div class="field" style="grid-column:span 2">
           <label>Razão Social *</label>
-          <input type="text" id="new-emp-nome" placeholder="Ex: Jaguar Contabilidade Ltda" onblur="this.value = toTitleCaseWords(this.value)">
+          <input type="text" id="new-emp-nome" placeholder="Ex: JAGUAR CONTABILIDADE LTDA" onblur="this.value = toUpperCaseWords(this.value)">
         </div>
         <div class="field" id="new-emp-user-wrap" style="grid-column:span 2;display:none">
           <label>Usuário responsável *</label>
@@ -243,7 +243,7 @@
         </div>
         <div class="field" style="grid-column:span 2">
           <label>Razão Social *</label>
-          <input type="text" id="f-emp" placeholder="Ex: Jaguar Contabilidade Ltda" oninput="calc()" onblur="this.value = toTitleCaseWords(this.value); calc()">
+          <input type="text" id="f-emp" placeholder="Ex: JAGUAR CONTABILIDADE LTDA" oninput="calc()" onblur="this.value = toUpperCaseWords(this.value); calc()">
         </div>
         <div class="field" style="grid-column:span 2">
           <label>CNPJ</label>
