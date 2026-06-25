@@ -816,6 +816,108 @@ async function salvar() {
   }
 }
 
+async function salvarEmpresa() {
+  const nomeInput = document.getElementById('new-emp-nome');
+  const nome = toTitleCaseWords(nomeInput.value.trim());
+  nomeInput.value = nome;
+
+  const cnpj = document.getElementById('new-emp-cnpj').value.trim();
+
+  const cidadeInput = document.getElementById('new-emp-cidade');
+  const cidade = normalizeCidadeUF(cidadeInput.value);
+
+  const grupoSelecionado = currentUser.isAdmin
+    ? (document.getElementById('new-emp-user')?.value || '')
+    : grupoId;
+
+  if (!nome) {
+    toast('Informe o nome da empresa!', 'err');
+    return;
+  }
+
+  if (!cidade) {
+    toast('Informe a cidade no formato: Cidade - UF.', 'err');
+    return;
+  }
+
+  if (!grupoSelecionado) {
+    toast('Selecione o usuário da empresa!', 'err');
+    return;
+  }
+
+  cidadeInput.value = cidade;
+
+  try {
+    if (empresaEditando) {
+      await sbFetch('empresas?id=eq.' + empresaEditando.id, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          nome,
+          cnpj,
+          cidade,
+          grupo_id: grupoSelecionado
+        })
+      });
+
+      empresaEditando.nome = nome;
+      empresaEditando.cnpj = cnpj;
+      empresaEditando.cidade = cidade;
+      empresaEditando.grupo_id = grupoSelecionado;
+
+      if (currentUser.isAdmin) {
+        const grupo = gruposDisponiveis.find(g => String(g.id) === String(grupoSelecionado));
+        empresaEditando._grupoEmail = grupo?.nome || '';
+      }
+
+      toast('Empresa atualizada!');
+    } else {
+      const nova = await sbFetch('empresas', {
+        method: 'POST',
+        prefer: 'return=representation',
+        body: JSON.stringify({
+          grupo_id: grupoSelecionado,
+          nome,
+          cnpj,
+          cidade,
+          verbas_padrao: [
+            {
+              cod: '8781',
+              desc: 'DIAS NORMAIS',
+              autoType: 'diasnormais',
+              tipo: 'venc',
+              incideIRRF: true,
+              incideINSS: true,
+              incideFGTS: true
+            }
+          ]
+        })
+      });
+
+      if (currentUser.isAdmin) {
+        const grupo = gruposDisponiveis.find(g => String(g.id) === String(grupoSelecionado));
+        if (nova?.[0]) nova[0]._grupoEmail = grupo?.nome || '';
+      }
+
+      if (nova?.[0]) {
+        empresasList.push(nova[0]);
+      }
+
+      toast('Empresa cadastrada!');
+    }
+
+    empresasList.sort((a, b) => a.nome.localeCompare(b.nome));
+    renderEmpresasList();
+    renderEmpresasSelect();
+    renderCidadeSuggestions();
+
+    closeEmpresaModal();
+
+  } catch (e) {
+    console.error('Erro ao salvar empresa:', e);
+    toast('Erro ao salvar empresa!', 'err');
+  }
+}
+
 async function deletarEmpresa(id) {
   if (!confirm('Tem certeza que quer excluir?')) return;
   try {
