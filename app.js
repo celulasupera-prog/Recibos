@@ -825,7 +825,7 @@ async function salvar() {
 
 async function salvarEmpresa() {
   const nomeInput = document.getElementById('new-emp-nome');
-  const nome = toTitleCaseWords(nomeInput.value.trim());
+  const nome = toUpperCaseWords(nomeInput.value.trim());
   nomeInput.value = nome;
 
   const cnpj = document.getElementById('new-emp-cnpj').value.trim();
@@ -2143,7 +2143,7 @@ function getData() {
   const feriasData = getFeriasData();
   
   return {
-    emp: toTitleCaseWords(document.getElementById('f-emp').value),
+    emp: toUpperCaseWords(document.getElementById('f-emp').value),
     cnpj: document.getElementById('f-cnpj').value,
     cidade: toTitleCaseWords(document.getElementById('f-cidade')?.value || ''),
     func: toTitleCaseWords(document.getElementById('f-func').value),
