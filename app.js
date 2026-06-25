@@ -729,6 +729,13 @@ function toTitleCaseWords(value) {
     .join(' ');
 }
 
+function toUpperCaseWords(value) {
+  return String(value || '')
+    .trim()
+    .replace(/\s+/g, ' ')
+    .toLocaleUpperCase('pt-BR');
+}
+
 function normalizeCidadeUF(rawCidade) {
   const raw = String(rawCidade || '').trim().replace(/\s+/g, ' ');
   if (!raw) return '';
