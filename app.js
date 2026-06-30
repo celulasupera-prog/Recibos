@@ -1453,12 +1453,15 @@ function calcINSSPorTipoFolha(base) {
   const baseCalc = Math.max(parseN(base), 0);
 
   if (getTipoFolhaKey() === 'prolabore') {
-    return {
-      aliq: 11,
-      deducao: 0,
-      valor: roundFiscal(baseCalc * 0.11)
-    };
-  }
+  const teto = 8475.55;
+  const baseLimitada = Math.min(baseCalc, teto);
+
+  return {
+    aliq: 11,
+    deducao: 0,
+    valor: roundFiscal(baseLimitada * 0.11)
+  };
+}
 
   return calcINSSProgressivo(baseCalc);
 }
