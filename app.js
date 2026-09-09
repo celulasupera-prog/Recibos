@@ -286,6 +286,7 @@ let loginGalaxy = null;
 let feriadosSyncReady = false;
 let feriadosRemoteUnsupported = false;
 let configVerbaDragState = { from: null, over: null, position: null };
+let memoriaCalculo = [];
 
 function getConfigVerbaById(id) {
   return configVerbas.find(c => c.id === id);
@@ -1721,6 +1722,9 @@ function applyAutoDiasHE() {
 
 // ── CALC ──
 function calc() {
+
+  memoriaCalculo = [];
+  
   ensureFixedVerbas();
   
   const sal = parseN(document.getElementById('f-sal').value) || 0;
@@ -1826,6 +1830,7 @@ function calc() {
   // depois renderPreview que lê do array já atualizado
   renderVerbasList();
   renderPreview();
+  renderMemoriaCalculo();
 }
 
 function calcIRRF(base, baseReducao = base) {
@@ -4279,6 +4284,32 @@ function toast(msg, type='') {
   const t=document.getElementById('toast');
   t.textContent=msg; t.className='toast '+(type==='err'?'err':'')+' show';
   setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+function addMemoriaCalculo(titulo, detalhes) {
+  memoriaCalculo.push({
+    titulo,
+    detalhes
+  });
+}
+
+function renderMemoriaCalculo() {
+  const box = document.getElementById('memoria-calculo-log');
+
+  if (!box) return;
+
+  if (!memoriaCalculo.length) {
+    box.textContent = 'Nenhuma memória de cálculo disponível.';
+    return;
+  }
+
+  box.textContent = memoriaCalculo.map(item => {
+    return `${item.titulo}
+--------------------------------
+${item.detalhes}
+
+`;
+  }).join('');
 }
 
 function toggleSection(btnEl) {
